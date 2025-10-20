@@ -153,10 +153,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
-        <p>© 2025 3S Sports Cricket Academy | Designed by Gopalkrishnan</p>
-      </footer>
+     
     </div>
   );
 };

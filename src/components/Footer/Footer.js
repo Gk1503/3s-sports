@@ -34,8 +34,8 @@ const Footer = () => {
           <p><FaPhone /> <a href="tel:+919876543210">+91 98765 43210</a></p>
           <p><FaEnvelope /> <a href="mailto:info@3sportsacademy.com">info@3sportsacademy.com</a></p>
           <div id="footer-socials">
-            <a href="https://www.instagram.com/3sportsacademy" target="_blank"><FaInstagram /></a>
-            <a href="https://www.youtube.com/@3sportsacademy" target="_blank"><FaYoutube /></a>
+            <a href="https://www.instagram.com/3ssportscricket?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"><FaInstagram /></a>
+            <a href="https://www.youtube.com/@3S_Sports_Academy." target="_blank"><FaYoutube /></a>
             <a href="https://www.facebook.com/3sportsacademy" target="_blank"><FaFacebook /></a>
             <a href="https://twitter.com/3sportsacademy" target="_blank"><FaTwitter /></a>
           </div>
@@ -43,7 +43,7 @@ const Footer = () => {
       </div>
 
       <div id="footer-bottom">
-        <p>© 2025 3S SPORTS Cricket Academy. All rights reserved.</p>
+        <p>© 2025 3S SPORTS Cricket Academy. All rights reserved. Designed by Gopalkrishnan S</p>
       </div>
     </footer>
   );
