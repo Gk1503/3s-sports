@@ -1,0 +1,138 @@
+/* Footer Container */
+#footer {
+  background: #1a1a1a;
+  color: #fff;
+  padding-top: 50px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Inner Container */
+#footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+  gap: 40px;
+}
+
+/* About Section */
+#footer-about {
+  flex: 1;
+  min-width: 250px;
+}
+#footer-logo {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #e67e22;
+}
+#footer-about-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+/* Quick Links */
+#footer-links {
+  flex: 1;
+  min-width: 200px;
+}
+#footer-links-title {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #e67e22;
+}
+#footer-links-list {
+  list-style: none;
+  padding: 0;
+}
+#footer-links-list li {
+  margin-bottom: 10px;
+}
+#footer-links-list li a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+#footer-links-list li a:hover {
+  color: #3498db;
+}
+
+/* Contact Section */
+#footer-contact {
+  flex: 1;
+  min-width: 250px;
+}
+#footer-contact-title {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #e67e22;
+}
+#footer-contact p {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+#footer-contact a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+#footer-contact a:hover {
+  color: #3498db;
+}
+
+/* Social Icons */
+#footer-socials {
+  margin-top: 10px;
+}
+#footer-socials a {
+  display: inline-block;
+  margin-right: 15px;
+  font-size: 1.5rem;
+  color: #ccc;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+#footer-socials a:hover {
+  color: #e67e22;
+  transform: translateY(-3px);
+}
+
+/* Bottom Footer */
+#footer-bottom {
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  #footer-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  #footer-about, #footer-links, #footer-contact {
+    text-align: center;
+  }
+  #footer-socials a {
+    margin-right: 10px;
+    font-size: 1.3rem;
+  }
+}
+@media (max-width: 480px) {
+  #footer-logo {
+    font-size: 1.5rem;
+  }
+  #footer-links-title,
+  #footer-contact-title {
+    font-size: 1.2rem;
+  }
+}

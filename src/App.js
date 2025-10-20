@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar/Navbar";
+import Home from "./components/Home/Home";
+import Academy from "./components/Academy/Academy";
+import Coaches from "./components/Coaches/Coaches";
+import Matches from "./components/Matches/Matches";
+import Gallery from "./components/Gallery/Gallery";
+import Contact from "./components/Contact/Contact";
+import Footer from "./components/Footer/Footer";
+import StudentDashboard from "./components/StudentDashboard/StudentDashboard";
+import SeniorCoachDashboard from "./components/SeniorCoachDashboard/SeniorCoachDashboard";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+<>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/academy" element={<Academy />} />
+        <Route path="/coaches" element={<Coaches />} />
+        <Route path="/matches" element={<Matches />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/srcoach-dashboard" element={<SeniorCoachDashboard />} />
+      </Routes>
+      <Footer />
+</>
   );
 }
 

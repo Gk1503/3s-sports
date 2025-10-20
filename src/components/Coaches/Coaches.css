@@ -1,0 +1,251 @@
+/* CoachesPage.css */
+
+/* Page Container */
+#coaches-page {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f7f7f7;
+  color: #1a1a1a;
+  padding-bottom: 60px;
+}
+
+/* Hero Section */
+#coaches-hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #3498db, #1abc9c);
+  color: #fff;
+}
+
+#coaches-hero-title {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+#coaches-hero-subtitle {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+/* Coaches Grid Section */
+#coaches-section {
+  padding: 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#coaches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  justify-items: center;
+}
+
+/* Coach Card */
+#coach-card {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 25px;
+  width: 240px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+#coach-card img {
+  width: 100%;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  transition: transform 0.4s ease;
+}
+
+#coach-card img:hover {
+  transform: scale(1.1);
+}
+
+#coach-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: #e67e22;
+}
+
+#coach-card p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+#coach-card span {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Hover Effect */
+#coach-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #coaches-hero-title {
+    font-size: 2.2rem;
+  }
+
+  #coaches-hero-subtitle {
+    font-size: 1.2rem;
+  }
+}
+@media (max-width: 480px) {
+  #coach-card {
+    width: 100%;
+  }
+}
+/* Practice Section */
+#practice-section {
+  padding: 60px 20px;
+  text-align: center;
+  background: #f0f8ff;
+}
+
+#practice-title {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+#practice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  justify-items: center;
+}
+
+#practice-card {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#practice-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+#practice-card:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #practice-title {
+    font-size: 2rem;
+  }
+}
+/* Modal Background */
+#coach-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+/* Modal Content */
+#coach-modal-content {
+  background: #fff;
+  padding: 30px;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 15px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+  animation: modalFade 0.3s ease;
+}
+
+/* Close Button */
+#coach-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #e74c3c;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+#coach-modal-close:hover {
+  color: #c0392b;
+}
+
+/* Modal Coach Image */
+#modal-coach-img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  border: 4px solid #3498db;
+}
+
+/* Modal Text */
+#modal-coach-name {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #e67e22;
+}
+
+#modal-coach-role {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+#modal-coach-exp {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+#modal-coach-bio {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Modal Animation */
+@keyframes modalFade {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #modal-coach-img {
+    width: 150px;
+    height: 150px;
+  }
+
+  #modal-coach-name {
+    font-size: 1.5rem;
+  }
+}
+@media (max-width: 480px) {
+  #coach-modal-content {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,277 @@
+/* General Dashboard Styles */
+#student-dashboard {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+  background: #f4f6fb;
+  color: #1a202c;
+}
+
+/* Sidebar */
+#dashboard-sidebar {
+  width: 260px;
+  background: #001f3f;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  position: fixed;
+  height: 100%;
+  gap: 2rem;
+}
+
+#sidebar-profile-img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px solid #00bfff;
+  object-fit: cover;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+}
+
+#sidebar-profile-name {
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+#edit-profile-btn {
+  margin-top: 0.5rem;
+  background: #00bfff;
+  border: none;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+#edit-profile-btn:hover {
+  background: #0095cc;
+}
+
+/* Sidebar Menu Buttons */
+#sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+}
+
+.sidebar-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.05rem;
+  padding: 0.8rem 1rem;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-btn:hover,
+.sidebar-btn.active {
+  background: #00bfff;
+  color: #001f3f;
+}
+
+/* Profile Edit Section */
+#profile-edit-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  background: #003366;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+#profile-name-input {
+  width: 90%;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+#profile-upload-label {
+  background: #00bfff;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#profile-upload-label:hover {
+  background: #0095cc;
+}
+
+#save-profile-btn {
+  background: #00bfff;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 90%;
+}
+
+#save-profile-btn:hover {
+  background: #0095cc;
+}
+
+/* Main Content */
+#dashboard-main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Dashboard Cards */
+#dashboard-view, #attendance-view, #progress-view {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+#batch-info, #fees-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#fee-card {
+  background: #e6f0ff;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  flex: 1 1 150px;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+#fee-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Attendance Table */
+#attendance-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+#attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#attendance-table th,
+#attendance-table td {
+  padding: 0.8rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#attendance-table th {
+  background: #001f3f;
+  color: #fff;
+  font-weight: 600;
+}
+
+#present { color: #00bfff; font-weight: 600; }
+#absent { color: #ff4d4f; font-weight: 600; }
+
+#attendance-table tr:hover { background: #f0f4f8; transition: all 0.3s ease; }
+
+/* Progress Circles */
+#progress-circles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+#circle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+#progress-circle {
+  width: 90px;
+  height: 90px;
+  transform: rotate(-90deg);
+  transition: all 0.6s ease;
+}
+
+#circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 4;
+}
+
+#circle-bar {
+  fill: none;
+  stroke: #00bfff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s ease;
+}
+
+#circle-text {
+  fill: #001f3f;
+  font-size: 0.6rem;
+  text-anchor: middle;
+  dominant-baseline: central;
+  transform: rotate(90deg);
+}
+
+#circle-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #001f3f;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  #dashboard-main { margin-left: 220px; padding: 1.5rem; }
+  #dashboard-sidebar { width: 220px; padding: 1.5rem 0.5rem; }
+}
+
+@media (max-width: 768px) {
+  #student-dashboard { flex-direction: column; }
+  #dashboard-sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 1rem;
+    position: relative;
+  }
+  #dashboard-main { margin-left: 0; padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+  #sidebar-profile-img { width: 100px; height: 100px; }
+  #sidebar-profile-name { font-size: 1rem; }
+  #edit-profile-btn { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
+  #progress-circle { width: 70px; height: 70px; }
+  #circle-text { font-size: 0.5rem; }
+}
