@@ -5,16 +5,18 @@ import Training from "../../images/Traning.jpg";
 import Practice from "../../images/Practice.jpg";
 import Team from "../../images/Team.jpg";
 import Match from "../../images/Match.jpg";
-import SrCoach from "../../images/Coach1.jpg";
+import SrCoach from "../../images/SrCoach.jpg";
 
 // Hero images for slideshow
-import Hero1 from "../../images/ground.jpg";
-import Hero2 from "../../images/Team.jpg";
-import Hero3 from "../../images/Practice.jpg";
+import Hero1 from "../../images/Team1.jpg";
+import Hero2 from "../../images/Team2.jpg";
+import Hero3 from "../../images/Traning.jpg";
+import Hero4 from "../../images/Team3.jpg";
+import Hero5  from "../../images/Team4.jpg";
 
 const Home = () => {
   const [currentHero, setCurrentHero] = useState(0);
-  const heroImages = [Hero1, Hero2, Hero3];
+  const heroImages = [Hero1, Hero2, Hero3 , Hero4, Hero5];
 
   // Change hero image every 3 seconds
   useEffect(() => {
@@ -25,10 +27,10 @@ const Home = () => {
   }, []);
 
   const coaches = [
-    { name: "Coach A", role: "Senior Coach", image: coach1 },
-    { name: "Coach B", role: "Batting Coach", image: coach1 },
-    { name: "Coach C", role: "Bowling Coach", image: coach1 },
-    { name: "Coach D", role: "Fielding Coach", image: coach1 },
+    { name: "Sachin Suryavanshi", role: "Senior Coach & Mentor", image: SrCoach },
+    { name: "Siddesh", role: "Batting Coach", image: coach1 },
+    { name: "Mahesh", role: "Bowling Coach", image: coach1 },
+    { name: "Rahul", role: "Fielding Coach", image: coach1 },
     { name: "Coach E", role: "Fitness Coach", image: coach1 },
   ];
 
@@ -85,7 +87,7 @@ const Home = () => {
         <div className="mentor-card">
           <img src={SrCoach} alt="Senior Coach" className="mentor-image" />
           <div className="mentor-text">
-            <h3>Mr. Arjun Mehta</h3>
+            <h3>Mr. Sachin Suryavanshi</h3>
             <p className="mentor-role">Senior Coach & Mentor</p>
             <p>
               "At <strong>3Sports Cricket Academy</strong>, our goal is not only to develop skilled cricketers

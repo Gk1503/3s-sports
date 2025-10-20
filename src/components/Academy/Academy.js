@@ -1,13 +1,13 @@
 import React from "react";
 import "./Academy.css";
 import academyImg from "../../images/ground.jpg";
-import coach1 from "../../images/Coach1.jpg";
+import SrCoach from "../../images/SrCoach.jpg";
 import coach2 from "../../images/Coach1.jpg";
 import coach3 from "../../images/Coach1.jpg";
 import ground from "../../images/ground.jpg";
 import nets from "../../images/Practice.jpg";
 import gym from "../../images/Match.jpg";
-import trophy from "../../images/Team.jpg";
+import trophy from "../../images/TrophyWin.jpg";
 
 const AcademyPage = () => {
   return (
@@ -55,7 +55,7 @@ const AcademyPage = () => {
         <h2>Our Expert Coaches</h2>
         <div id="coach-cards">
           {[
-            { img: coach1, name: "Rajesh Kumar", role: "Senior Coach", exp: "10+ Years" },
+            { img: SrCoach, name: "Sachin suryavanshi", role: "Senior Coach & Mentor", exp: "10+ Years" },
             { img: coach2, name: "Amit Singh", role: "Batting Coach", exp: "8+ Years" },
             { img: coach3, name: "Vikram Rao", role: "Bowling Coach", exp: "7+ Years" }
           ].map((coach, index) => (

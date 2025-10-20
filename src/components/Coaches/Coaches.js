@@ -1,7 +1,7 @@
 // CoachesPage.jsx
 import React, { useState } from "react";
 import "./Coaches.css";
-import coach1 from "../../images/Coach1.jpg";
+import coach1 from "../../images/SrCoach.jpg";
 import coach2 from "../../images/Coach1.jpg";
 import coach3 from "../../images/Coach1.jpg";
 import coach4 from "../../images/Coach1.jpg";
@@ -9,8 +9,8 @@ import coach5 from "../../images/Coach1.jpg";
 
 // Practice session images
 import practice1 from "../../images/Practice.jpg";
-import practice2 from "../../images/Practice.jpg";
-import practice3 from "../../images/Practice.jpg";
+import practice2 from "../../images/Team1.jpg";
+import practice3 from "../../images/Traning.jpg";
 
 const CoachesPage = () => {
   const [selectedCoach, setSelectedCoach] = useState(null);
@@ -18,10 +18,10 @@ const CoachesPage = () => {
   const coaches = [
     { 
       img: coach1, 
-      name: "Rajesh Kumar", 
-      role: "Senior Coach", 
+      name: "Sachin Suryavanshi", 
+      role: "Senior Coach & Mentor", 
       exp: "10+ Years",
-      bio: "Rajesh Kumar specializes in advanced batting techniques and overall strategy development. He has coached multiple national-level players."
+      bio: "Sachin Suryanshi specializes in advanced batting techniques and overall strategy development. He has coached multiple national-level players."
     },
     { 
       img: coach2, 
