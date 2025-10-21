@@ -1,11 +1,11 @@
 // CoachesPage.jsx
 import React, { useState } from "react";
 import "./Coaches.css";
-import coach1 from "../../images/SrCoach.jpg";
-import coach2 from "../../images/Coach1.jpg";
-import coach3 from "../../images/Coach1.jpg";
-import coach4 from "../../images/Coach1.jpg";
-import coach5 from "../../images/Coach1.jpg";
+import Sachin from "../../images/Sachin.jpg";
+import Rahul from "../../images/RahulSir.jpg";
+import Siddesh from "../../images/Siddesh.jpg";
+import Sudarshan from "../../images/Sudarshan.jpg";
+import Mahesh from "../../images/Mahesh.jpg";
 
 // Practice session images
 import practice1 from "../../images/Practice.jpg";
@@ -17,39 +17,39 @@ const CoachesPage = () => {
 
   const coaches = [
     { 
-      img: coach1, 
+      img: Sachin, 
       name: "Sachin Suryavanshi", 
-      role: "Senior Coach & Mentor", 
+      role: "Head Coach & Mentor", 
       exp: "10+ Years",
       bio: "Sachin Suryanshi specializes in advanced batting techniques and overall strategy development. He has coached multiple national-level players."
     },
     { 
-      img: coach2, 
-      name: "Amit Singh", 
-      role: "Batting Coach", 
-      exp: "8+ Years",
-      bio: "Amit Singh focuses on refining batting skills, footwork, and shot selection. He emphasizes technical excellence."
+      img: Rahul, 
+      name: "Rahul Bhagat", 
+      role: "Coach", 
+      exp: "4+ Years",
+      bio: "Rahul Bhagat focuses on refining batting skills, footwork, and shot selection. He emphasizes technical excellence."
     },
     { 
-      img: coach3, 
-      name: "Vikram Rao", 
-      role: "Bowling Coach", 
+      img: Siddesh, 
+      name: "Siddhesh Darde", 
+      role: "Coach", 
       exp: "7+ Years",
-      bio: "Vikram Rao is an expert in fast and spin bowling, coaching young bowlers to enhance accuracy, pace, and spin techniques."
+      bio: "Siddhesh Darde is an expert in fast and spin bowling, coaching young bowlers to enhance accuracy, pace, and spin techniques."
     },
     { 
-      img: coach4, 
-      name: "Suresh Patil", 
-      role: "Fitness Coach", 
-      exp: "9+ Years",
-      bio: "Suresh Patil focuses on player fitness, strength, and conditioning to ensure peak performance during matches."
+      img: Sudarshan, 
+      name: "Sudarshan Bansode", 
+      role: "Coach", 
+      exp: "7+ Years",
+      bio: "Sudarshan Bansode focuses on player fitness, strength, and conditioning to ensure peak performance during matches."
     },
     { 
-      img: coach5, 
-      name: "Rohit Sharma", 
-      role: "Fielding Coach", 
+      img: Mahesh, 
+      name: "Mahesh Bharambe", 
+      role: "Coach", 
       exp: "6+ Years",
-      bio: "Rohit Sharma trains players in advanced fielding techniques, agility drills, and catching strategies."
+      bio: "Mahesh Bharambe trains players in advanced fielding techniques, agility drills, and catching strategies."
     },
   ];
 

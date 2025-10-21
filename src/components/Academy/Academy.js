@@ -1,15 +1,25 @@
 import React from "react";
 import "./Academy.css";
+import {useNavigate} from 'react-router-dom';
 import academyImg from "../../images/ground.jpg";
-import SrCoach from "../../images/SrCoach.jpg";
-import coach2 from "../../images/Coach1.jpg";
-import coach3 from "../../images/Coach1.jpg";
 import ground from "../../images/ground.jpg";
 import nets from "../../images/Practice.jpg";
 import gym from "../../images/Match.jpg";
 import trophy from "../../images/TrophyWin.jpg";
+import Sachin from "../../images/Sachin.jpg";
+import Siddhesh from "../../images/Siddesh.jpg";
+import Suddarshan from "../../images/Sudarshan.jpg";
+import Mahesh from "../../images/Mahesh.jpg";
+import Rahul from "../../images/RahulSir.jpg";
 
 const AcademyPage = () => {
+  const navigate = useNavigate();
+
+  const handleJoinClick = () => {
+    navigate('/contact');
+  }
+
+
   return (
     <div id="academy-page">
       {/* Hero Section */}
@@ -55,9 +65,11 @@ const AcademyPage = () => {
         <h2>Our Expert Coaches</h2>
         <div id="coach-cards">
           {[
-            { img: SrCoach, name: "Sachin suryavanshi", role: "Senior Coach & Mentor", exp: "10+ Years" },
-            { img: coach2, name: "Amit Singh", role: "Batting Coach", exp: "8+ Years" },
-            { img: coach3, name: "Vikram Rao", role: "Bowling Coach", exp: "7+ Years" }
+            { img: Sachin, name: "Sachin suryavanshi", role: "Head Coach & Mentor", exp: "10+ Years" },
+            { img: Siddhesh, name: "Siddhesh Darde", role: "Coach", exp: "8+ Years" },
+            { img: Suddarshan, name: "Sudarshan Bansode", role: "Coach", exp: "7+ Years" },
+            { img: Mahesh, name: "Mahesh Bharambe", role: "Coach", exp: "7+ Years" },
+            { img: Rahul, name: "Rahul Bhagat", role: "Coach", exp: "4+ Years" }
           ].map((coach, index) => (
             <div id="coach-card" key={index}>
               <img src={coach.img} alt={coach.name} />
@@ -125,7 +137,7 @@ const AcademyPage = () => {
       <section id="cta-section">
         <h2>Join 3SPORTS Cricket Academy Today!</h2>
         <p>Train with the best and take your cricket career to the next level.</p>
-        <button id="join-btn">Enroll Now</button>
+        <button onClick={handleJoinClick} id="join-btn">Enroll Now</button>
       </section>
     </div>
   );

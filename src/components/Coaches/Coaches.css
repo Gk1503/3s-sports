@@ -52,16 +52,18 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
-
 #coach-card img {
   width: 100%;
+  height: auto;           /* Allow natural image height */
+  max-height: 300px;      /* Optional: limit very tall images */
+  object-fit: contain;    /* Show entire image without cropping */
   border-radius: 15px;
   margin-bottom: 15px;
   transition: transform 0.4s ease;
 }
 
 #coach-card img:hover {
-  transform: scale(1.1);
+  transform: scale(1.05); /* Slight hover zoom without cropping */
 }
 
 #coach-card h3 {

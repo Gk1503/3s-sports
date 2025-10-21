@@ -31,7 +31,7 @@ const Footer = () => {
         {/* Contact Info */}
         <div id="footer-contact">
           <h4 id="footer-contact-title">Contact Us</h4>
-          <p><FaPhone /> <a href="tel:+919876543210">+91 98765 43210</a></p>
+          <p><FaPhone /> <a href="tel:+913702606869">+91 97026 06869</a></p>
           <p><FaEnvelope /> <a href="mailto:info@3sportsacademy.com">info@3sportsacademy.com</a></p>
           <div id="footer-socials">
             <a href="https://www.instagram.com/3ssportscricket?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"><FaInstagram /></a>

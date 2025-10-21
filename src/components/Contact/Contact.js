@@ -17,11 +17,11 @@ const ContactPage = () => {
       <section id="contact-info">
         <div id="contact-details">
           <h2 id="contact-info-title">Contact Details</h2>
-          <p id="contact-text"><FaPhone /> <a href="tel:+919876543210">+91 98765 43210</a></p>
+          <p id="contact-text"><FaPhone /> <a href="tel:+913702606869">+91 97026 06869</a></p>
           <p id="contact-text"><FaEnvelope /> <a href="mailto:info@3sportsacademy.com">info@3sportsacademy.com</a></p>
-          <p id="contact-text"><FaGlobe /> <a href="https://www.3sportsacademy.com" target="_blank">www.3sportsacademy.com</a></p>
-          <p id="contact-text"><FaInstagram /> <a href="https://www.instagram.com/3sportsacademy" target="_blank">Instagram</a></p>
-          <p id="contact-text"><FaYoutube /> <a href="https://www.youtube.com/@3sportsacademy" target="_blank">YouTube</a></p>
+          <p id="contact-text"><FaGlobe /> <a href="https://3s-sports.vercel.app/" target="_blank">3s-sports.vercel.app/</a></p>
+          <p id="contact-text"><FaInstagram /> <a href="https://www.instagram.com/3ssportscricket?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank">Instagram</a></p>
+          <p id="contact-text"><FaYoutube /> <a href="https://www.youtube.com/@3S_Sports_Academy." target="_blank">YouTube</a></p>
           <p id="contact-text"><FaFacebook /> <a href="https://www.facebook.com/3sportsacademy" target="_blank">Facebook</a></p>
         </div>
 

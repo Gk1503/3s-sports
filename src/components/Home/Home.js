@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
-import coach1 from "../../images/Coach1.jpg";
+
 import Training from "../../images/Traning.jpg";
 import Practice from "../../images/Practice.jpg";
 import Team from "../../images/Team.jpg";
 import Match from "../../images/Match.jpg";
-import SrCoach from "../../images/SrCoach.jpg";
+import Sachin from "../../images/Sachin.jpg";
+import Rahul from "../../images/RahulSir.jpg";
+import Sudarshan from "../../images/Sudarshan.jpg";
+import Siddhesh from "../../images/Siddesh.jpg";
+import Mahesh from "../../images/Mahesh.jpg";
+
 
 // Hero images for slideshow
 import Hero1 from "../../images/Team1.jpg";
@@ -27,11 +32,11 @@ const Home = () => {
   }, []);
 
   const coaches = [
-    { name: "Sachin Suryavanshi", role: "Senior Coach & Mentor", image: SrCoach },
-    { name: "Siddesh", role: "Batting Coach", image: coach1 },
-    { name: "Mahesh", role: "Bowling Coach", image: coach1 },
-    { name: "Rahul", role: "Fielding Coach", image: coach1 },
-    { name: "Coach E", role: "Fitness Coach", image: coach1 },
+    { name: "Sachin Suryavanshi", role: "Head Coach & Mentor", image: Sachin },
+    { name: "Siddhesh Darde", role: "Coach", image: Siddhesh },
+    { name: "Sudarshan Bansode", role: "Coach", image: Sudarshan },
+    { name: "Rahul Bhagat", role: "Coach", image: Rahul },
+    { name: "Mahesh Bharambe", role: "Coach", image: Mahesh },
   ];
 
   const programs = [
@@ -62,7 +67,7 @@ const Home = () => {
       >
         <div className="hero-overlay">
           <h1>
-            <span className="highlight">3Sports</span> Cricket Academy
+            <span className="highlight">3S Sports</span> Cricket Academy
           </h1>
           <p>Train. Perform. Excel. The Digital Way.</p>
           <a href="#programs" className="cta-btn">
@@ -76,7 +81,7 @@ const Home = () => {
       <section className="about-section">
         <h2>About Our Academy</h2>
         <p>
-          Welcome to <strong>3Sports Cricket Academy</strong> — a revolution in digital cricket training.
+          Welcome to <strong>3S Sports Cricket Academy</strong> — a revolution in digital cricket training.
           Our platform integrates technology with performance, making cricket smarter, faster, and data-driven.
           Experience coaching like never before, where passion meets precision.
         </p>
@@ -85,12 +90,12 @@ const Home = () => {
       {/* Senior Coach Message */}
       <section className="mentor-message-section">
         <div className="mentor-card">
-          <img src={SrCoach} alt="Senior Coach" className="mentor-image" />
+          <img src={Sachin} alt="Head Coach" className="mentor-image" />
           <div className="mentor-text">
             <h3>Mr. Sachin Suryavanshi</h3>
             <p className="mentor-role">Senior Coach & Mentor</p>
             <p>
-              "At <strong>3Sports Cricket Academy</strong>, our goal is not only to develop skilled cricketers
+              "At <strong>3S Sports Cricket Academy</strong>, our goal is not only to develop skilled cricketers
               but also disciplined, confident, and resilient athletes. We believe in blending traditional
               coaching wisdom with modern digital performance tracking to unlock each player's true potential."
             </p>

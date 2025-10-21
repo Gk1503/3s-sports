@@ -10,7 +10,7 @@ import Contact from "./components/Contact/Contact";
 import Footer from "./components/Footer/Footer";
 import StudentDashboard from "./components/StudentDashboard/StudentDashboard";
 import SeniorCoachDashboard from "./components/SeniorCoachDashboard/SeniorCoachDashboard";
-
+import CoachDashboard from "./components/CoachDashboard/CoachDashboard";
 function App() {
   return (
 <>
@@ -24,6 +24,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/srcoach-dashboard" element={<SeniorCoachDashboard />} />
+        <Route path="/coach-dashboard" element={<CoachDashboard />} />
       </Routes>
       <Footer />
 </>
