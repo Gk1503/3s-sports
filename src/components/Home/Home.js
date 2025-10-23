@@ -3,21 +3,21 @@ import "./Home.css";
 
 import Training from "../../images/Traning.jpg";
 import Practice from "../../images/Practice.jpg";
-import Team from "../../images/Team.jpg";
+import Team from "../../images/TeamPhoto/Team1.jpg";
 import Match from "../../images/Match.jpg";
-import Sachin from "../../images/Sachin.jpg";
-import Rahul from "../../images/RahulSir.jpg";
-import Sudarshan from "../../images/Sudarshan.jpg";
-import Siddhesh from "../../images/Siddesh.jpg";
-import Mahesh from "../../images/Mahesh.jpg";
+import Sachin from "../../images/Coaches/Sachin.jpg";
+import Rahul from "../../images/Coaches/RahulSir.jpg";
+import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
+import Siddhesh from "../../images/Coaches/Siddesh.jpg";
+import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 
 // Hero images for slideshow
-import Hero1 from "../../images/Team1.jpg";
-import Hero2 from "../../images/Team2.jpg";
+import Hero1 from "../../images/TeamPhoto/Team1.jpg";
+import Hero2 from "../../images/TeamPhoto/Team2.jpg";
 import Hero3 from "../../images/Traning.jpg";
-import Hero4 from "../../images/Team3.jpg";
-import Hero5  from "../../images/Team4.jpg";
+import Hero4 from "../../images/TeamPhoto/Team3.jpg";
+import Hero5  from "../../images/TeamPhoto/Team4.jpg";
 
 const Home = () => {
   const [currentHero, setCurrentHero] = useState(0);
@@ -33,10 +33,12 @@ const Home = () => {
 
   const coaches = [
     { name: "Sachin Suryavanshi", role: "Head Coach & Mentor", image: Sachin },
-    { name: "Siddhesh Darde", role: "Coach", image: Siddhesh },
-    { name: "Sudarshan Bansode", role: "Coach", image: Sudarshan },
-    { name: "Rahul Bhagat", role: "Coach", image: Rahul },
     { name: "Mahesh Bharambe", role: "Coach", image: Mahesh },
+    { name: "Siddhesh Darde", role: "Coach", image: Siddhesh },
+     { name: "Rahul Bhagat", role: "Coach", image: Rahul },
+    { name: "Sudarshan Bansode", role: "Coach", image: Sudarshan },
+   
+    
   ];
 
   const programs = [

@@ -1,105 +1,202 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "./Gallery.css";
 
-// Images
-import ground from "../../images/ground.jpg";
-import practice1 from "../../images/Practice.jpg";
-import match from "../../images/Match.jpg";
-import team from "../../images/Team4.jpg";
-import coach1 from "../../images/SrCoach.jpg";
-import coach2 from "../../images/SrCoach.jpg";
-import gallery1 from "../../images/Gallery1.jpg";
-import gallery2 from "../../images/TrophyWin.jpg";
-import gallery3 from "../../images/Gallery3.jpg";
-import gallery4 from "../../images/Gallery4.jpg";
-import gallery5 from "../../images/Gallery5.jpg";
-import gallery6 from "../../images/Gallery6.jpg";
-import gallery7 from "../../images/Gallery7.jpg";
-import gallery8 from "../../images/Gallery8.jpg";
-import gallery9 from "../../images/Gallery9.jpg";
+// Import WPL Practice Session Images
+import wpl1 from "../../images/WPL/Wpl1.jpg";
+import wpl2 from "../../images/WPL/Wpl2.jpg";
+import wpl3 from "../../images/WPL/Wpl3.jpg";
+import wpl4 from "../../images/WPL/Wpl4.jpg";
+import wpl5 from "../../images/WPL/Wpl5.jpg";
+import wpl6 from "../../images/WPL/Wpl6.jpg";
+import wpl7 from "../../images/WPL/Wpl7.jpg";
+import wpl8 from "../../images/WPL/Wpl8.jpg";
+import wpl9 from "../../images/WPL/Wpl9.jpg";
+import wpl10 from "../../images/WPL/Wpl10.jpg";
+import wpl11 from "../../images/WPL/Wpl11.jpg";
+import wpl12 from "../../images/WPL/Wpl12.jpg";
+import wpl13 from "../../images/WPL/Wpl13.jpg";
+import wpl14 from "../../images/WPL/Wpl14.jpg";
+import wpl15 from "../../images/WPL/Wpl15.jpg";
+import wpl16 from "../../images/WPL/Wpl16.jpg";
+
+//Coaches
+import Sachin from "../../images/Coaches/Sachin.jpg";
+import Rahul from "../../images/Coaches/RahulSir.jpg";
+import Suddarshan from "../../images/Coaches/Sudarshan.jpg";
+import Siddesh from "../../images/Coaches/Siddesh.jpg";
+import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 const GalleryPage = () => {
   const [selectedImg, setSelectedImg] = useState(null);
-  const [filter, setFilter] = useState("All");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const images = [
-    { img: ground, title: "Cricket Ground", category: "Ground" },
-    { img: practice1, title: "Practice Session", category: "Practice" },
-    { img: match, title: "Match Day", category: "Match" },
-    { img: team, title: "Team Photo", category: "Team" },
-    { img: coach1, title: "Coaching Session", category: "Coaches" },
-    { img: coach2, title: "Fitness Training", category: "Coaches" },
-    { img: gallery1, title: "Indoor Practice", category: "Gallery" },
-    { img: gallery2, title: "Winning Trophy", category: "Gallery" },
-    { img: gallery3, title: "Celebration Event", category: "Gallery" },
-    { img: gallery4, title: "Fun Activities", category: "Gallery" },
-    { img: gallery5, title: "Team Huddle", category: "Gallery" },
-    { img: gallery6, title: "Advanced Training", category: "Gallery" },
-    { img: gallery7, title: "Match Practice", category: "Gallery" },
-    { img: gallery8, title: "Coaches Discussion", category: "Gallery" },
-    { img: gallery9, title: "Victory Celebration", category: "Gallery" },
-  ];
 
-  const filteredImages =
-    filter === "All" ? images : images.filter((img) => img.category === filter);
+  const allImages = useMemo(() => [
+   //Wpl Practice Session Images
+    { img: wpl1, category: "WPL Practice Session" },
+    { img: wpl2, category: "WPL Practice Session" },
+    { img: wpl3, category: "WPL Practice Session" },
+    { img: wpl4, category: "WPL Practice Session" },
+    { img: wpl5, category: "WPL Practice Session" },
+    { img: wpl6, category: "WPL Practice Session" },
+    { img: wpl7, category: "WPL Practice Session" },
+    { img: wpl8, category: "WPL Practice Session" },
+    { img: wpl9, category: "WPL Practice Session" },
+    { img: wpl10, category: "WPL Practice Session" },
+    { img: wpl11, category: "WPL Practice Session" },
+    { img: wpl12, category: "WPL Practice Session" },
+    { img: wpl13, category: "WPL Practice Session" },
+    { img: wpl14, category: "WPL Practice Session" },
+    { img: wpl15, category: "WPL Practice Session" },
+    { img: wpl16, category: "WPL Practice Session" },
 
-  const openModal = (img) => setSelectedImg(img);
+    // Coaches Images
+    { img: Sachin, category: "Coaches" },
+    { img: Rahul, category: "Coaches" },
+    { img: Suddarshan, category: "Coaches" },
+    { img: Siddesh, category: "Coaches" },
+    { img: Mahesh, category: "Coaches" },
+
+  ], []);
+
+  // List of all categories, including placeholders for your future content
+  const categories = useMemo(() => [
+    "ALL",
+    "WPL Practice Session", // Active Category
+    "Ground", 
+    "Team Photo", 
+    "Match Day",
+    "Coaches",
+    "Events",
+  ], []);
+
+  // Initialize filter to the first category in the list
+  const [filter, setFilter] = useState(categories[0]);
+
+  // Filter images based on the selected category (simplified)
+  const filteredImages = useMemo(() => {
+    // Show ALL images that belong to the current filter.
+    return allImages.filter((img) => img.category === filter);
+  }, [filter, allImages]);
+  
+  // Update selected image and current index when filter changes
+  useEffect(() => {
+    // Close modal if open when filter changes
+    closeModal(); 
+  }, [filter]);
+
+
+  const openModal = (img, index) => {
+    setSelectedImg(img);
+    setCurrentIndex(index);
+  };
+
   const closeModal = () => setSelectedImg(null);
 
+  const nextImage = useCallback(() => {
+    if (filteredImages.length === 0) return;
+    const newIndex = (currentIndex + 1) % filteredImages.length;
+    setCurrentIndex(newIndex);
+    setSelectedImg(filteredImages[newIndex]);
+  }, [filteredImages, currentIndex]);
+
+  const prevImage = useCallback(() => {
+    if (filteredImages.length === 0) return;
+    const newIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+    setCurrentIndex(newIndex);
+    setSelectedImg(filteredImages[newIndex]);
+  }, [filteredImages, currentIndex]);
+
+  // ✅ Keyboard accessibility
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedImg) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault(); 
+        nextImage();
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault(); 
+        prevImage();
+      }
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImg, nextImage, prevImage]);
+
   return (
-    <div id="gallery-page">
+    <div id="gallery-main">
       {/* Hero Section */}
-      <section id="gallery-hero">
-        <h1 id="gallery-hero-title">3SPORTS Gallery</h1>
-        <p id="gallery-hero-subtitle">
-          Explore our cricket academy, training sessions, matches, and events.
+      <section id="gallery-top">
+        <h1 id="gallery-title">3S SPORTS Gallery</h1>
+        <p id="gallery-subtitle">
+          Explore our cricket academy, training sessions, and WPL practice moments.
         </p>
       </section>
 
       {/* Filter Buttons */}
-      <section id="gallery-filters">
-        {["All", "Ground", "Practice", "Match", "Team", "Coaches", "Gallery"].map(
-          (cat) => (
-            <button
-              key={cat}
-              id="gallery-filter-btn"
-              className={filter === cat ? "active" : ""}
-              onClick={() => setFilter(cat)}
-            >
-              {cat}
-            </button>
-          )
-        )}
+      <section id="gallery-tabs">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            id="gallery-tab-btn"
+            className={filter === cat ? "active" : ""}
+            onClick={() => setFilter(cat)}
+          >
+            {cat}
+          </button>
+        ))}
       </section>
 
-      {/* Gallery Grid */}
-      <section id="gallery-section">
-        <div id="gallery-grid">
-          {filteredImages.map((imgObj, index) => (
-            <div
-              id="gallery-card"
-              key={index}
-              onClick={() => openModal(imgObj)}
-            >
-              <img src={imgObj.img} alt={imgObj.title} />
-              <div id="gallery-overlay">
-                <h3>{imgObj.title}</h3>
+      {/* Masonry Grid */}
+      <section id="gallery-wrapper">
+        <div id="gallery-masonry">
+          {filteredImages.length > 0 ? (
+            filteredImages.map((imgObj, index) => (
+              <div
+                className="gallery-item"
+                key={index}
+                tabIndex={0}
+                onClick={() => openModal(imgObj, index)}
+                onKeyDown={(e) => e.key === "Enter" && openModal(imgObj, index)}
+              >
+                <img src={imgObj.img} alt={imgObj.category + " " + index} loading="lazy" />
+                {/* Overlay for category name is removed per request, now just the image */}
               </div>
+            ))
+          ) : (
+            <div id="gallery-empty-message">
+                <h2>No Images Available</h2>
+                <p>This category ({filter}) will be updated soon with exciting photos!</p>
             </div>
-          ))}
+          )}
         </div>
       </section>
 
-      {/* Modal */}
+      {/* Modal Lightbox */}
       {selectedImg && (
-        <div id="gallery-modal" onClick={closeModal}>
-          <span id="gallery-modal-close">&times;</span>
-          <img
-            id="gallery-modal-img"
-            src={selectedImg.img}
-            alt={selectedImg.title}
-          />
-          <h3 id="gallery-modal-title">{selectedImg.title}</h3>
+        <div id="gallery-lightbox" onClick={closeModal}>
+          <span id="gallery-close" onClick={closeModal}>
+            &times;
+          </span>
+          <div id="gallery-lightbox-content" onClick={(e) => e.stopPropagation()}>
+             {/* Previous Button */}
+            <button id="gallery-prev" onClick={prevImage} aria-label="Previous Image">
+              &#10094;
+            </button>
+            
+            <img
+              id="gallery-lightbox-img"
+              src={selectedImg.img}
+              alt={selectedImg.category + " " + currentIndex}
+            />
+            
+            {/* Next Button */}
+            <button id="gallery-next" onClick={nextImage} aria-label="Next Image">
+              &#10095;
+            </button>
+          </div>
         </div>
       )}
     </div>

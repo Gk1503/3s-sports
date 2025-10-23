@@ -6,12 +6,12 @@ import academyImg from "../../images/ground.jpg";
 import ground from "../../images/ground.jpg";
 import nets from "../../images/Practice.jpg";
 import gym from "../../images/Match.jpg";
-import trophy from "../../images/TrophyWin.jpg";
-import Sachin from "../../images/Sachin.jpg";
-import Siddhesh from "../../images/Siddesh.jpg";
-import Suddarshan from "../../images/Sudarshan.jpg";
-import Mahesh from "../../images/Mahesh.jpg";
-import Rahul from "../../images/RahulSir.jpg";
+import trophy from "../../images/WinningTrophy/TrophyWin.jpg";
+import Sachin from "../../images/Coaches/Sachin.jpg";
+import Siddhesh from "../../images/Coaches/Siddesh.jpg";
+import Suddarshan from "../../images/Coaches/Sudarshan.jpg";
+import Mahesh from "../../images/Coaches/Mahesh.jpg";
+import Rahul from "../../images/Coaches/RahulSir.jpg";
 
 const AcademyPage = () => {
   const navigate = useNavigate();
@@ -66,10 +66,12 @@ const AcademyPage = () => {
         <div className="coach-container">
           {[
             { img: Sachin, name: "Sachin Suryavanshi", role: "Head Coach & Mentor", exp: "10+ Years" },
-            { img: Siddhesh, name: "Siddhesh Darde", role: "Coach", exp: "8+ Years" },
-            { img: Suddarshan, name: "Sudarshan Bansode", role: "Coach", exp: "7+ Years" },
-            { img: Mahesh, name: "Mahesh Bharambe", role: "Coach", exp: "7+ Years" },
+            { img: Mahesh, name: "Mahesh Bharambe", role: "Coach", exp: "4+ Years" },
+            { img: Siddhesh, name: "Siddhesh Darde", role: "Coach", exp: "4+ Years" },
             { img: Rahul, name: "Rahul Bhagat", role: "Coach", exp: "4+ Years" },
+            { img: Suddarshan, name: "Sudarshan Bansode", role: "Coach", exp: "4+ Years" },
+            
+            
           ].map((coach, index) => (
             <div className="coach-profile" key={index}>
               <div className="coach-img-wrapper">

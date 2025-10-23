@@ -1,15 +1,15 @@
 // CoachesPage.jsx
 import React, { useState } from "react";
 import "./Coaches.css";
-import Sachin from "../../images/Sachin.jpg";
-import Rahul from "../../images/RahulSir.jpg";
-import Siddesh from "../../images/Siddesh.jpg";
-import Sudarshan from "../../images/Sudarshan.jpg";
-import Mahesh from "../../images/Mahesh.jpg";
+import Sachin from "../../images/Coaches/Sachin.jpg";
+import Rahul from "../../images/Coaches/RahulSir.jpg";
+import Siddesh from "../../images/Coaches/Siddesh.jpg";
+import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
+import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 // Practice session images
 import practice1 from "../../images/Practice.jpg";
-import practice2 from "../../images/Team1.jpg";
+import practice2 from "../../images/TeamPhoto/Team1.jpg";
 import practice3 from "../../images/Traning.jpg";
 
 const CoachesPage = () => {
@@ -23,6 +23,21 @@ const CoachesPage = () => {
       exp: "10+ Years",
       bio: "Sachin Suryanshi specializes in advanced batting techniques and overall strategy development. He has coached multiple national-level players."
     },
+     { 
+      img: Mahesh, 
+      name: "Mahesh Bharambe", 
+      role: "Coach", 
+      exp: "4+ Years",
+      bio: "Mahesh Bharambe trains players in advanced fielding techniques, agility drills, and catching strategies."
+    },
+    
+    { 
+      img: Siddesh, 
+      name: "Siddhesh Darde", 
+      role: "Coach", 
+      exp: "4+ Years",
+      bio: "Siddhesh Darde is an expert in fast and spin bowling, coaching young bowlers to enhance accuracy, pace, and spin techniques."
+    },
     { 
       img: Rahul, 
       name: "Rahul Bhagat", 
@@ -31,26 +46,13 @@ const CoachesPage = () => {
       bio: "Rahul Bhagat focuses on refining batting skills, footwork, and shot selection. He emphasizes technical excellence."
     },
     { 
-      img: Siddesh, 
-      name: "Siddhesh Darde", 
-      role: "Coach", 
-      exp: "7+ Years",
-      bio: "Siddhesh Darde is an expert in fast and spin bowling, coaching young bowlers to enhance accuracy, pace, and spin techniques."
-    },
-    { 
       img: Sudarshan, 
       name: "Sudarshan Bansode", 
       role: "Coach", 
-      exp: "7+ Years",
+      exp: "4+ Years",
       bio: "Sudarshan Bansode focuses on player fitness, strength, and conditioning to ensure peak performance during matches."
     },
-    { 
-      img: Mahesh, 
-      name: "Mahesh Bharambe", 
-      role: "Coach", 
-      exp: "6+ Years",
-      bio: "Mahesh Bharambe trains players in advanced fielding techniques, agility drills, and catching strategies."
-    },
+   
   ];
 
   const practiceImages = [practice1, practice2, practice3];
