@@ -6,7 +6,7 @@ import Navbar from "./components/Navbar/Navbar";
 import Home from "./components/Home/Home";
 import Academy from "./components/Academy/Academy";
 import Coaches from "./components/Coaches/Coaches";
-import Matches from "./components/Matches/Matches";
+// import Matches from "./components/Matches/Matches";
 import Gallery from "./components/Gallery/Gallery";
 import Contact from "./components/Contact/Contact";
 import Footer from "./components/Footer/Footer";
@@ -43,7 +43,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/academy" element={<Academy />} />
         <Route path="/coaches" element={<Coaches />} />
-        <Route path="/matches" element={<Matches />} />
+        {/* <Route path="/matches" element={<Matches />} /> */}
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
 

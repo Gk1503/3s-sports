@@ -1,6 +1,7 @@
 import React from "react";
 import "./Academy.css";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+
 import academyImg from "../../images/ground.jpg";
 import ground from "../../images/ground.jpg";
 import nets from "../../images/Practice.jpg";
@@ -16,9 +17,8 @@ const AcademyPage = () => {
   const navigate = useNavigate();
 
   const handleJoinClick = () => {
-    navigate('/contact');
-  }
-
+    navigate("/contact");
+  };
 
   return (
     <div id="academy-page">
@@ -26,7 +26,7 @@ const AcademyPage = () => {
       <section id="hero-section">
         <img src={academyImg} alt="Academy Banner" className="hero-image" />
         <div id="hero-overlay">
-          <h1 id="hero-title">Welcome to 3SPORTS Cricket Academy</h1>
+          <h1 id="hero-title">Welcome to 3S SPORTS Cricket Academy</h1>
           <p id="hero-subtitle">
             Excellence, Discipline & Team Spirit — The Future of Cricket Begins Here.
           </p>
@@ -37,7 +37,7 @@ const AcademyPage = () => {
       <section id="about-section">
         <h2>About Our Academy</h2>
         <p>
-          3SPORTS Cricket Academy is a professional coaching center dedicated to nurturing
+          3S SPORTS Cricket Academy is a professional coaching center dedicated to nurturing
           young talent with structured training programs, certified coaches, and
           world-class facilities. Our mission is to develop skilled, confident, and
           disciplined cricketers who excel on and off the field.
@@ -61,21 +61,23 @@ const AcademyPage = () => {
       </section>
 
       {/* Coaches Section */}
-      <section id="coaches-section">
+      <section id="coaches-showcase">
         <h2>Our Expert Coaches</h2>
-        <div id="coach-cards">
+        <div className="coach-container">
           {[
-            { img: Sachin, name: "Sachin suryavanshi", role: "Head Coach & Mentor", exp: "10+ Years" },
+            { img: Sachin, name: "Sachin Suryavanshi", role: "Head Coach & Mentor", exp: "10+ Years" },
             { img: Siddhesh, name: "Siddhesh Darde", role: "Coach", exp: "8+ Years" },
             { img: Suddarshan, name: "Sudarshan Bansode", role: "Coach", exp: "7+ Years" },
             { img: Mahesh, name: "Mahesh Bharambe", role: "Coach", exp: "7+ Years" },
-            { img: Rahul, name: "Rahul Bhagat", role: "Coach", exp: "4+ Years" }
+            { img: Rahul, name: "Rahul Bhagat", role: "Coach", exp: "4+ Years" },
           ].map((coach, index) => (
-            <div id="coach-card" key={index}>
-              <img src={coach.img} alt={coach.name} />
-              <h3>{coach.name}</h3>
-              <p>{coach.role}</p>
-              <span>{coach.exp} Experience</span>
+            <div className="coach-profile" key={index}>
+              <div className="coach-img-wrapper">
+                <img src={coach.img} alt={coach.name} className="coach-img" />
+              </div>
+              <h3 className="coach-name">{coach.name}</h3>
+              <p className="coach-role">{coach.role}</p>
+              <span className="coach-exp">{coach.exp} Experience</span>
             </div>
           ))}
         </div>
@@ -107,7 +109,10 @@ const AcademyPage = () => {
           </div>
           <div id="training-card">
             <h3>Advanced Batch</h3>
-            <p>For state/national-level players focusing on strategy, mental strength, and match simulations.</p>
+            <p>
+              For state/national-level players focusing on strategy, mental strength, and
+              match simulations.
+            </p>
           </div>
         </div>
       </section>
@@ -118,7 +123,7 @@ const AcademyPage = () => {
         <div id="testimonials">
           <div id="testimonial-card">
             <p>
-              “3SPORTS helped me improve my batting and game awareness. The coaches are
+              “3S SPORTS helped me improve my batting and game awareness. The coaches are
               very supportive!”
             </p>
             <h4>– Arjun Sharma</h4>
@@ -135,9 +140,11 @@ const AcademyPage = () => {
 
       {/* Call to Action */}
       <section id="cta-section">
-        <h2>Join 3SPORTS Cricket Academy Today!</h2>
+        <h2>Join 3S SPORTS Cricket Academy Today!</h2>
         <p>Train with the best and take your cricket career to the next level.</p>
-        <button onClick={handleJoinClick} id="join-btn">Enroll Now</button>
+        <button onClick={handleJoinClick} id="join-btn">
+          Enroll Now
+        </button>
       </section>
     </div>
   );

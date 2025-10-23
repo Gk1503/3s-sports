@@ -32,7 +32,7 @@ const logout = () => {
           <li><NavLink to="/" onClick={() => setIsOpen(false)}>Home</NavLink></li>
           <li><NavLink to="/academy" onClick={() => setIsOpen(false)}>Academy</NavLink></li>
           <li><NavLink to="/coaches" onClick={() => setIsOpen(false)}>Coaches</NavLink></li>
-          <li><NavLink to="/matches" onClick={() => setIsOpen(false)}>Matches</NavLink></li>
+          {/* <li><NavLink to="/matches" onClick={() => setIsOpen(false)}>Matches</NavLink></li> */}
           <li><NavLink to="/gallery" onClick={() => setIsOpen(false)}>Gallery</NavLink></li>
           <li><NavLink to="/contact" onClick={() => setIsOpen(false)}>Contact</NavLink></li>
 
