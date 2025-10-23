@@ -8,9 +8,9 @@ import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
 import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 // Practice session images
-import practice1 from "../../images/Practice.jpg";
-import practice2 from "../../images/TeamPhoto/Team1.jpg";
-import practice3 from "../../images/Traning.jpg";
+import practice1 from "../../images/ALL/Practice.jpg";
+import practice2 from "../../images/TeamPhoto/TP1.jpg";
+import practice3 from "../../images/ALL/Traning.jpg";
 
 const CoachesPage = () => {
   const [selectedCoach, setSelectedCoach] = useState(null);

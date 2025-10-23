@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import academyImg from "../../images/ground.jpg";
 import ground from "../../images/ground.jpg";
-import nets from "../../images/Practice.jpg";
-import gym from "../../images/Match.jpg";
+import nets from "../../images/ALL/Practice.jpg";
+import gym from "../../images/ALL/Match.jpg";
 import trophy from "../../images/WinningTrophy/TrophyWin.jpg";
 import Sachin from "../../images/Coaches/Sachin.jpg";
 import Siddhesh from "../../images/Coaches/Siddesh.jpg";

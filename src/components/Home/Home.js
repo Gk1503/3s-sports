@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 
-import Training from "../../images/Traning.jpg";
-import Practice from "../../images/Practice.jpg";
-import Team from "../../images/TeamPhoto/Team1.jpg";
-import Match from "../../images/Match.jpg";
+import Training from "../../images/ALL/Traning.jpg";
+import Practice from "../../images/ALL/Practice.jpg";
+import Team from "../../images/TeamPhoto/TP4.jpg";
+import Match from "../../images/ALL/Match.jpg";
 import Sachin from "../../images/Coaches/Sachin.jpg";
 import Rahul from "../../images/Coaches/RahulSir.jpg";
 import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
@@ -13,10 +13,10 @@ import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 
 // Hero images for slideshow
-import Hero1 from "../../images/TeamPhoto/Team1.jpg";
-import Hero2 from "../../images/TeamPhoto/Team2.jpg";
-import Hero3 from "../../images/Traning.jpg";
-import Hero4 from "../../images/TeamPhoto/Team3.jpg";
+import Hero1 from "../../images/TeamPhoto/TP1.jpg";
+import Hero2 from "../../images/TeamPhoto/TP7.jpg";
+import Hero3 from "../../images/ALL/Traning.jpg";
+import Hero4 from "../../images/TeamPhoto/TP2.jpg";
 import Hero5  from "../../images/TeamPhoto/Team4.jpg";
 
 const Home = () => {
@@ -83,9 +83,7 @@ const Home = () => {
       <section className="about-section">
         <h2>About Our Academy</h2>
         <p>
-          Welcome to <strong>3S Sports Cricket Academy</strong> — a revolution in digital cricket training.
-          Our platform integrates technology with performance, making cricket smarter, faster, and data-driven.
-          Experience coaching like never before, where passion meets precision.
+        Welcome to <strong> 3S Sports Cricket Academy</strong> — where cricket training meets innovation and excellence. Our platform combines expert coaching with performance-focused techniques, making your game sharper, faster, and smarter. Experience training like never before, where passion meets precision and every session is designed to bring out the best in you.
         </p>
       </section>
 
@@ -95,11 +93,9 @@ const Home = () => {
           <img src={Sachin} alt="Head Coach" className="mentor-image" />
           <div className="mentor-text">
             <h3>Mr. Sachin Suryavanshi</h3>
-            <p className="mentor-role">Senior Coach & Mentor</p>
+            <p className="mentor-role">Head Coach & Mentor</p>
             <p>
-              "At <strong>3S Sports Cricket Academy</strong>, our goal is not only to develop skilled cricketers
-              but also disciplined, confident, and resilient athletes. We believe in blending traditional
-              coaching wisdom with modern digital performance tracking to unlock each player's true potential."
+              "As the Head Coach and Mentor at <strong> 3S Sports Cricket Academy </strong>, my mission is to nurture not just skilled cricketers, but disciplined, confident, and resilient athletes. We combine the wisdom of traditional coaching with advanced performance techniques to help every player unlock their true potential."
             </p>
           </div>
         </div>

@@ -26,6 +26,73 @@ import Suddarshan from "../../images/Coaches/Sudarshan.jpg";
 import Siddesh from "../../images/Coaches/Siddesh.jpg";
 import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
+//Winning Trophy
+import Image1 from "../../images/WinningTrophy/WT1.jpg";
+import Image2 from "../../images/WinningTrophy/WT2.jpg";
+
+import Image8 from "../../images/WinningTrophy/WT8.jpg";
+import Image10 from "../../images/WinningTrophy/WT10.jpg";
+import Image14 from "../../images/WinningTrophy/WT14.jpg";
+import Image15 from "../../images/WinningTrophy/WT15.jpg";
+import Image16 from "../../images/WinningTrophy/WT16.jpg";
+import Image17 from "../../images/WinningTrophy/WT17.jpg";
+import TrophyWin from "../../images/WinningTrophy/TrophyWin.jpg";
+
+//Team Photo
+import Team1 from "../../images/TeamPhoto/TP1.jpg";
+import Team2 from "../../images/TeamPhoto/TP2.jpg";
+import Team3 from "../../images/TeamPhoto/TP3.jpg";
+import Team4 from "../../images/TeamPhoto/TP4.jpg";
+import Team5 from "../../images/TeamPhoto/TP5.jpg";
+import Team6 from "../../images/TeamPhoto/TP6.jpg";
+import Team7 from "../../images/TeamPhoto/TP7.jpg";
+import Team8 from "../../images/TeamPhoto/TP8.jpg";
+
+//3S Premium League
+import PSL1 from "../../images/3sPL/3SPL1.jpg";
+import PSL2 from "../../images/3sPL/3SPL2.jpg";
+import PSL3 from "../../images/3sPL/3SPL3.jpg";
+import PSL4 from "../../images/3sPL/3SPL4.jpg";
+import PSL5 from "../../images/3sPL/3SPL5.jpg";
+import PSL6 from "../../images/3sPL/3SPL6.jpg";
+import PSL7 from "../../images/3sPL/3SPL7.jpg";
+import PSL8 from "../../images/3sPL/3SPL8.jpg";
+import PSL9 from "../../images/3sPL/3SPL9.jpg";
+import PSL10 from "../../images/3sPL/3SPL10.jpg";
+import PSL11 from "../../images/3sPL/3SPL11.jpg";
+
+//Events
+import Event1 from "../../images/Events/Event1.jpg";
+import Event2 from "../../images/Events/Event2.jpg";
+import Event3 from "../../images/Events/Event3.jpg";
+import Event4 from "../../images/Events/Event4.jpg";
+import Event5 from "../../images/Events/Event5.jpg";
+import Event6 from "../../images/Events/Event6.jpg";
+import Event7 from "../../images/Events/Event7.jpg";
+import Event8 from "../../images/Events/Event8.jpg";
+import Event9 from "../../images/Events/Event9.jpg";
+import Event10 from "../../images/Events/Event10.jpg";
+import Event11 from "../../images/Events/Event11.jpg";
+import Event12 from "../../images/Events/Event12.jpg";
+
+// All Images 
+import All1 from "../../images/ALL/All1.jpg";
+import All2 from "../../images/ALL/All2.jpg";
+import All3 from "../../images/ALL/All3.jpg";
+import All4 from "../../images/ALL/All4.jpg";
+import All5 from "../../images/ALL/All5.jpg";
+import All6 from "../../images/ALL/All6.jpg";
+import All7 from "../../images/ALL/All7.jpg";
+import All8 from "../../images/ALL/All8.jpg";
+import All9 from "../../images/ALL/All9.jpg";
+import All10 from "../../images/ALL/All10.jpg";
+import All11 from "../../images/ALL/All11.jpg";
+import All12 from "../../images/ALL/All12.jpg";
+import All13 from "../../images/ALL/All13.jpg";
+import All14 from "../../images/ALL/All14.jpg";
+import All15 from "../../images/ALL/All15.jpg";
+
+
 const GalleryPage = () => {
   const [selectedImg, setSelectedImg] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,15 +124,83 @@ const GalleryPage = () => {
     { img: Siddesh, category: "Coaches" },
     { img: Mahesh, category: "Coaches" },
 
+    // Winning Trophy Images  
+    { img: Image1, category: "Winning Trophy" },
+    { img: Image2, category: "Winning Trophy" },
+    { img: Image14, category: "Winning Trophy" },
+    { img: TrophyWin, category: "Winning Trophy" },
+    { img: Image8, category: "Winning Trophy" },
+    { img: Image10, category: "Winning Trophy" },
+    { img: Image15, category: "Winning Trophy" },
+    { img: Image16, category: "Winning Trophy" },
+    { img: Image17, category: "Winning Trophy" },
+
+    // Team Photo Images
+    { img: Team1, category: "Team Photo" },
+    { img: Team2, category: "Team Photo" },
+    { img: Team8, category: "Team Photo" },
+    { img: Team3, category: "Team Photo" },
+    { img: Team4, category: "Team Photo" },
+    { img: Team5, category: "Team Photo" },
+    { img: Team6, category: "Team Photo" },
+    { img: Team7, category: "Team Photo" },
+
+    // 3S Premium League Images
+    { img: PSL1, category: "3S Premium League" },
+    { img: PSL2, category: "3S Premium League" },
+    { img: PSL3, category: "3S Premium League" },
+    { img: PSL4, category: "3S Premium League" },
+    { img: PSL5, category: "3S Premium League" },
+    { img: PSL6, category: "3S Premium League" },
+    { img: PSL7, category: "3S Premium League" },
+    { img: PSL8, category: "3S Premium League" },
+    { img: PSL9, category: "3S Premium League" },
+    { img: PSL10, category: "3S Premium League" },
+    { img: PSL11, category: "3S Premium League" },
+
+    // Events Images
+    { img: Event1, category: "Events" },
+    {img: Event12, category: "Events" },
+    { img: Event2, category: "Events" },
+    { img: Event3, category: "Events" },
+    { img: Event4, category: "Events" },
+    { img: Event10, category: "Events" }, 
+    { img: Event5, category: "Events" },
+    { img: Event6, category: "Events" },
+    { img: Event7, category: "Events" },
+    { img: Event8, category: "Events" },
+    { img: Event9, category: "Events" },
+    { img: Event11, category: "Events" },
+  
+
+    // All Images
+    { img: All1, category: "ALL" },
+    { img: All2, category: "ALL" },
+    
+    { img: All15, category: "ALL" },
+    { img: All3, category: "ALL" },
+        { img: All14, category: "ALL" },
+    { img: All4, category: "ALL" },
+    { img: All5, category: "ALL" },
+    { img: All6, category: "ALL" },
+    { img: All7, category: "ALL" },
+    { img: All8, category: "ALL" },
+    { img: All9, category: "ALL" },
+    { img: All10, category: "ALL" },
+    { img: All11, category: "ALL" },
+    { img: All12, category: "ALL" },
+    { img: All13, category: "ALL" },
+
+
   ], []);
 
   // List of all categories, including placeholders for your future content
   const categories = useMemo(() => [
     "ALL",
     "WPL Practice Session", // Active Category
-    "Ground", 
     "Team Photo", 
-    "Match Day",
+    "Winning Trophy",
+    "3S Premium League",
     "Coaches",
     "Events",
   ], []);
