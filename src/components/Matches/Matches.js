@@ -1,10 +1,10 @@
 // MatchesPage.jsx
 import React, { useState } from "react";
 import "./Matches.css";
-import teamA1 from "../../images/Team.jpg";
-import teamA2 from "../../images/Team.jpg";
-import teamB1 from "../../images/Team.jpg";
-import teamB2 from "../../images/Team.jpg";
+import teamA1 from "../../images/Team1.jpg";
+import teamA2 from "../../images/Team2.jpg";
+import teamB1 from "../../images/Team3.jpg";
+import teamB2 from "../../images/Team4.jpg";
 
 const MatchesPage = () => {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -12,9 +12,9 @@ const MatchesPage = () => {
   const matches = [
     {
       id: 1,
-      teamA: "3SPORTS A",
+      teamA: "3S SPORTS A",
       teamAImg: teamA1,
-      teamB: "3SPORTS B",
+      teamB: "3S SPORTS B",
       teamBImg: teamB1,
       date: "2025-11-01",
       venue: "National Cricket Ground",
@@ -23,9 +23,9 @@ const MatchesPage = () => {
     },
     {
       id: 2,
-      teamA: "3SPORTS C",
+      teamA: "3S SPORTS C",
       teamAImg: teamA2,
-      teamB: "3SPORTS D",
+      teamB: "3S SPORTS D",
       teamBImg: teamB2,
       date: "2025-11-05",
       venue: "City Cricket Academy",
@@ -34,9 +34,9 @@ const MatchesPage = () => {
     },
     {
       id: 3,
-      teamA: "3SPORTS A",
+      teamA: "3S SPORTS A",
       teamAImg: teamA1,
-      teamB: "3SPORTS C",
+      teamB: "3S SPORTS C",
       teamBImg: teamB2,
       date: "2025-11-10",
       venue: "Central Stadium",
@@ -56,7 +56,7 @@ const MatchesPage = () => {
   return (
     <div id="matches-page">
       <section id="matches-hero">
-        <h1 id="matches-hero-title">3SPORTS Matches</h1>
+        <h1 id="matches-hero-title">3S SPORTS Matches</h1>
         <p id="matches-hero-subtitle">Check upcoming and past matches with scores & details</p>
       </section>
 

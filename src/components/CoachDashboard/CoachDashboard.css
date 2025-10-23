@@ -189,3 +189,87 @@
     grid-template-columns: 1fr;
   }
 }
+/* CoachDashboard.css Additions */
+
+/* Fee Tab Table & Buttons */
+#fees-table th, #fees-table td {
+    /* Ensure padding/styling matches students-table */
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+#fees-table td button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    background-color: #f6ad55; /* Orange for Record Payment */
+    color: white;
+    font-weight: 600;
+}
+#fees-table td button:hover:not(:disabled) {
+    background-color: #dd7c1b;
+}
+
+/* Attendance Tab Buttons */
+.mark-present-btn {
+    background-color: #48bb78; /* Green for Present */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.mark-absent-btn {
+    background-color: #e53e3e; /* Red for Absent */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.history-btn {
+    background-color: #3182ce; /* Blue for History */
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.mark-present-btn:hover, .mark-absent-btn:hover, .history-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Attendance History Modal */
+#modal-history {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#history-table th {
+    background-color: #004080;
+    color: white;
+}
+
+#history-table th, #history-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}

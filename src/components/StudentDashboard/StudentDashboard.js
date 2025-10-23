@@ -16,13 +16,22 @@ const StudentDashboard = ({ user, token }) => {
   const [profileImage, setProfileImage] = useState("");
   const [formData, setFormData] = useState({ name: "" });
 
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  fetch("http://localhost:5000/api/students/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(res => res.json())
+    .then(data => setStudent(data));
+}, []);
   useEffect(() => {
-    if (user && token) {
-      fetchStudentData();
-    }
-  }, [user, token]);
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    fetchStudentData(token); // Call fetchStudentData with token
+}, []);
 
-  const fetchStudentData = async () => {
+  const fetchStudentData = async (token) => {
     try {
       const res = await fetch("http://localhost:5000/api/students/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -33,35 +42,37 @@ const StudentDashboard = ({ user, token }) => {
         setProfileImage(data.photo || "");
         setFormData({ name: data.name });
       } else {
-        console.error("No data found, showing default dashboard");
+       console.error("Failed to fetch student data");
       }
     } catch (err) {
       console.error("Failed to fetch student data", err);
     }
   };
 
-  const handleProfileSave = async () => {
-    try {
-      const form = new FormData();
-      form.append("name", formData.name);
-      if (profileImage instanceof File) form.append("photo", profileImage);
+const handleProfileSave = async () => {
+    const token = localStorage.getItem("token");
+    const form = new FormData();
+    // The backend expects 'name' and 'profileImage'. It uses the URL path ID for the user to update.
+    form.append("name", formData.name); 
+    if (profileImage instanceof File) form.append("profileImage", profileImage);
 
-      const res = await fetch("http://localhost:5000/api/students/update", {
+    // **IMPORTANT:** Use the user ID to hit the profile update endpoint
+    const res = await fetch(`http://localhost:5000/api/srcoach/update-profile/${user._id}`, { // Assuming 'user' is the prop containing the logged-in User object
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
-      });
+        // NOTE: Do NOT set 'Content-Type': 'application/json' when using FormData for file uploads.
+    });
 
-      if (res.ok) {
-        const updated = await res.json();
-        setStudent(updated);
-        setProfileImage(updated.photo);
-      }
-      setShowProfileEdit(false);
-    } catch (err) {
-      console.error("Profile update failed", err);
+    if (res.ok) {
+        const updatedStudent = await res.json();
+        setStudent(updatedStudent); // Set the entire updated student object
+        setProfileImage(updatedStudent.photo || "");
+        setShowProfileEdit(false);
+    } else {
+        console.error("Profile update failed");
     }
-  };
+};
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {

@@ -7,6 +7,7 @@ const LoginModal = ({ closeModal, setUser }) => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [darkMode, setDarkMode] = useState(false);
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,26 +22,46 @@ const LoginModal = ({ closeModal, setUser }) => {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: formData.username, password: formData.password, role }),
+        body: JSON.stringify({ ...formData, role }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Send user info directly to Navbar state
-        setUser(data.user);
+  const userData = {
+    _id: data._id,
+    name: data.name,
+    username: data.username,
+    role: data.role,
+    token: data.token,   // ✅ include token
+    isLoggedIn: true,
+  };
 
-        // Navigate based on role
-        if (role === "student") navigate("/student-dashboard");
-        else if (role === "coach") navigate("/coach-dashboard");
-        else if (role === "srCoach") navigate("/srcoach-dashboard");
+  localStorage.setItem("user", JSON.stringify(userData)); // ✅ save in localStorage
 
-        closeModal();
+  setUser(userData); // (optional, if parent tracks it)
+  closeModal();
+
+  // navigate
+  switch (data.role) {
+    case "student":
+      navigate("/student-dashboard");
+      break;
+    case "coach":
+      navigate("/coach-dashboard");
+      break;
+    case "srCoach":
+      navigate("/srcoach-dashboard");
+      break;
+    default:
+      navigate("/");
+  }
+
       } else {
-        setError(data.message || "Invalid username or password");
+        setError(data.message || "Login failed. Please check credentials.");
       }
     } catch (err) {
-      setError("Server error. Try again later.");
+      setError("An error occurred. Could not connect to server.");
     }
   };
 

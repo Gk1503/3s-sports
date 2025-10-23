@@ -11,12 +11,13 @@ const Navbar = () => {
   const [user, setUser] = useState(null); // user state from backend
   const navigate = useNavigate();
 
-  const logout = () => {
+const logout = () => {
     setUser(null);
-    setShowMenu(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
-    setIsOpen(false);
   };
+  
 
   return (
     <>
@@ -38,19 +39,11 @@ const Navbar = () => {
           {/* Login / User Avatar */}
           <li>
   {!user ? (
-    <button
-      className="btn-login"
-      onClick={() => {
-        setShowLogin(true);
-        setIsOpen(false);
-      }}
-    >
-      Login
-    </button>
+    <button className="btn-login" onClick={() => { setShowLogin(true); setIsOpen(false); }}>Login</button>
   ) : (
     <div className="user-menu">
       <img
-        src={user.photo || "https://via.placeholder.com/45"}
+        src={user.profileImage || "https://via.placeholder.com/45"}
         alt={user.username}
         className="user-avatar"
         onClick={() => setShowMenu(!showMenu)}
@@ -64,6 +57,7 @@ const Navbar = () => {
     </div>
   )}
 </li>
+
 
         </ul>
 

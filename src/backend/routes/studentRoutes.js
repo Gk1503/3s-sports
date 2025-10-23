@@ -1,28 +1,35 @@
-import express from "express";
-import User from "../models/User.js";
-import { protect } from "../middleware/authMiddleware.js";
-
+import express from 'express';
 const router = express.Router();
+import Student from '../models/Student.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 
-// Get student dashboard data
-router.get("/dashboard", protect, async (req, res) => {
+// @route   GET /api/students/me
+// @desc    Get logged-in student's data
+// @access  Private (Student)
+router.get('/me', protect, authorize('student'), async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-
-    if (!user) return res.status(404).json({ message: "Student not found" });
-
-    res.json({
-      username: user.username,
-      photo: user.photo,
-      batch: user.batch,
-      batchTime: user.batchTime,
-      attendance: user.attendance,
-      progress: user.progress,
-      fees: user.fees
-    });
+    // Find the student record associated with the logged-in user's ID
+    const student = await Student.findOne({ userId: req.user._id });
+    
+    if (student) {
+      // Merge user's name/role with the student's specific data
+      const studentData = {
+          ...student.toObject(),
+          name: req.user.name,
+          role: req.user.role
+      };
+      res.json(studentData);
+    } else {
+      // If a student User exists but no Student data exists yet, return basic user info
+      res.json({ name: req.user.name, role: req.user.role, message: "Student record not found, returning basic info." });
+    }
   } catch (error) {
-    res.status(500).json({ message: "Error fetching student data", error });
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching student data' });
   }
 });
+
+// NOTE: Profile update will be handled in srCoachRoutes for now for image upload complexity.
+// However, a simple student update route can go here if the student can change non-SrCoach managed fields.
 
 export default router;
