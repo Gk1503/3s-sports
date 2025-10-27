@@ -5,6 +5,7 @@ import Training from "../../images/ALL/Traning.jpg";
 import Practice from "../../images/ALL/Practice.jpg";
 import Team from "../../images/TeamPhoto/TP4.jpg";
 import Match from "../../images/ALL/Match.jpg";
+import Ground from "../../images/ALL/All16.jpg";
 import Sachin from "../../images/Coaches/Sachin.jpg";
 import Rahul from "../../images/Coaches/RahulSir.jpg";
 import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
@@ -14,10 +15,10 @@ import Mahesh from "../../images/Coaches/Mahesh.jpg";
 
 // Hero images for slideshow
 import Hero1 from "../../images/TeamPhoto/TP1.jpg";
-import Hero2 from "../../images/TeamPhoto/TP7.jpg";
+import Hero2 from "../../images/ALL/Practice.jpg";
 import Hero3 from "../../images/ALL/Traning.jpg";
-import Hero4 from "../../images/TeamPhoto/TP2.jpg";
-import Hero5  from "../../images/TeamPhoto/Team4.jpg";
+import Hero4 from "../../images/ALL/All16.jpg";
+import Hero5  from "../../images/Events/Event3.jpg";
 
 const Home = () => {
   const [currentHero, setCurrentHero] = useState(0);
@@ -153,6 +154,7 @@ const Home = () => {
           <img src={Practice} alt="Practice" />
           <img src={Match} alt="Match" />
           <img src={Team} alt="Team" />
+          <img src={Ground} alt="Team" />
         </div>
       </section>
 

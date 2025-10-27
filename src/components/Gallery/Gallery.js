@@ -91,6 +91,7 @@ import All12 from "../../images/ALL/All12.jpg";
 import All13 from "../../images/ALL/All13.jpg";
 import All14 from "../../images/ALL/All14.jpg";
 import All15 from "../../images/ALL/All15.jpg";
+import All16 from "../../images/ALL/All16.jpg";
 
 
 const GalleryPage = () => {
@@ -174,6 +175,7 @@ const GalleryPage = () => {
   
 
     // All Images
+    {img: All16, category: "ALL" },
     { img: All1, category: "ALL" },
     { img: All2, category: "ALL" },
     
