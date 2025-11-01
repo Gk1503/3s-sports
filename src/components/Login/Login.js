@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import "./Login.css";
 
 const LoginModal = ({ closeModal, setUser }) => {
@@ -44,19 +44,18 @@ const LoginModal = ({ closeModal, setUser }) => {
 
   // navigate
   switch (data.role) {
-    case "student":
-      navigate("/student-dashboard");
-      break;
-    case "coach":
-      navigate("/coach-dashboard");
-      break;
-    case "srCoach":
-      navigate("/srcoach-dashboard");
-      break;
-    default:
-      navigate("/");
-  }
-
+  case "student":
+    navigate("/student-dashboard");
+    break;
+  case "coach":
+    navigate("/coach-dashboard");
+    break;
+  case "seniorCoach": // ✅ fixed
+    navigate("/srcoach-dashboard");
+    break;
+  default:
+    navigate("/");
+}
       } else {
         setError(data.message || "Login failed. Please check credentials.");
       }
@@ -76,20 +75,19 @@ const LoginModal = ({ closeModal, setUser }) => {
         </div>
 
         <div id="role-selector">
-          {["student", "coach", "srCoach"].map((r) => (
-            <label key={r}>
-              <input
-                type="radio"
-                name="role"
-                value={r}
-                checked={role === r}
-                onChange={() => setRole(r)}
-              />
-              {r === "srCoach" ? "Sr. Coach" : r.charAt(0).toUpperCase() + r.slice(1)}
-            </label>
-          ))}
-        </div>
-
+  {["student", "coach", "seniorCoach"].map((r) => (
+    <label key={r}>
+      <input
+        type="radio"
+        name="role"
+        value={r}
+        checked={role === r}
+        onChange={() => setRole(r)}
+      />
+      {r === "seniorCoach" ? "Sr. Coach" : r.charAt(0).toUpperCase() + r.slice(1)}
+    </label>
+  ))}
+</div>
         <form id="login-form" onSubmit={handleSubmit}>
           <input
             type="text"

@@ -1,47 +1,32 @@
-import dotenv from "dotenv";
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const seedSeniorCoach = require( "./utils/seedSrCoach.js");
 
-import User from "./models/User.js";
-import srCoachRoutes from "./routes/srCoachRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
-import studentRoutes from "./routes/studentRoutes.js";
-import coachRoutes from './routes/coachRoutes.js';
-dotenv.config();
+const authRoutes = require('./routes/auth');
+const studentRoutes = require('./routes/students');
+const coachRoutes = require('./routes/coaches');
+const srRoutes = require('./routes/srcoach');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-// ✅ Fix __dirname (not available in ES modules)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Middleware
 app.use(cors());
-app.use(express.json());
-app.use("/api/srcoach", srCoachRoutes);
-app.use("/uploads", express.static("uploads"));
-app.use("/api/coach", coachRoutes); 
-// Database Connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(async () => {
-    console.log("✅ MongoDB Connected!");
- 
-  })
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/srcoach", srCoachRoutes);
+// connect DB
+connectDB(process.env.MONGO_URI);
+seedSeniorCoach();
 
-app.use("/api/students", studentRoutes);
+// routes
+app.use('/api/auth', authRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/coaches', coachRoutes);
+app.use('/api/srcoach', srRoutes);
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-});
-export default app;
+// health
+app.get('/', (req, res) => res.send('Cricket Academy API running'));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

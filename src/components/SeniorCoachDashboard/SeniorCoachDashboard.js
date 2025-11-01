@@ -127,13 +127,25 @@ const SeniorCoachDashboard = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/add-student", {
+      const res = await fetch("http://localhost:5000/api/srcoach/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify(studentDataToSend),
+        body: JSON.stringify({  username: studentFormData.username,
+  password: studentFormData.password,
+  studentData: {
+    name: studentFormData.name,
+    contact: studentFormData.contact,
+    address: studentFormData.address,
+    school: studentFormData.school,
+    ageCategory: studentFormData.ageCategory,
+    batch: studentFormData.batch,
+    timings: studentFormData.timings,
+    fees: studentFormData.fees,
+    feeStatus: studentFormData.status,
+} }),
       });
 
       const result = await res.json();
@@ -274,7 +286,20 @@ const SeniorCoachDashboard = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(
+  isEditing
+    ? coachFormData
+    : {
+        username: coachFormData.username,
+        password: coachFormData.password,
+        coachData: {
+          name: coachFormData.name,
+          specialization: coachFormData.specialization,
+          contact: coachFormData.contact,
+        },
+      }
+),
+
       });
 
       const result = await res.json();

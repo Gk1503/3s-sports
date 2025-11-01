@@ -1,38 +1,14 @@
-// models/Attendance.js
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
-    studentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student', // Link to the student's data
-        required: true,
-    },
-    studentName: { // Storing name for easier reporting
-        type: String,
-        required: true,
-    },
-    date: {
-        type: Date,
-        required: true,
-        // Unique index to prevent duplicate attendance for the same student on the same day
-        unique: false, 
-        index: true 
-    },
-    status: {
-        type: String,
-        enum: ['Present', 'Absent'],
-        required: true,
-    },
-    batch: {
-        type: String, // Useful for filtering reports
-    },
-    recordedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // The coach who marked it
-    },
-}, { timestamps: true });
+  student: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true },
+  coach: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // who marked
+  date: { type: Date, required: true },
+  status: { type: String, enum: ['present', 'absent', 'leave'], default: 'present' },
+  note: String,
+  createdAt: { type: Date, default: Date.now }
+});
 
-// Ensure combination of studentId and date is unique
-attendanceSchema.index({ studentId: 1, date: 1 }, { unique: true });
+attendanceSchema.index({ student: 1, date: 1 }, { unique: true }); // one record per day per student
 
-export default mongoose.model('Attendance', attendanceSchema);
+module.exports = mongoose.model('Attendance', attendanceSchema);

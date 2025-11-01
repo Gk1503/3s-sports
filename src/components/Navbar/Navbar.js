@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState  } from "react";
+import { NavLink,useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import logo from "../../images/logo.jpg";
-// import LoginModal from "../Login/Login";
+ import LoginModal from "../Login/Login";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [showLogin, setShowLogin] = useState(false);
-  // const [showMenu, setShowMenu] = useState(false);
-  // const [user, setUser] = useState(null); // user state from backend
-  // const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [user, setUser] = useState(null); // user state from backend
+  const navigate = useNavigate();
 
-  // const logout = () => {
-  //   setUser(null);
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("user");
-  //   navigate("/");
-  // };
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
 
   return (
     <>
@@ -36,7 +36,7 @@ const Navbar = () => {
           <li><NavLink to="/contact" onClick={() => setIsOpen(false)}>Contact</NavLink></li>
 
           {/* Login / User Avatar */}
-          {/* <li>
+          <li>
             {!user ? (
               <button className="btn-login" onClick={() => { setShowLogin(true); setIsOpen(false); }}>Login</button>
             ) : (
@@ -55,7 +55,7 @@ const Navbar = () => {
                 )}
               </div>
             )}
-          </li> */}
+          </li>
         </ul>
 
         {/* Mobile Hamburger */}
@@ -71,7 +71,7 @@ const Navbar = () => {
       </nav>
 
       {/* Login Modal */}
-      {/* {showLogin && <LoginModal closeModal={() => setShowLogin(false)} setUser={setUser} />} */}
+      {showLogin && <LoginModal closeModal={() => setShowLogin(false)} setUser={setUser} />}
     </>
   );
 };

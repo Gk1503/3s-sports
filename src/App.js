@@ -59,17 +59,17 @@ function AppContent() {
         <Route
           path="/coach-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["coach", "srCoach"]}>
+            
               <CoachDashboard />
-            </ProtectedRoute>
+          
           }
         />
         <Route
           path="/srcoach-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["srCoach"]}>
+           
               <SeniorCoachDashboard />
-            </ProtectedRoute>
+       
           }
         />
 
