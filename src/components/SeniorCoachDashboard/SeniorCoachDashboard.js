@@ -12,38 +12,35 @@ import "./SeniorCoachDashboard.css";
 
 const SeniorCoachDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  // Ensure user is correctly parsed and accessible
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [students, setStudents] = useState([]);
-  // ✅ Coaches data is now fetched from the backend, initialize as empty array
   const [coaches, setCoaches] = useState([]);
-
-  const [notifications, setNotifications] = useState([
-    { msg: "Practice session scheduled for Sunday 7 AM", time: "2 hrs ago" },
-  ]);
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [feesReport, setFeesReport] = useState(null);
+  const [pendingFees, setPendingFees] = useState([]);
+  const [collectedFees, setCollectedFees] = useState([]);
+  const [attendanceReport, setAttendanceReport] = useState(null);
 
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showCoachModal, setShowCoachModal] = useState(false);
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+  const [showFeesModal, setShowFeesModal] = useState(false);
+  const [showFeesReportModal, setShowFeesReportModal] = useState(false);
+  
   const [editingStudent, setEditingStudent] = useState(null);
-  // ✅ editingCoach now holds the coach object being edited
   const [editingCoach, setEditingCoach] = useState(null);
-  // Renamed to 'studentFormData' for clarity in modals
+  const [selectedStudentForFees, setSelectedStudentForFees] = useState(null);
+  const [selectedStudentForCredentials, setSelectedStudentForCredentials] = useState(null);
+  
   const [studentFormData, setStudentFormData] = useState({});
-  // Renamed to 'coachFormData' to manage Add/Edit Coach form data
   const [coachFormData, setCoachFormData] = useState({});
-  const [newNotification, setNewNotification] = useState("");
+  const [feesFormData, setFeesFormData] = useState({
+    monthlyFee: "",
+    feeDuration: "1m",
+  });
 
-  // Handler for coach form input changes
-  const handleCoachFormChange = (e) => {
-    const { name, value } = e.target;
-    setCoachFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  // ✅ Extracted the fetch logic into a useCallback function for cleaner usage
+  // Fetch students
   const fetchStudents = useCallback(async () => {
     if (!user?.token) return;
 
@@ -64,7 +61,7 @@ const SeniorCoachDashboard = () => {
     }
   }, [user?.token]);
 
-  // ✅ New fetch logic for Coaches
+  // Fetch coaches
   const fetchCoaches = useCallback(async () => {
     if (!user?.token) return;
     try {
@@ -75,7 +72,6 @@ const SeniorCoachDashboard = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        // Data structure: [{_id, userId: {_id, name, username}, specialization, contact}]
         setCoaches(data);
       } else {
         console.error("Failed to fetch coaches:", data.message);
@@ -85,26 +81,114 @@ const SeniorCoachDashboard = () => {
     }
   }, [user?.token]);
 
-  // Initial data fetch
+  // Fetch dashboard stats
+  const fetchDashboardStats = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/dashboard/stats", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDashboardStats(data);
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    }
+  }, [user?.token]);
+
+  // Fetch fees report
+  const fetchFeesReport = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/report", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setFeesReport(data);
+      }
+    } catch (err) {
+      console.error("Error fetching fees report:", err);
+    }
+  }, [user?.token]);
+
+  // Fetch pending fees
+  const fetchPendingFees = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/pending", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPendingFees(data.fees || []);
+      }
+    } catch (err) {
+      console.error("Error fetching pending fees:", err);
+    }
+  }, [user?.token]);
+
+  // Fetch collected fees
+  const fetchCollectedFees = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/collected", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCollectedFees(data.fees || []);
+      }
+    } catch (err) {
+      console.error("Error fetching collected fees:", err);
+    }
+  }, [user?.token]);
+
+  // Fetch attendance report
+  const fetchAttendanceReport = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/attendance/report", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAttendanceReport(data);
+      }
+    } catch (err) {
+      console.error("Error fetching attendance report:", err);
+    }
+  }, [user?.token]);
+
   useEffect(() => {
     fetchStudents();
-    // ✅ Fetch coaches data on component load
     fetchCoaches();
-  }, [fetchStudents, fetchCoaches]);
+    fetchDashboardStats();
+  }, [fetchStudents, fetchCoaches, fetchDashboardStats]);
 
-  // Fee Stats Calculation
-  const totalFees = students.reduce((sum, s) => sum + (s.fees?.total || 0), 0);
-  const collectedFees = students
-    .filter((s) => s.feeStatus === "Paid")
-    .reduce((sum, s) => sum + (s.fees?.total || 0), 0);
-  const pendingFees = totalFees - collectedFees;
+  useEffect(() => {
+    if (activeTab === "fees") {
+      fetchFeesReport();
+      fetchPendingFees();
+      fetchCollectedFees();
+    }
+    if (activeTab === "reports") {
+      fetchAttendanceReport();
+    }
+  }, [activeTab, fetchFeesReport, fetchPendingFees, fetchCollectedFees, fetchAttendanceReport]);
 
-  const feeData = [
-    { name: "Collected", amount: collectedFees },
-    { name: "Pending", amount: pendingFees },
-  ];
-
-  // Handler for student form input changes (unchanged)
+  // Form handlers
   const handleStudentFormChange = (e) => {
     const { name, value, type } = e.target;
     setStudentFormData((prevData) => ({
@@ -113,18 +197,17 @@ const SeniorCoachDashboard = () => {
     }));
   };
 
-  // Student CRUD handlers (unchanged)
+  const handleCoachFormChange = (e) => {
+    const { name, value } = e.target;
+    setCoachFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  // Student CRUD
   const handleAddStudent = async (e) => {
     e.preventDefault();
-
-    const feeValue = studentFormData.fees || 0;
-    const feeStatus = studentFormData.status || "Pending";
-
-    const studentDataToSend = {
-      ...studentFormData,
-      fees: feeValue,
-      status: feeStatus,
-    };
 
     try {
       const res = await fetch("http://localhost:5000/api/srcoach/students", {
@@ -133,19 +216,24 @@ const SeniorCoachDashboard = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify({  username: studentFormData.username,
-  password: studentFormData.password,
-  studentData: {
-    name: studentFormData.name,
-    contact: studentFormData.contact,
-    address: studentFormData.address,
-    school: studentFormData.school,
-    ageCategory: studentFormData.ageCategory,
-    batch: studentFormData.batch,
-    timings: studentFormData.timings,
-    fees: studentFormData.fees,
-    feeStatus: studentFormData.status,
-} }),
+        body: JSON.stringify({
+          username: studentFormData.username,
+          password: studentFormData.password,
+          firstName: studentFormData.firstName,
+          lastName: studentFormData.lastName,
+          email: studentFormData.email,
+          phone: studentFormData.phone,
+          gender: studentFormData.gender,
+          dob: studentFormData.dob,
+          batch: studentFormData.batch,
+          address: studentFormData.address,
+          parentName: studentFormData.parentName,
+          parentPhone: studentFormData.parentPhone,
+          profilePhotoUrl: studentFormData.profilePhotoUrl,
+          monthlyFee: studentFormData.monthlyFee || 0,
+          feeDuration: studentFormData.feeDuration || "1m",
+          extraInfo: studentFormData.extraInfo,
+        }),
       });
 
       const result = await res.json();
@@ -153,7 +241,7 @@ const SeniorCoachDashboard = () => {
       if (res.ok) {
         alert("✅ Student added successfully!");
         await fetchStudents();
-
+        await fetchDashboardStats();
         setShowStudentModal(false);
         setStudentFormData({});
       } else {
@@ -168,11 +256,20 @@ const SeniorCoachDashboard = () => {
   const handleEditStudent = (student) => {
     setEditingStudent(student);
     setStudentFormData({
-      ...student,
-      name: student.userId?.name || student.name,
-      fees: student.fees?.total,
-      status: student.feeStatus,
-      password: "",
+      firstName: student.firstName || "",
+      lastName: student.lastName || "",
+      email: student.email || "",
+      phone: student.phone || "",
+      gender: student.gender || "",
+      dob: student.dob ? student.dob.split("T")[0] : "",
+      batch: student.batch || "",
+      address: student.address || "",
+      parentName: student.parentName || "",
+      parentPhone: student.parentPhone || "",
+      profilePhotoUrl: student.profilePhotoUrl || "",
+      monthlyFee: student.monthlyFee || 0,
+      feeDuration: student.feeDuration || "1m",
+      extraInfo: student.extraInfo || "",
     });
     setShowStudentModal(true);
   };
@@ -180,34 +277,27 @@ const SeniorCoachDashboard = () => {
   const handleUpdateStudent = async (e) => {
     e.preventDefault();
 
-    const studentIdToUpdate = editingStudent._id;
-    const feeValue = studentFormData.fees || 0;
-    const feeStatus = studentFormData.status || "Pending";
-
-    const updatePayload = {
-      ...studentFormData,
-      fees: feeValue,
-      status: feeStatus,
-      password: studentFormData.password || undefined,
-    };
+    if (!editingStudent) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/students/${studentIdToUpdate}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify(updatePayload),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify(studentFormData),
+        }
+      );
 
       const result = await res.json();
 
       if (res.ok) {
         alert("✅ Student updated successfully!");
-        // Rerunning fetchStudents is the safest way to ensure stats are updated correctly
         await fetchStudents();
-
+        await fetchDashboardStats();
         setShowStudentModal(false);
         setEditingStudent(null);
         setStudentFormData({});
@@ -221,7 +311,8 @@ const SeniorCoachDashboard = () => {
   };
 
   const handleDeleteStudent = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this student? This action cannot be undone.")) return;
+    if (!window.confirm("Are you sure you want to delete this student? This action cannot be undone."))
+      return;
 
     try {
       const res = await fetch(`http://localhost:5000/api/srcoach/students/${id}`, {
@@ -233,7 +324,8 @@ const SeniorCoachDashboard = () => {
 
       if (res.ok) {
         alert("✅ Student deleted successfully!");
-        setStudents(students.filter((s) => s._id !== id));
+        await fetchStudents();
+        await fetchDashboardStats();
       } else {
         const data = await res.json();
         alert(data.message || "Failed to delete student");
@@ -244,70 +336,107 @@ const SeniorCoachDashboard = () => {
     }
   };
 
-  // --------------------------------------------------------------------------
-  // ✅ UPDATED COACH HANDLERS - NOW CONNECTED TO BACKEND
-  // --------------------------------------------------------------------------
+  // View credentials
+  const handleViewCredentials = async (student) => {
+    setSelectedStudentForCredentials(student);
+    setShowCredentialsModal(true);
+  };
 
-  // Handler for setting up the Edit Coach Modal
+  // Set student fees
+  const handleSetFees = (student) => {
+    setSelectedStudentForFees(student);
+    setFeesFormData({
+      monthlyFee: student.monthlyFee || "",
+      feeDuration: student.feeDuration || "1m",
+    });
+    setShowFeesModal(true);
+  };
+
+  const handleSubmitFees = async (e) => {
+    e.preventDefault();
+    if (!selectedStudentForFees) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/srcoach/students/${selectedStudentForFees._id}/fees`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify({
+            monthlyFee: parseFloat(feesFormData.monthlyFee),
+            feeDuration: feesFormData.feeDuration,
+          }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("✅ Student fees updated successfully!");
+        await fetchStudents();
+        await fetchFeesReport();
+        setShowFeesModal(false);
+        setSelectedStudentForFees(null);
+      } else {
+        alert(result.message || "Failed to update fees");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server");
+    }
+  };
+
+  // Coach CRUD
   const handleEditCoach = (coach) => {
     setEditingCoach(coach);
-    // Initialize form data from the coach object. Name comes from the populated userId.
     setCoachFormData({
-      name: coach.userId.name,
-      specialization: coach.specialization,
-      contact: coach.contact,
+      name: coach.name || "",
+      email: coach.email || "",
+      phone: coach.phone || "",
+      profilePhotoUrl: coach.profilePhotoUrl || "",
     });
     setShowCoachModal(true);
   };
 
-  // Handler for adding/updating a coach
   const handleAddCoach = async (e) => {
     e.preventDefault();
     const isEditing = !!editingCoach;
-    const url = isEditing
-      ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
-      : "http://localhost:5000/api/srcoach/coaches";
-    const method = isEditing ? "PUT" : "POST";
-    
-    // For editing, we don't send username/password.
-    // For adding, we need username/password (ensure fields are added to the modal)
-    const payload = isEditing ? coachFormData : {
-      ...coachFormData,
-      // Add a placeholder password/username if not explicitly in the modal yet
-      // For a robust system, these inputs must be in the modal!
-      username: coachFormData.username || (isEditing ? undefined : `coach${Date.now()}`),
-      password: coachFormData.password || (isEditing ? undefined : 'default123'), 
-    };
 
     try {
+      const url = isEditing
+        ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
+        : "http://localhost:5000/api/srcoach/coaches";
+      const method = isEditing ? "PUT" : "POST";
+
+      const payload = isEditing
+        ? coachFormData
+        : {
+            username: coachFormData.username,
+            password: coachFormData.password,
+            name: coachFormData.name,
+            email: coachFormData.email,
+            phone: coachFormData.phone,
+            profilePhotoUrl: coachFormData.profilePhotoUrl,
+          };
+
       const res = await fetch(url, {
         method: method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user?.token}`,
         },
-        body: JSON.stringify(
-  isEditing
-    ? coachFormData
-    : {
-        username: coachFormData.username,
-        password: coachFormData.password,
-        coachData: {
-          name: coachFormData.name,
-          specialization: coachFormData.specialization,
-          contact: coachFormData.contact,
-        },
-      }
-),
-
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();
 
       if (res.ok) {
         alert(`✅ Coach ${isEditing ? "updated" : "added"} successfully!`);
-        await fetchCoaches(); // Re-fetch all coaches
-
+        await fetchCoaches();
+        await fetchDashboardStats();
         setShowCoachModal(false);
         setEditingCoach(null);
         setCoachFormData({});
@@ -321,7 +450,8 @@ const SeniorCoachDashboard = () => {
   };
 
   const handleDeleteCoach = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this coach and their associated user account?")) return;
+    if (!window.confirm("Are you sure you want to delete this coach and their associated user account?"))
+      return;
 
     try {
       const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${id}`, {
@@ -333,7 +463,8 @@ const SeniorCoachDashboard = () => {
 
       if (res.ok) {
         alert("✅ Coach deleted successfully!");
-        setCoaches(coaches.filter((c) => c._id !== id));
+        await fetchCoaches();
+        await fetchDashboardStats();
       } else {
         const data = await res.json();
         alert(data.message || "Failed to delete coach");
@@ -344,37 +475,36 @@ const SeniorCoachDashboard = () => {
     }
   };
 
-  const handleSendNotification = (e) => {
-    e.preventDefault();
-    setNotifications([{ msg: newNotification, time: "Just now" }, ...notifications]);
-    setNewNotification("");
-  };
+  // Calculate stats for charts
+  const feeData = dashboardStats?.fees
+    ? [
+        { name: "Collected", amount: dashboardStats.fees.collected },
+        { name: "Pending", amount: dashboardStats.fees.pending },
+      ]
+    : [];
 
-  // --- Start of JSX ---
   return (
     <div id="srcoach-dashboard">
       {/* Sidebar */}
       <aside id="sidebar">
         <h2 id="sidebar-title">🏏 3Sports</h2>
         <ul>
-          {["overview", "students", "coaches", "fees", "notifications", "reports"].map(
-            (tab) => (
-              <li
-                key={tab}
-                id={`sidebar-${tab}`}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  background:
-                    activeTab === tab
-                      ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
-                      : "transparent",
-                  color: activeTab === tab ? "#fff" : "#12394f",
-                }}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </li>
-            )
-          )}
+          {["overview", "students", "coaches", "fees", "reports"].map((tab) => (
+            <li
+              key={tab}
+              id={`sidebar-${tab}`}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                background:
+                  activeTab === tab
+                    ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
+                    : "transparent",
+                color: activeTab === tab ? "#fff" : "#12394f",
+              }}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </li>
+          ))}
         </ul>
       </aside>
 
@@ -384,24 +514,24 @@ const SeniorCoachDashboard = () => {
           <h1>Senior Coach Dashboard</h1>
         </header>
 
-        {/* Overview (unchanged) */}
+        {/* Overview */}
         {activeTab === "overview" && (
           <section id="overview-section">
             <div id="stat-total-students">
               <h3>Total Students</h3>
-              <p>{students.length}</p>
+              <p>{dashboardStats?.counts?.totalStudents || students.length}</p>
             </div>
             <div id="stat-total-coaches">
               <h3>Total Coaches</h3>
-              <p>{coaches.length}</p>
+              <p>{dashboardStats?.counts?.totalCoaches || coaches.length}</p>
             </div>
             <div id="stat-collected-fees">
               <h3>Collected Fees</h3>
-              <p>₹{collectedFees}</p>
+              <p>₹{dashboardStats?.fees?.collected || 0}</p>
             </div>
             <div id="stat-pending-fees">
               <h3>Pending Fees</h3>
-              <p>₹{pendingFees}</p>
+              <p>₹{dashboardStats?.fees?.pending || 0}</p>
             </div>
 
             <div id="chart-container">
@@ -419,65 +549,79 @@ const SeniorCoachDashboard = () => {
           </section>
         )}
 
-        {/* Students Table (unchanged) */}
+        {/* Students Table */}
         {activeTab === "students" && (
           <section id="students-section">
             <div id="students-header">
               <h2>Manage Students</h2>
-              <button id="students-add-btn" onClick={() => {setShowStudentModal(true); setEditingStudent(null); setStudentFormData({});}}>
+              <button
+                id="students-add-btn"
+                onClick={() => {
+                  setShowStudentModal(true);
+                  setEditingStudent(null);
+                  setStudentFormData({});
+                }}
+              >
                 + Add Student
               </button>
             </div>
             <div className="table-wrapper">
-                <table id="students-table">
-                  <thead>
+              <table id="students-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Batch</th>
+                    <th>Monthly Fee</th>
+                    <th>Username</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.length === 0 ? (
                     <tr>
-                      <th>Name</th>
-                      <th>Contact</th>
-                      <th>Batch</th>
-                      <th>Age</th>
-                      <th>Fees</th>
-                      <th>Status</th>
-                      <th>Actions</th>
+                      <td colSpan="6" style={{ textAlign: "center" }}>
+                        No students found
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {students.map((s) => (
+                  ) : (
+                    students.map((s) => (
                       <tr key={s._id}>
-                        {/* Access name from the populated userId object */}
-                        <td>{s.userId?.name || 'N/A'}</td>
-                        <td>{s.contact}</td>
-                        <td>{s.batch}</td>
-                        <td>{s.ageCategory}</td>
-                        {/* Access total fees from the nested fees object */}
-                        <td>₹{s.fees?.total || 0}</td>
-                        <td
-                          style={{
-                            // Use feeStatus directly from the document
-                            color: s.feeStatus === "Paid" ? "#10b981" : "#e53e3e",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {s.feeStatus}
+                        <td>
+                          {s.firstName} {s.lastName || ""}
                         </td>
+                        <td>{s.phone || "N/A"}</td>
+                        <td>{s.batch || "N/A"}</td>
+                        <td>₹{s.monthlyFee || 0}</td>
+                        <td>{s.username || "N/A"}</td>
                         <td>
                           <button onClick={() => handleEditStudent(s)}>Edit</button>
                           <button onClick={() => handleDeleteStudent(s._id)}>Delete</button>
+                          <button onClick={() => handleViewCredentials(s)}>Credentials</button>
+                          <button onClick={() => handleSetFees(s)}>Set Fees</button>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
         )}
 
-        {/* Coaches Table (UPDATED to use dynamic data) */}
+        {/* Coaches Table */}
         {activeTab === "coaches" && (
           <section id="coaches-section" className="full-width-section">
             <div id="coaches-header">
               <h2>Manage Coaches</h2>
-              <button id="coaches-add-btn" onClick={() => {setShowCoachModal(true); setEditingCoach(null); setCoachFormData({});}}>
+              <button
+                id="coaches-add-btn"
+                onClick={() => {
+                  setShowCoachModal(true);
+                  setEditingCoach(null);
+                  setCoachFormData({});
+                }}
+              >
                 + Add Coach
               </button>
             </div>
@@ -486,157 +630,393 @@ const SeniorCoachDashboard = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Specialization</th>
-                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Username</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Map over coaches fetched from the backend */}
-                  {coaches.map((c) => (
-                    <tr key={c._id}>
-                      {/* Access name from the populated userId object */}
-                      <td>{c.userId?.name || 'N/A'}</td> 
-                      <td>{c.specialization}</td>
-                      <td>{c.contact}</td>
-                      <td>
-                        <button id={`edit-coach-${c._id}`} onClick={() => handleEditCoach(c)}>
-                          Edit
-                        </button>
-                        <button id={`delete-coach-${c._id}`} onClick={() => handleDeleteCoach(c._id)}>
-                          Delete
-                        </button>
+                  {coaches.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
+                        No coaches found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    coaches.map((c) => (
+                      <tr key={c._id}>
+                        <td>{c.name || "N/A"}</td>
+                        <td>{c.email || "N/A"}</td>
+                        <td>{c.phone || "N/A"}</td>
+                        <td>{c.username || "N/A"}</td>
+                        <td>
+                          <button onClick={() => handleEditCoach(c)}>Edit</button>
+                          <button onClick={() => handleDeleteCoach(c._id)}>Delete</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </section>
         )}
 
-        {/* Fees, Notifications, Reports (unchanged) */}
+        {/* Fees Tab */}
         {activeTab === "fees" && (
           <section id="fees-section">
             <div id="fee-collected">
               <h3>Collected Fees</h3>
-              <p>₹{collectedFees}</p>
+              <p>₹{dashboardStats?.fees?.collected || 0}</p>
             </div>
             <div id="fee-pending">
               <h3>Pending Fees</h3>
-              <p>₹{pendingFees}</p>
+              <p>₹{dashboardStats?.fees?.pending || 0}</p>
+            </div>
+            <div id="fee-total">
+              <h3>Total Collection</h3>
+              <p>₹{dashboardStats?.fees?.totalCollection || 0}</p>
+            </div>
+
+            <div style={{ marginTop: "30px" }}>
+              <h3>Pending Fees List</h3>
+              <div className="table-wrapper">
+                <table id="fees-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Amount</th>
+                      <th>Month</th>
+                      <th>Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingFees.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" style={{ textAlign: "center" }}>
+                          No pending fees
+                        </td>
+                      </tr>
+                    ) : (
+                      pendingFees.map((fee) => (
+                        <tr key={fee._id}>
+                          <td>
+                            {fee.student?.firstName} {fee.student?.lastName || ""}
+                          </td>
+                          <td>₹{fee.amount}</td>
+                          <td>{fee.month || "-"}</td>
+                          <td>{fee.feeForMonths}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         )}
 
-        {activeTab === "notifications" && (
-          <section id="notifications-section">
-            <h2>Notifications</h2>
-            <form id="notify-form" onSubmit={handleSendNotification}>
-              <textarea
-                value={newNotification}
-                onChange={(e) => setNewNotification(e.target.value)}
-                placeholder="Type a notification..."
-                required
-              />
-              <button type="submit">Send</button>
-            </form>
-            <div id="notification-list">
-              {notifications.map((n, i) => (
-                <div id={`notify-card-${i}`} key={i}>
-                  <p>{n.msg}</p>
-                  <span>{n.time}</span>
-                </div>
-              ))}
-            </div>
+        {/* Reports Tab */}
+        {activeTab === "reports" && (
+          <section id="reports-section">
+            <h2>Reports</h2>
+
+            {attendanceReport && (
+              <div style={{ marginBottom: "30px" }}>
+                <h3>Attendance Report</h3>
+                <p>Total Records: {attendanceReport.summary?.total || 0}</p>
+                <p>Present: {attendanceReport.summary?.present || 0}</p>
+                <p>Absent: {attendanceReport.summary?.absent || 0}</p>
+                <p>Leave: {attendanceReport.summary?.leave || 0}</p>
+              </div>
+            )}
+
+            {feesReport && (
+              <div>
+                <h3>Fees Report Summary</h3>
+                <p>Total: ₹{feesReport.summary?.total || 0}</p>
+                <p>Collected: ₹{feesReport.summary?.collected || 0}</p>
+                <p>Pending: ₹{feesReport.summary?.pending || 0}</p>
+              </div>
+            )}
           </section>
         )}
-        
-        {activeTab === "reports" && (
-            <section id="reports-section">
-              <h2>Reports</h2>
-              <p>Reports and analytics coming soon!</p>
-            </section>
-          )}
       </main>
 
-      {/* Add/Edit Student Modal (unchanged) */}
+      {/* Add/Edit Student Modal */}
       {showStudentModal && (
         <div id="modal-overlay">
           <div id="modal-student">
             <h2>{editingStudent ? "Edit Student" : "Add Student"}</h2>
             <form onSubmit={editingStudent ? handleUpdateStudent : handleAddStudent}>
-              <input name="name" placeholder="Full Name" value={studentFormData.name || ""} onChange={handleStudentFormChange} required />
-              <input name="username" placeholder="Username" value={studentFormData.username || ""} onChange={handleStudentFormChange} required={!editingStudent} disabled={!!editingStudent}/>
-              <input type="password" name="password" placeholder={editingStudent ? "New Password (optional)" : "Password"} value={studentFormData.password || ""} onChange={handleStudentFormChange} required={!editingStudent} />
-              <input name="contact" placeholder="Contact" value={studentFormData.contact || ""} onChange={handleStudentFormChange} />
-              <input name="address" placeholder="Address" value={studentFormData.address || ""} onChange={handleStudentFormChange} />
-              <input name="school" placeholder="School" value={studentFormData.school || ""} onChange={handleStudentFormChange} />
-              <input name="ageCategory" placeholder="Age Category" value={studentFormData.ageCategory || ""} onChange={handleStudentFormChange} />
-              <input name="batch" placeholder="Batch" value={studentFormData.batch || ""} onChange={handleStudentFormChange} />
-              <input name="timings" placeholder="Timings" value={studentFormData.timings || ""} onChange={handleStudentFormChange} />
-              <input type="number" name="fees" placeholder="Total Fees" value={studentFormData.fees || ""} onChange={handleStudentFormChange} />
-              <select name="status" value={studentFormData.status || "Pending"} onChange={handleStudentFormChange}>
-                <option value="Pending">Pending</option>
-                <option value="Paid">Paid</option>
+              {!editingStudent && (
+                <>
+                  <input
+                    name="username"
+                    placeholder="Username"
+                    value={studentFormData.username || ""}
+                    onChange={handleStudentFormChange}
+                    required
+                  />
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={studentFormData.password || ""}
+                    onChange={handleStudentFormChange}
+                    required={!editingStudent}
+                  />
+                </>
+              )}
+              <input
+                name="firstName"
+                placeholder="First Name"
+                value={studentFormData.firstName || ""}
+                onChange={handleStudentFormChange}
+                required
+              />
+              <input
+                name="lastName"
+                placeholder="Last Name"
+                value={studentFormData.lastName || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="email"
+                placeholder="Email"
+                type="email"
+                value={studentFormData.email || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="phone"
+                placeholder="Phone"
+                value={studentFormData.phone || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="gender"
+                placeholder="Gender"
+                value={studentFormData.gender || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="dob"
+                placeholder="Date of Birth"
+                type="date"
+                value={studentFormData.dob || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="batch"
+                placeholder="Batch"
+                value={studentFormData.batch || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="address"
+                placeholder="Address"
+                value={studentFormData.address || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="parentName"
+                placeholder="Parent Name"
+                value={studentFormData.parentName || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="parentPhone"
+                placeholder="Parent Phone"
+                value={studentFormData.parentPhone || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="profilePhotoUrl"
+                placeholder="Profile Photo URL"
+                value={studentFormData.profilePhotoUrl || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                type="number"
+                name="monthlyFee"
+                placeholder="Monthly Fee"
+                value={studentFormData.monthlyFee || ""}
+                onChange={handleStudentFormChange}
+              />
+              <select
+                name="feeDuration"
+                value={studentFormData.feeDuration || "1m"}
+                onChange={handleStudentFormChange}
+              >
+                <option value="1m">1 Month</option>
+                <option value="3m">3 Months</option>
+                <option value="6m">6 Months</option>
+                <option value="12m">12 Months</option>
               </select>
+              <textarea
+                name="extraInfo"
+                placeholder="Extra Info"
+                value={studentFormData.extraInfo || ""}
+                onChange={handleStudentFormChange}
+              />
               <div id="modal-buttons">
                 <button type="submit">{editingStudent ? "Update" : "Add"}</button>
-                <button type="button" onClick={() => { setShowStudentModal(false); setEditingStudent(null); setStudentFormData({}); }}>Cancel</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStudentModal(false);
+                    setEditingStudent(null);
+                    setStudentFormData({});
+                  }}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Add/Edit Coach Modal (UPDATED to use coachFormData and include User fields) */}
+      {/* View Credentials Modal */}
+      {showCredentialsModal && selectedStudentForCredentials && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Student Credentials</h2>
+            <p>
+              <strong>Name:</strong> {selectedStudentForCredentials.firstName}{" "}
+              {selectedStudentForCredentials.lastName || ""}
+            </p>
+            <p>
+              <strong>Username:</strong> {selectedStudentForCredentials.username || "N/A"}
+            </p>
+            <p style={{ color: "#666", fontStyle: "italic" }}>
+              Password is encrypted and cannot be retrieved. Use password reset if needed.
+            </p>
+            <div id="modal-buttons">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCredentialsModal(false);
+                  setSelectedStudentForCredentials(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Set Fees Modal */}
+      {showFeesModal && selectedStudentForFees && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Set Fees for {selectedStudentForFees.firstName}</h2>
+            <form onSubmit={handleSubmitFees}>
+              <label>Monthly Fee (₹):</label>
+              <input
+                type="number"
+                value={feesFormData.monthlyFee}
+                onChange={(e) =>
+                  setFeesFormData({ ...feesFormData, monthlyFee: e.target.value })
+                }
+                required
+                step="0.01"
+              />
+              <label>Fee Duration:</label>
+              <select
+                value={feesFormData.feeDuration}
+                onChange={(e) =>
+                  setFeesFormData({ ...feesFormData, feeDuration: e.target.value })
+                }
+              >
+                <option value="1m">1 Month</option>
+                <option value="3m">3 Months</option>
+                <option value="6m">6 Months</option>
+                <option value="12m">12 Months</option>
+              </select>
+              <div id="modal-buttons">
+                <button type="submit">Update Fees</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFeesModal(false);
+                    setSelectedStudentForFees(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Coach Modal */}
       {showCoachModal && (
         <div id="modal-overlay">
           <div id="modal-coach">
             <h2>{editingCoach ? "Edit Coach" : "Add Coach"}</h2>
-            {/* The submission handler is now generic for both Add/Edit */}
-            <form onSubmit={handleAddCoach}> 
-              <input 
-                name="name" 
-                placeholder="Full Name" 
-                value={coachFormData.name || ""} 
-                onChange={handleCoachFormChange} 
-                required 
+            <form onSubmit={handleAddCoach}>
+              <input
+                name="name"
+                placeholder="Full Name"
+                value={coachFormData.name || ""}
+                onChange={handleCoachFormChange}
+                required
               />
               {!editingCoach && (
                 <>
-                  <input 
-                    name="username" 
-                    placeholder="Username" 
-                    value={coachFormData.username || ""} 
-                    onChange={handleCoachFormChange} 
-                    required={!editingCoach} 
+                  <input
+                    name="username"
+                    placeholder="Username"
+                    value={coachFormData.username || ""}
+                    onChange={handleCoachFormChange}
+                    required
                   />
-                  <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="Password" 
-                    value={coachFormData.password || ""} 
-                    onChange={handleCoachFormChange} 
-                    required={!editingCoach} 
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={coachFormData.password || ""}
+                    onChange={handleCoachFormChange}
+                    required
                   />
                 </>
               )}
-              <input 
-                name="specialization" 
-                placeholder="Specialization" 
-                value={coachFormData.specialization || ""} 
-                onChange={handleCoachFormChange} 
+              <input
+                name="email"
+                placeholder="Email"
+                type="email"
+                value={coachFormData.email || ""}
+                onChange={handleCoachFormChange}
               />
-              <input 
-                name="contact" 
-                placeholder="Contact" 
-                value={coachFormData.contact || ""} 
-                onChange={handleCoachFormChange} 
+              <input
+                name="phone"
+                placeholder="Phone"
+                value={coachFormData.phone || ""}
+                onChange={handleCoachFormChange}
+              />
+              <input
+                name="profilePhotoUrl"
+                placeholder="Profile Photo URL"
+                value={coachFormData.profilePhotoUrl || ""}
+                onChange={handleCoachFormChange}
               />
               <div id="modal-buttons">
                 <button type="submit">{editingCoach ? "Update" : "Add"}</button>
-                <button type="button" onClick={() => { setShowCoachModal(false); setEditingCoach(null); setCoachFormData({}); }}>Cancel</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCoachModal(false);
+                    setEditingCoach(null);
+                    setCoachFormData({});
+                  }}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

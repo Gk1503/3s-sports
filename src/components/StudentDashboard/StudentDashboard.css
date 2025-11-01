@@ -1,86 +1,70 @@
-/* General Dashboard Styles */
+/* ===== General Dashboard Styles ===== */
 #student-dashboard {
   display: flex;
   min-height: 100vh;
-  font-family: "Poppins", sans-serif;
-  background: #f4f6fb;
+  font-family: "Poppins", "Inter", sans-serif;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
   color: #1a202c;
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 #dashboard-sidebar {
-  width: 260px;
-  background: #001f3f;
+  width: 300px;
+  background: linear-gradient(180deg, #001f3f 0%, #002b5c 100%);
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1.5rem;
   position: fixed;
-  height: 100%;
+  height: 100vh;
   gap: 2rem;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
 }
 
 #sidebar-profile-img {
-  width: 140px;
-  height: 140px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   border: 4px solid #00bfff;
   object-fit: cover;
-  box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+#sidebar-profile-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
 }
 
 #sidebar-profile-name {
-  margin-top: 0.8rem;
-  font-size: 1.2rem;
-  font-weight: 600;
+  margin-top: 1rem;
+  font-size: 1.3rem;
+  font-weight: 700;
   text-align: center;
+  color: #fff;
 }
 
 #edit-profile-btn {
-  margin-top: 0.5rem;
-  background: #00bfff;
+  margin-top: 0.8rem;
+  background: linear-gradient(90deg, #00bfff, #1e90ff);
   border: none;
   color: #fff;
-  padding: 0.4rem 1rem;
-  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
 #edit-profile-btn:hover {
-  background: #0095cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
 }
 
-/* Sidebar Menu Buttons */
-#sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 1rem;
-}
-
-.sidebar-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.05rem;
-  padding: 0.8rem 1rem;
-  width: 100%;
-  text-align: left;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.sidebar-btn:hover,
-.sidebar-btn.active {
-  background: #00bfff;
-  color: #001f3f;
-}
-
-/* Profile Edit Section */
+/* ===== Profile Edit Section ===== */
 #profile-edit-section {
   width: 100%;
   display: flex;
@@ -88,190 +72,352 @@
   align-items: center;
   gap: 0.8rem;
   margin-top: 1rem;
-  background: #003366;
-  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.2rem;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-#profile-name-input {
-  width: 90%;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: none;
+#profile-name-input,
+#profile-edit-section input {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #001f3f;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+#profile-name-input:focus,
+#profile-edit-section input:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2);
 }
 
 #profile-upload-label {
-  background: #00bfff;
+  background: linear-gradient(90deg, #00bfff, #1e90ff);
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
 }
 
 #profile-upload-label:hover {
-  background: #0095cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
 }
 
 #save-profile-btn {
-  background: #00bfff;
+  background: linear-gradient(90deg, #10b981, #059669);
   border: none;
   color: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.7rem 1.5rem;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  width: 90%;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
 #save-profile-btn:hover {
-  background: #0095cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
-/* Main Content */
+/* ===== Sidebar Menu Buttons ===== */
+#sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.sidebar-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 1.05rem;
+  padding: 1rem 1.2rem;
+  width: 100%;
+  text-align: left;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+  border-left-color: #00bfff;
+}
+
+.sidebar-btn.active {
+  background: linear-gradient(90deg, #00bfff, #1e90ff);
+  color: #fff;
+  font-weight: 600;
+  border-left-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+/* ===== Main Content ===== */
 #dashboard-main {
-  margin-left: 260px;
+  margin-left: 300px;
   flex: 1;
-  padding: 2rem;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-/* Dashboard Cards */
-#dashboard-view, #attendance-view, #progress-view {
+/* ===== Dashboard Views ===== */
+#dashboard-view,
+#fees-view,
+#attendance-view {
   background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-#batch-info, #fees-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-#fee-card {
-  background: #e6f0ff;
-  padding: 1rem 1.2rem;
-  border-radius: 12px;
-  flex: 1 1 150px;
-  text-align: center;
-  font-weight: 600;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 
+#dashboard-view:hover,
+#fees-view:hover,
+#attendance-view:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+#dashboard-view h2,
+#fees-view h2,
+#attendance-view h2 {
+  font-size: 1.8rem;
+  color: #001f3f;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  background: linear-gradient(90deg, #001f3f, #004080);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Batch and Fees Info ===== */
+#batch-info,
+#fees-info,
+#attendance-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+#batch-highlight {
+  color: #00bfff;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+#fee-card {
+  background: linear-gradient(135deg, #e6f0ff 0%, #d0e7ff 100%);
+  padding: 1.2rem 1.5rem;
+  border-radius: 14px;
+  flex: 1 1 200px;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
 #fee-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: #00bfff;
 }
 
-/* Attendance Table */
-#attendance-table-container {
+/* ===== Attendance Summary ===== */
+#attendance-summary {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+#present-count {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #10b981;
+  margin: 0;
+  line-height: 1;
+}
+
+#subtext {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin: 0.5rem 0 0 0;
+  font-weight: 600;
+}
+
+/* ===== Tables ===== */
+#attendance-table-container,
+#fees-table-container {
   overflow-x: auto;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-#attendance-table {
+#attendance-table,
+#fees-table {
   width: 100%;
   border-collapse: collapse;
+  background: #fff;
+}
+
+#attendance-table thead,
+#fees-table thead {
+  background: linear-gradient(90deg, #001f3f, #002b5c);
+  color: #fff;
 }
 
 #attendance-table th,
-#attendance-table td {
-  padding: 0.8rem 1rem;
-  text-align: center;
+#fees-table th {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#attendance-table td,
+#fees-table td {
+  padding: 1.2rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
-}
-
-#attendance-table th {
-  background: #001f3f;
-  color: #fff;
-  font-weight: 600;
-}
-
-#present { color: #00bfff; font-weight: 600; }
-#absent { color: #ff4d4f; font-weight: 600; }
-
-#attendance-table tr:hover { background: #f0f4f8; transition: all 0.3s ease; }
-
-/* Progress Circles */
-#progress-circles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-#circle-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-#progress-circle {
-  width: 90px;
-  height: 90px;
-  transform: rotate(-90deg);
-  transition: all 0.6s ease;
-}
-
-#circle-bg {
-  fill: none;
-  stroke: #eee;
-  stroke-width: 4;
-}
-
-#circle-bar {
-  fill: none;
-  stroke: #00bfff;
-  stroke-width: 4;
-  stroke-linecap: round;
-  transition: stroke-dasharray 0.6s ease;
-}
-
-#circle-text {
-  fill: #001f3f;
-  font-size: 0.6rem;
-  text-anchor: middle;
-  dominant-baseline: central;
-  transform: rotate(90deg);
-}
-
-#circle-label {
-  font-weight: 600;
+  color: #334155;
   font-size: 0.95rem;
-  color: #001f3f;
-  text-align: center;
 }
 
-/* Responsive */
+#attendance-table tbody tr,
+#fees-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+#attendance-table tbody tr:hover,
+#fees-table tbody tr:hover {
+  background: #f8fafc;
+  transform: scale(1.01);
+}
+
+#present {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+#absent {
+  color: #e53e3e;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+#leave {
+  color: #f6ad55;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 1024px) {
-  #dashboard-main { margin-left: 220px; padding: 1.5rem; }
-  #dashboard-sidebar { width: 220px; padding: 1.5rem 0.5rem; }
+  #dashboard-main {
+    margin-left: 260px;
+    padding: 2rem;
+  }
+
+  #dashboard-sidebar {
+    width: 260px;
+    padding: 2rem 1rem;
+  }
 }
 
 @media (max-width: 768px) {
-  #student-dashboard { flex-direction: column; }
+  #student-dashboard {
+    flex-direction: column;
+  }
+
   #dashboard-sidebar {
     width: 100%;
     flex-direction: row;
     justify-content: space-around;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
     position: relative;
+    height: auto;
+    flex-wrap: wrap;
   }
-  #dashboard-main { margin-left: 0; padding: 1rem; }
+
+  #sidebar-profile-img {
+    width: 100px;
+    height: 100px;
+  }
+
+  #sidebar-profile-name {
+    font-size: 1rem;
+  }
+
+  #sidebar-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .sidebar-btn {
+    flex: 1 1 auto;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  #dashboard-main {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+
+  #profile-edit-section {
+    width: 90%;
+  }
 }
 
 @media (max-width: 480px) {
-  #sidebar-profile-img { width: 100px; height: 100px; }
-  #sidebar-profile-name { font-size: 1rem; }
-  #edit-profile-btn { padding: 0.3rem 0.8rem; font-size: 0.85rem; }
-  #progress-circle { width: 70px; height: 70px; }
-  #circle-text { font-size: 0.5rem; }
+  #dashboard-main {
+    padding: 1rem;
+  }
+
+  #dashboard-view,
+  #fees-view,
+  #attendance-view {
+    padding: 1.5rem;
+  }
+
+  #sidebar-profile-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  #present-count {
+    font-size: 2.5rem;
+  }
+
+  #fee-card {
+    flex: 1 1 100%;
+  }
 }

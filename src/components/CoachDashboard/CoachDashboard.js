@@ -1,589 +1,770 @@
 // CoachDashboard.js
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import "./CoachDashboard.css"; 
-
-// NOTE: Hardcoded images (Sachin, Rahul etc.) imports are removed since the 'Team' tab is gone.
-// We keep basic imports:
-// import Sachin from "../../images/Sachin.jpg"; 
-// import Rahul from "../../images/RahulSir.jpg";
+import "./CoachDashboard.css";
 
 const CoachDashboard = () => {
-    // 1. Updated Tabs: dashboard, students, fees, attendance (Removed 'team'/'reports'/'notifications')
-    const [activeTab, setActiveTab] = useState("dashboard"); 
-    const user = JSON.parse(localStorage.getItem("user")); 
-    
-    // Student Management State
-    const [students, setStudents] = useState([]);
-    const [showStudentModal, setShowStudentModal] = useState(false);
-    const [editingStudent, setEditingStudent] = useState(null);
-    const [studentFormData, setStudentFormData] = useState({});
-    
-    // Fees Management State
-    const [showFeeModal, setShowFeeModal] = useState(false);
-    const [feeStudent, setFeeStudent] = useState(null);
-    const [feeDate, setFeeDate] = useState(new Date().toISOString().slice(0, 10)); // Default to today
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    // Attendance Management State
-    const [attendanceSearchTerm, setAttendanceSearchTerm] = useState("");
-    const [attendanceSummary, setAttendanceSummary] = useState({ presentToday: 0, totalStudents: 0 }); // For Dashboard
-    const [individualAttendanceHistory, setIndividualAttendanceHistory] = useState([]); // For History Modal
-    const [showHistoryModal, setShowHistoryModal] = useState(false);
+  // Student Management State
+  const [students, setStudents] = useState([]);
+  const [showStudentModal, setShowStudentModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [studentFormData, setStudentFormData] = useState({});
 
+  // Fees Management State
+  const [showFeeModal, setShowFeeModal] = useState(false);
+  const [feeStudent, setFeeStudent] = useState(null);
+  const [feeFormData, setFeeFormData] = useState({
+    amount: "",
+    feeForMonths: "1m",
+    month: new Date().toISOString().slice(0, 7), // YYYY-MM format
+    mode: "cash",
+    note: "",
+  });
 
-    // --- Data Fetching Logic (Refactored to fetch attendance summary too) ---
+  // Attendance Management State
+  const [attendanceSearchTerm, setAttendanceSearchTerm] = useState("");
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().slice(0, 10));
+  const [attendanceSummary, setAttendanceSummary] = useState({
+    presentToday: 0,
+    totalStudents: 0,
+  });
+  const [individualAttendanceHistory, setIndividualAttendanceHistory] = useState([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-    // Fetches the main student list (required for all tabs)
-    const fetchStudents = useCallback(async () => {
-        if (!user?.token) return;
+  // Dashboard Stats
+  const [dashboardStats, setDashboardStats] = useState({
+    totalStudents: 0,
+    pendingFees: 0,
+    presentToday: 0,
+  });
 
-        try {
-            // Updated route to fetch students with nested fee details and User name
-            const res = await fetch("http://localhost:5000/api/srcoach/coach-students", { 
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-            });
-            const data = await res.json();
-            if (res.ok) {
-                // Assuming students now includes a feePayments array and userId is populated
-                setStudents(data); 
-            } else {
-                console.error("Failed to fetch students:", data.message);
-            }
-        } catch (err) {
-            console.error("Error fetching students:", err);
-        }
-    }, [user?.token]);
+  // Fetch all students
+  const fetchStudents = useCallback(async () => {
+    if (!user?.token) return;
 
-    // Fetches Attendance Summary for the Dashboard
-    const fetchAttendanceSummary = useCallback(async () => {
-        if (!user?.token) return;
-        try {
-            // 6. he can view the attancdace summary (New route needed)
-            const res = await fetch("http://localhost:5000/api/coach/attendance/summary", {
-                headers: { Authorization: `Bearer ${user.token}` },
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setAttendanceSummary({
-                    presentToday: data.presentToday || 0,
-                    totalStudents: students.length, // Fallback to local students count
-                });
-            }
-        } catch (err) {
-            console.error("Error fetching attendance summary:", err);
-            // Default to local student count if API fails
-            setAttendanceSummary(prev => ({ ...prev, totalStudents: students.length })); 
-        }
-    }, [user?.token, students.length]);
-
-    useEffect(() => {
-        fetchStudents();
-    }, [fetchStudents]); 
-
-    useEffect(() => {
-        if (students.length > 0) {
-            fetchAttendanceSummary();
-        }
-    }, [students.length, fetchAttendanceSummary]);
-    
-    // --- Calculations ---
-
-    const totalFees = students.reduce((sum, s) => sum + (s.fees?.total || 0), 0);
-    // Calculated Collected Fees from the new feePayments array structure
-    const collectedFees = students.reduce((sum, s) => {
-        const totalPaid = s.feePayments?.reduce((pSum, p) => pSum + (p.amount || 0), 0) || 0;
-        return sum + totalPaid;
-    }, 0);
-    const pendingFees = totalFees - collectedFees;
-
-    // --- Student CRUD Handlers (Kept as is for Profile editing) ---
-    const handleStudentFormChange = (e) => {
-        const { name, value, type } = e.target;
-        setStudentFormData((prevData) => ({
-            ...prevData,
-            [name]: type === "number" ? parseInt(value) || "" : value,
+    try {
+      const res = await fetch("http://localhost:5000/api/coaches/students", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStudents(data.students || data || []);
+        setDashboardStats((prev) => ({
+          ...prev,
+          totalStudents: data.count || data.students?.length || 0,
         }));
-    };
+      } else {
+        console.error("Failed to fetch students:", data.message);
+      }
+    } catch (err) {
+      console.error("Error fetching students:", err);
+    }
+  }, [user?.token]);
 
-    const handleEditStudent = (student) => {
-        setEditingStudent(student);
-        setStudentFormData({
-            ...student,
-            name: student.userId?.name || student.name, 
-            fees: student.fees?.total, 
-            status: student.feeStatus, // Keep for legacy/initial status
-            password: "", 
+  // Fetch attendance summary for today
+  const fetchAttendanceSummary = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await fetch(
+        `http://localhost:5000/api/coaches/attendance?date=${today}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        const presentCount = data.attendance?.filter(
+          (a) => a.status === "present"
+        ).length || 0;
+        setAttendanceSummary({
+          presentToday: presentCount,
+          totalStudents: students.length,
         });
-        setShowStudentModal(true);
+        setDashboardStats((prev) => ({
+          ...prev,
+          presentToday: presentCount,
+        }));
+      }
+    } catch (err) {
+      console.error("Error fetching attendance summary:", err);
+      setAttendanceSummary((prev) => ({
+        ...prev,
+        totalStudents: students.length,
+      }));
+    }
+  }, [user?.token, students.length]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
+
+  useEffect(() => {
+    if (students.length > 0) {
+      fetchAttendanceSummary();
+    }
+  }, [students.length, fetchAttendanceSummary]);
+
+  // Calculate fees stats
+  const calculateFeesStats = useMemo(() => {
+    // This would ideally come from an API, but for now we'll calculate from student data
+    return {
+      pending: 0, // Would need to fetch from fees API
+      collected: 0,
     };
+  }, []);
 
-    const handleUpdateStudent = async (e) => {
-        e.preventDefault();
-        
-        const studentIdToUpdate = editingStudent._id;
-        const feeValue = studentFormData.fees || 0;
-        
-        // Remove sensitive and internal fields from payload
-        const { username, password, status, ...restOfData } = studentFormData;
+  // Student Form Handlers
+  const handleStudentFormChange = (e) => {
+    const { name, value } = e.target;
+    setStudentFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-        const updatePayload = {
-            ...restOfData,
-            fees: feeValue,
-            // feeStatus is updated via a separate fee collection route now, but kept fees total here
-        };
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+    setStudentFormData({
+      firstName: student.firstName || "",
+      lastName: student.lastName || "",
+      phone: student.phone || "",
+      email: student.email || "",
+      address: student.address || "",
+      batch: student.batch || "",
+    });
+    setShowStudentModal(true);
+  };
 
-        try {
-            // Reusing the existing SrCoach route for general student profile updates
-            const res = await fetch(`http://localhost:5000/api/srcoach/students/${studentIdToUpdate}`, { 
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${user?.token}`,
-                },
-                body: JSON.stringify(updatePayload),
-            });
+  const handleUpdateStudent = async (e) => {
+    e.preventDefault();
 
-            const result = await res.json();
+    if (!editingStudent) return;
 
-            if (res.ok) {
-                alert("✅ Student profile updated successfully!");
-                await fetchStudents(); 
-                setShowStudentModal(false);
-                setEditingStudent(null);
-                setStudentFormData({});
-            } else {
-                alert(result.message || "Failed to update student profile");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error connecting to server");
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify(studentFormData),
         }
-    };
+      );
 
-    // --- 4. Fees Collection Handler ---
-    const handleFeeCollection = (student) => {
-        setFeeStudent(student);
-        setShowFeeModal(true);
-        // Reset date to today every time
-        setFeeDate(new Date().toISOString().slice(0, 10)); 
-    };
+      const result = await res.json();
 
-    const submitFeePayment = async (e) => {
-        e.preventDefault();
-        const amount = e.target.elements.amount.value;
-        const date = feeDate;
-        
-        if (!feeStudent || !amount || !date) return;
+      if (res.ok) {
+        alert("✅ Student profile updated successfully!");
+        await fetchStudents();
+        setShowStudentModal(false);
+        setEditingStudent(null);
+        setStudentFormData({});
+      } else {
+        alert(result.message || "Failed to update student profile");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server");
+    }
+  };
 
-        try {
-            // New route needed: POST /api/coach/students/:id/fee-payment
-            const res = await fetch(`http://localhost:5000/api/coach/students/${feeStudent._id}/fee-payment`, { 
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${user?.token}`,
-                },
-                body: JSON.stringify({ amount: parseInt(amount), date }),
-            });
+  // Fees Collection Handler
+  const handleFeeCollection = (student) => {
+    setFeeStudent(student);
+    setFeeFormData({
+      amount: student.monthlyFee || "",
+      feeForMonths: student.feeDuration || "1m",
+      month: new Date().toISOString().slice(0, 7),
+      mode: "cash",
+      note: "",
+    });
+    setShowFeeModal(true);
+  };
 
-            const result = await res.json();
+  const submitFeePayment = async (e) => {
+    e.preventDefault();
 
-            if (res.ok) {
-                alert(`✅ ₹${amount} fee collected successfully from ${feeStudent.userId?.name}!`);
-                await fetchStudents(); // Re-fetch all data to update fees tab/dashboard
-                setShowFeeModal(false);
-                setFeeStudent(null);
-            } else {
-                alert(result.message || "Failed to record fee payment");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error connecting to server");
-        }
-    };
-    
-    // --- 5. Attendance Handler ---
-    const handleMarkAttendance = async (student, status) => {
-        const today = new Date().toISOString().slice(0, 10);
-        const confirmation = window.confirm(`Mark ${student.userId?.name} as ${status} for today (${today})?`);
+    if (!feeStudent) return;
 
-        if (!confirmation) return;
-        
-        try {
-            // New route needed: POST /api/coach/attendance
-            const res = await fetch("http://localhost:5000/api/coach/attendance", { 
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${user?.token}`,
-                },
-                body: JSON.stringify({ 
-                    studentId: student._id, 
-                    date: today, 
-                    status: status,
-                    batch: student.batch // Pass batch for easier filtering/reporting
-                }),
-            });
+    try {
+      const res = await fetch("http://localhost:5000/api/coaches/fees/collect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({
+          studentId: feeStudent._id,
+          amount: parseFloat(feeFormData.amount),
+          feeForMonths: feeFormData.feeForMonths,
+          month: feeFormData.month,
+          mode: feeFormData.mode,
+          note: feeFormData.note,
+        }),
+      });
 
-            const result = await res.json();
+      const result = await res.json();
 
-            if (res.ok) {
-                alert(`Attendance marked as ${status} for ${student.userId?.name}.`);
-                // Re-fetch only the summary for the dashboard update
-                fetchAttendanceSummary(); 
-            } else {
-                alert(result.message || "Failed to mark attendance. (Attendance already marked for today?)");
-            }
-        } catch (err) {
-            console.error(err);
-            alert("Error connecting to server");
-        }
-    };
-
-    // --- 7. Individual Attendance History ---
-    const handleViewAttendanceHistory = async (student) => {
-        try {
-            // New route needed: GET /api/coach/attendance/:studentId
-            const res = await fetch(`http://localhost:5000/api/coach/attendance/${student._id}`, {
-                headers: { Authorization: `Bearer ${user.token}` },
-            });
-            const data = await res.json();
-            
-            if (res.ok) {
-                setIndividualAttendanceHistory(data);
-                setShowHistoryModal(true);
-            } else {
-                alert(data.message || "Failed to fetch attendance history.");
-            }
-        } catch (err) {
-            console.error("Error fetching history:", err);
-            alert("Error connecting to server.");
-        }
-    };
-
-
-    // Filtered Students for Attendance Tab
-    const filteredStudents = useMemo(() => {
-        const term = attendanceSearchTerm.toLowerCase();
-        if (!term) return students;
-
-        return students.filter(s => 
-            s.userId?.name?.toLowerCase().includes(term) ||
-            s.batch?.toLowerCase().includes(term)
+      if (res.ok) {
+        alert(
+          `✅ ₹${feeFormData.amount} fee collected successfully from ${feeStudent.firstName} ${feeStudent.lastName || ""}!`
         );
-    }, [students, attendanceSearchTerm]);
+        await fetchStudents();
+        setShowFeeModal(false);
+        setFeeStudent(null);
+        setFeeFormData({
+          amount: "",
+          feeForMonths: "1m",
+          month: new Date().toISOString().slice(0, 7),
+          mode: "cash",
+          note: "",
+        });
+      } else {
+        alert(result.message || "Failed to record fee payment");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server");
+    }
+  };
 
-    // --- JSX Structure (Refactored) ---
-
-    return (
-        <div id="coach-dashboard">
-            {/* Sidebar (UPDATED tabs) */}
-            <aside id="sidebar">
-                <h2 id="sidebar-title">🏏 Coach Panel</h2>
-                <ul>
-                    {/* New Tabs: dashboard, students, fees, attendance */}
-                    {["dashboard", "students", "fees", "attendance"].map( 
-                        (tab) => (
-                            <li
-                                key={tab}
-                                id={`sidebar-${tab}`}
-                                onClick={() => setActiveTab(tab)}
-                                style={{
-                                    background:
-                                        activeTab === tab
-                                            ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
-                                            : "transparent",
-                                    color: activeTab === tab ? "#fff" : "#12394f",
-                                }}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </li>
-                        )
-                    )}
-                </ul>
-            </aside>
-
-            {/* Main Content */}
-            <main id="main-content">
-                <header id="main-header">
-                    <h1>Welcome, Coach {user?.name || "User"}!</h1>
-                </header>
-
-                {/* Dashboard (Updated with Attendance Summary) */}
-                {activeTab === "dashboard" && (
-                    <section id="dashboard-section" className="stat-grid">
-                        <div className="stat-card">
-                            <h3>Total Students</h3>
-                            <p>{students.length}</p>
-                        </div>
-                        <div className="stat-card red-bg">
-                            <h3>Pending Fees</h3>
-                            <p>₹{pendingFees}</p>
-                        </div>
-                        {/* 6. Attendance Summary */}
-                        <div className="stat-card green-bg">
-                            <h3>Present Today ({new Date().toLocaleDateString()})</h3>
-                            <p>{attendanceSummary.presentToday} / {attendanceSummary.totalStudents}</p>
-                        </div>
-                    </section>
-                )}
-                
-                {/* 1. Students Table (Full Student Management) */}
-                {activeTab === "students" && (
-                    <section id="students-section">
-                        <h2>Manage Student Profiles</h2>
-                        <div className="table-wrapper">
-                            <table id="students-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Contact</th>
-                                        <th>Batch</th>
-                                        <th>Age</th>
-                                        <th>Fees (Total)</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {students.map((s) => (
-                                        <tr key={s._id}>
-                                            <td>{s.userId?.name || 'N/A'}</td> 
-                                            <td>{s.contact}</td>
-                                            <td>{s.batch}</td>
-                                            <td>{s.ageCategory}</td>
-                                            <td>₹{s.fees?.total || 0}</td> 
-                                            <td>
-                                                <button onClick={() => handleEditStudent(s)}>Edit Profile</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                )}
-
-                {/* 3. Fees Tab (Fees collection and display) */}
-                {activeTab === "fees" && (
-                    <section id="fees-section">
-                        <h2>Fees Management Overview</h2>
-                        <div className="table-wrapper">
-                            <table id="fees-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Batch</th>
-                                        <th>Total Fee</th>
-                                        <th>Amount Paid</th>
-                                        <th>Remaining</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {students.map((s) => {
-                                        const paid = s.feePayments?.reduce((pSum, p) => pSum + (p.amount || 0), 0) || 0;
-                                        const remaining = (s.fees?.total || 0) - paid;
-                                        const status = remaining <= 0 ? "Paid" : "Pending";
-
-                                        return (
-                                            <tr key={s._id}>
-                                                <td>{s.userId?.name || 'N/A'}</td> 
-                                                <td>{s.batch}</td>
-                                                <td>₹{s.fees?.total || 0}</td> 
-                                                <td style={{ color: '#10b981', fontWeight: 700 }}>₹{paid}</td>
-                                                <td style={{ color: remaining > 0 ? '#e53e3e' : '#10b981', fontWeight: 700 }}>₹{remaining}</td>
-                                                <td style={{ color: remaining > 0 ? '#e53e3e' : '#10b981', fontWeight: 700 }}>{status}</td>
-                                                <td>
-                                                    {/* 4. Coach can mark the fees collected with the date */}
-                                                    <button 
-                                                        onClick={() => handleFeeCollection(s)} 
-                                                        disabled={remaining <= 0}
-                                                        style={{ background: remaining > 0 ? '#f6ad55' : '#ccc' }}
-                                                    >
-                                                        Record Payment
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                )}
-
-
-                {/* Attendance Section (Tab with Search) */}
-                {activeTab === "attendance" && (
-                    <section id="attendance-section">
-                        <h2>Mark Daily Attendance</h2>
-                        
-                        {/* Search Box */}
-                        <div className="search-box-container">
-                            <input
-                                type="text"
-                                placeholder="Search by Student Name or Batch..."
-                                value={attendanceSearchTerm}
-                                onChange={(e) => setAttendanceSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="table-wrapper">
-                            <table id="attendance-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Batch</th>
-                                        <th>Fee Status</th>
-                                        <th>5. Mark Attendance</th>
-                                        <th>7. History</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredStudents.map((s) => {
-                                        const paid = s.feePayments?.reduce((pSum, p) => pSum + (p.amount || 0), 0) || 0;
-                                        const remaining = (s.fees?.total || 0) - paid;
-                                        const feeStatus = remaining <= 0 ? "Paid" : "Pending";
-                                        return (
-                                            <tr key={s._id}>
-                                                <td>{s.userId?.name || 'N/A'}</td> 
-                                                <td>{s.batch}</td>
-                                                <td style={{
-                                                        color: feeStatus === "Paid" ? "#10b981" : "#e53e3e",
-                                                        fontWeight: 700,
-                                                    }}>
-                                                    {feeStatus}
-                                                </td>
-                                                <td style={{ minWidth: '150px' }}>
-                                                    <button 
-                                                        className="mark-present-btn" 
-                                                        onClick={() => handleMarkAttendance(s, 'Present')}
-                                                    >
-                                                        Present
-                                                    </button>
-                                                    <button 
-                                                        className="mark-absent-btn" 
-                                                        onClick={() => handleMarkAttendance(s, 'Absent')}
-                                                        style={{ marginLeft: '5px', background: '#e53e3e' }}
-                                                    >
-                                                        Absent
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <button 
-                                                        className="history-btn"
-                                                        onClick={() => handleViewAttendanceHistory(s)}
-                                                        style={{ background: '#3182ce' }}
-                                                    >
-                                                        View History
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                )}
-            </main>
-
-            {/* Edit Student Modal (For profile/total fee update) */}
-            {showStudentModal && (
-                <div id="modal-overlay">
-                    <div id="modal-student">
-                        <h2>Edit Student Profile: {editingStudent?.userId?.name}</h2>
-                        <form onSubmit={handleUpdateStudent}>
-                            {/* ... (inputs for name, contact, batch, fees total, etc. - KEPT AS IS) */}
-                            <input name="name" placeholder="Full Name" value={studentFormData.name || ""} onChange={handleStudentFormChange} required />
-                            <input name="contact" placeholder="Contact" value={studentFormData.contact || ""} onChange={handleStudentFormChange} />
-                            <input name="address" placeholder="Address" value={studentFormData.address || ""} onChange={handleStudentFormChange} />
-                            <input name="school" placeholder="School" value={studentFormData.school || ""} onChange={handleStudentFormChange} />
-                            <input name="ageCategory" placeholder="Age Category" value={studentFormData.ageCategory || ""} onChange={handleStudentFormChange} />
-                            <input name="batch" placeholder="Batch" value={studentFormData.batch || ""} onChange={handleStudentFormChange} />
-                            <input name="timings" placeholder="Timings" value={studentFormData.timings || ""} onChange={handleStudentFormChange} />
-                            <input type="number" name="fees" placeholder="Total Fees" value={studentFormData.fees || ""} onChange={handleStudentFormChange} />
-                            {/* Disabled/Hidden fields */}
-                            <input name="username" placeholder="Username" value={editingStudent?.userId?.username || ""} disabled style={{ display: 'none' }} /> 
-                            <input type="password" name="password" placeholder="New Password (optional)" disabled style={{ display: 'none' }} />
-                            <select name="status" value={studentFormData.status || "Pending"} disabled style={{ display: 'none' }}>
-                                <option value="Pending">Pending</option>
-                                <option value="Paid">Paid</option>
-                            </select>
-                            
-                            <div id="modal-buttons">
-                                <button type="submit">Update Profile</button>
-                                <button type="button" onClick={() => { setShowStudentModal(false); setEditingStudent(null); setStudentFormData({}); }}>Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-            
-            {/* 4. Fee Collection Modal (NEW) */}
-            {showFeeModal && feeStudent && (
-                <div id="modal-overlay">
-                    <div id="modal-student">
-                        <h2>Record Payment for: {feeStudent.userId?.name}</h2>
-                        <form onSubmit={submitFeePayment}>
-                            <label>Payment Amount:</label>
-                            <input type="number" name="amount" placeholder="Amount collected (₹)" required />
-                            
-                            <label>Payment Date:</label>
-                            <input 
-                                type="date" 
-                                name="date" 
-                                value={feeDate} 
-                                onChange={(e) => setFeeDate(e.target.value)} 
-                                required 
-                            />
-                            
-                            <div id="modal-buttons">
-                                <button type="submit">Record Payment</button>
-                                <button type="button" onClick={() => { setShowFeeModal(false); setFeeStudent(null); }}>Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* 7. Attendance History Modal (NEW) */}
-            {showHistoryModal && (
-                <div id="modal-overlay">
-                    <div id="modal-history">
-                        <h2>Attendance History: {individualAttendanceHistory[0]?.studentName || 'Student'}</h2>
-                        <div className="table-wrapper">
-                            <table id="history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Batch</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {individualAttendanceHistory.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{new Date(item.date).toLocaleDateString()}</td>
-                                            <td style={{ color: item.status === 'Present' ? '#10b981' : '#e53e3e', fontWeight: 700 }}>
-                                                {item.status}
-                                            </td>
-                                            <td>{item.batch}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div id="modal-buttons" style={{ marginTop: '20px' }}>
-                            <button type="button" onClick={() => { setShowHistoryModal(false); setIndividualAttendanceHistory([]); }}>Close</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+  // Attendance Handler
+  const handleMarkAttendance = async (student, status) => {
+    const confirmation = window.confirm(
+      `Mark ${student.firstName} ${student.lastName || ""} as ${status} for ${attendanceDate}?`
     );
+
+    if (!confirmation) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/coaches/attendance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({
+          studentId: student._id,
+          date: attendanceDate,
+          status: status.toLowerCase(),
+          note: "",
+        }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert(
+          `Attendance marked as ${status} for ${student.firstName} ${student.lastName || ""}.`
+        );
+        fetchAttendanceSummary();
+        fetchStudents(); // Refresh to update any UI indicators
+      } else {
+        alert(result.message || "Failed to mark attendance.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server");
+    }
+  };
+
+  // Individual Attendance History
+  const handleViewAttendanceHistory = async (student) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/coaches/attendance/${student._id}`,
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        setIndividualAttendanceHistory(data.attendance || data || []);
+        setShowHistoryModal(true);
+      } else {
+        alert(data.message || "Failed to fetch attendance history.");
+      }
+    } catch (err) {
+      console.error("Error fetching history:", err);
+      alert("Error connecting to server.");
+    }
+  };
+
+  // Filtered Students for Attendance Tab
+  const filteredStudents = useMemo(() => {
+    const term = attendanceSearchTerm.toLowerCase();
+    if (!term) return students;
+
+    return students.filter(
+      (s) =>
+        `${s.firstName} ${s.lastName || ""}`
+          .toLowerCase()
+          .includes(term) ||
+        s.batch?.toLowerCase().includes(term) ||
+        s.email?.toLowerCase().includes(term)
+    );
+  }, [students, attendanceSearchTerm]);
+
+  return (
+    <div id="coach-dashboard">
+      {/* Sidebar */}
+      <aside id="sidebar">
+        <h2 id="sidebar-title">🏏 Coach Panel</h2>
+        <ul>
+          {["dashboard", "students", "fees", "attendance"].map((tab) => (
+            <li
+              key={tab}
+              id={`sidebar-${tab}`}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                background:
+                  activeTab === tab
+                    ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
+                    : "transparent",
+                color: activeTab === tab ? "#fff" : "#12394f",
+              }}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      {/* Main Content */}
+      <main id="main-content">
+        <header id="main-header">
+          <h1>Welcome, Coach!</h1>
+        </header>
+
+        {/* Dashboard */}
+        {activeTab === "dashboard" && (
+          <section id="dashboard-section" className="stat-grid">
+            <div className="stat-card">
+              <h3>Total Students</h3>
+              <p>{dashboardStats.totalStudents}</p>
+            </div>
+            <div className="stat-card red-bg">
+              <h3>Pending Fees</h3>
+              <p>₹{calculateFeesStats.pending}</p>
+            </div>
+            <div className="stat-card green-bg">
+              <h3>Present Today ({new Date().toLocaleDateString()})</h3>
+              <p>
+                {attendanceSummary.presentToday} / {attendanceSummary.totalStudents}
+              </p>
+            </div>
+          </section>
+        )}
+
+        {/* Students Table */}
+        {activeTab === "students" && (
+          <section id="students-section">
+            <h2>All Students</h2>
+            <div className="table-wrapper">
+              <table id="students-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Batch</th>
+                    <th>Monthly Fee</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: "center" }}>
+                        No students found
+                      </td>
+                    </tr>
+                  ) : (
+                    students.map((s) => (
+                      <tr key={s._id}>
+                        <td>
+                          {s.firstName} {s.lastName || ""}
+                        </td>
+                        <td>{s.email || "N/A"}</td>
+                        <td>{s.phone || "N/A"}</td>
+                        <td>{s.batch || "N/A"}</td>
+                        <td>₹{s.monthlyFee || 0}</td>
+                        <td>
+                          <button onClick={() => handleEditStudent(s)}>
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Fees Tab */}
+        {activeTab === "fees" && (
+          <section id="fees-section">
+            <h2>Fees Collection</h2>
+            <div className="table-wrapper">
+              <table id="fees-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Monthly Fee</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: "center" }}>
+                        No students found
+                      </td>
+                    </tr>
+                  ) : (
+                    students.map((s) => (
+                      <tr key={s._id}>
+                        <td>
+                          {s.firstName} {s.lastName || ""}
+                        </td>
+                        <td>{s.batch || "N/A"}</td>
+                        <td>₹{s.monthlyFee || 0}</td>
+                        <td>
+                          <button onClick={() => handleFeeCollection(s)}>
+                            Collect Fee
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Attendance Section */}
+        {activeTab === "attendance" && (
+          <section id="attendance-section">
+            <h2>Mark Attendance</h2>
+
+            {/* Date Selector */}
+            <div style={{ marginBottom: "20px" }}>
+              <label>
+                Date:{" "}
+                <input
+                  type="date"
+                  value={attendanceDate}
+                  onChange={(e) => setAttendanceDate(e.target.value)}
+                />
+              </label>
+            </div>
+
+            {/* Search Box */}
+            <div className="search-box-container">
+              <input
+                type="text"
+                placeholder="Search by Student Name or Batch..."
+                value={attendanceSearchTerm}
+                onChange={(e) => setAttendanceSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <div className="table-wrapper">
+              <table id="attendance-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Mark Attendance</th>
+                    <th>History</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: "center" }}>
+                        No students found
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredStudents.map((s) => (
+                      <tr key={s._id}>
+                        <td>
+                          {s.firstName} {s.lastName || ""}
+                        </td>
+                        <td>{s.batch || "N/A"}</td>
+                        <td style={{ minWidth: "200px" }}>
+                          <button
+                            className="mark-present-btn"
+                            onClick={() => handleMarkAttendance(s, "present")}
+                            style={{ marginRight: "5px" }}
+                          >
+                            Present
+                          </button>
+                          <button
+                            className="mark-absent-btn"
+                            onClick={() => handleMarkAttendance(s, "absent")}
+                            style={{
+                              marginRight: "5px",
+                              background: "#e53e3e",
+                            }}
+                          >
+                            Absent
+                          </button>
+                          <button
+                            onClick={() => handleMarkAttendance(s, "leave")}
+                            style={{
+                              background: "#f6ad55",
+                            }}
+                          >
+                            Leave
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            className="history-btn"
+                            onClick={() => handleViewAttendanceHistory(s)}
+                            style={{ background: "#3182ce" }}
+                          >
+                            View History
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+      </main>
+
+      {/* Edit Student Modal */}
+      {showStudentModal && editingStudent && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Student Details: {editingStudent.firstName}</h2>
+            <form onSubmit={handleUpdateStudent}>
+              <input
+                name="firstName"
+                placeholder="First Name"
+                value={studentFormData.firstName || ""}
+                onChange={handleStudentFormChange}
+                required
+              />
+              <input
+                name="lastName"
+                placeholder="Last Name"
+                value={studentFormData.lastName || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="email"
+                placeholder="Email"
+                type="email"
+                value={studentFormData.email || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="phone"
+                placeholder="Phone"
+                value={studentFormData.phone || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="address"
+                placeholder="Address"
+                value={studentFormData.address || ""}
+                onChange={handleStudentFormChange}
+              />
+              <input
+                name="batch"
+                placeholder="Batch"
+                value={studentFormData.batch || ""}
+                onChange={handleStudentFormChange}
+              />
+
+              <div id="modal-buttons">
+                <button type="submit">Update Profile</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStudentModal(false);
+                    setEditingStudent(null);
+                    setStudentFormData({});
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Fee Collection Modal */}
+      {showFeeModal && feeStudent && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Record Payment for: {feeStudent.firstName} {feeStudent.lastName || ""}</h2>
+            <form onSubmit={submitFeePayment}>
+              <label>Payment Amount (₹):</label>
+              <input
+                type="number"
+                name="amount"
+                value={feeFormData.amount}
+                onChange={(e) =>
+                  setFeeFormData({ ...feeFormData, amount: e.target.value })
+                }
+                required
+                step="0.01"
+              />
+
+              <label>Fee Duration:</label>
+              <select
+                name="feeForMonths"
+                value={feeFormData.feeForMonths}
+                onChange={(e) =>
+                  setFeeFormData({ ...feeFormData, feeForMonths: e.target.value })
+                }
+              >
+                <option value="1m">1 Month</option>
+                <option value="3m">3 Months</option>
+                <option value="6m">6 Months</option>
+                <option value="12m">12 Months</option>
+              </select>
+
+              <label>Month (YYYY-MM):</label>
+              <input
+                type="month"
+                name="month"
+                value={feeFormData.month}
+                onChange={(e) =>
+                  setFeeFormData({ ...feeFormData, month: e.target.value })
+                }
+                required
+              />
+
+              <label>Payment Mode:</label>
+              <select
+                name="mode"
+                value={feeFormData.mode}
+                onChange={(e) =>
+                  setFeeFormData({ ...feeFormData, mode: e.target.value })
+                }
+              >
+                <option value="cash">Cash</option>
+                <option value="online">Online</option>
+                <option value="cheque">Cheque</option>
+                <option value="other">Other</option>
+              </select>
+
+              <label>Note (optional):</label>
+              <textarea
+                name="note"
+                value={feeFormData.note}
+                onChange={(e) =>
+                  setFeeFormData({ ...feeFormData, note: e.target.value })
+                }
+                rows="3"
+              />
+
+              <div id="modal-buttons">
+                <button type="submit">Record Payment</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFeeModal(false);
+                    setFeeStudent(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance History Modal */}
+      {showHistoryModal && (
+        <div id="modal-overlay">
+          <div id="modal-history">
+            <h2>
+              Attendance History:{" "}
+              {individualAttendanceHistory[0]?.student?.firstName ||
+                "Student"}
+            </h2>
+            <div className="table-wrapper">
+              <table id="history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {individualAttendanceHistory.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: "center" }}>
+                        No attendance records found
+                      </td>
+                    </tr>
+                  ) : (
+                    individualAttendanceHistory.map((item, index) => (
+                      <tr key={item._id || index}>
+                        <td>
+                          {new Date(item.date).toLocaleDateString()}
+                        </td>
+                        <td
+                          style={{
+                            color:
+                              item.status === "present"
+                                ? "#10b981"
+                                : item.status === "absent"
+                                ? "#e53e3e"
+                                : "#f6ad55",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {item.status?.toUpperCase()}
+                        </td>
+                        <td>{item.note || "-"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div id="modal-buttons" style={{ marginTop: "20px" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowHistoryModal(false);
+                  setIndividualAttendanceHistory([]);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CoachDashboard;

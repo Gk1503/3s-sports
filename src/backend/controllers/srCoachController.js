@@ -1,143 +1,583 @@
-const User = require('../models/User');
-const Student = require('../models/Student');
-const Coach = require('../models/Coach');
-const Fee = require('../models/Fee');
-const Attendance = require('../models/Attendance');
-const bcrypt = require('bcryptjs');
+// controllers/srCoachController.js
+const Student = require("../models/Student");
+const Coach = require("../models/Coach");
+const User = require("../models/User");
+const Fee = require("../models/Fee");
+const Attendance = require("../models/Attendance");
+const bcrypt = require("bcryptjs");
 
-// SR Coach can add student with details and create username/password
-exports.createStudentWithUser = async (req, res) => {
+// ---------- STUDENT MANAGEMENT ----------
+exports.addStudent = async (req, res) => {
   try {
-    const { username, password, studentData } = req.body;
-    if (!username || !password || !studentData) return res.status(400).json({ message: 'username, password and studentData required' });
+    const {
+      username,
+      password,
+      firstName,
+      lastName,
+      email,
+      phone,
+      gender,
+      dob,
+      batch,
+      address,
+      parentName,
+      parentPhone,
+      profilePhotoUrl,
+      monthlyFee,
+      feeDuration,
+      extraInfo,
+    } = req.body;
 
-    const existing = await User.findOne({ username });
-    if (existing) return res.status(400).json({ message: 'username exists' });
+    if (!username || !password || !firstName) {
+      return res.status(400).json({ message: "username, password, and firstName are required" });
+    }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, passwordHash, role: 'student', createdBy: req.user._id });
+    // Check if username exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
 
-    const student = await Student.create({ user: user._id, ...studentData });
-    res.status(201).json({ message: 'Student created', student, userId: user._id });
+    // Create linked User first
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      username,
+      passwordHash,
+      role: "student",
+      createdBy: req.user._id,
+    });
+
+    // Create Student profile
+    const student = await Student.create({
+      user: user._id,
+      firstName,
+      lastName,
+      email,
+      phone,
+      gender,
+      dob,
+      batch,
+      address,
+      parentName,
+      parentPhone,
+      profilePhotoUrl,
+      monthlyFee: monthlyFee || 0,
+      feeDuration: feeDuration || "1m",
+      extraInfo,
+    });
+
+    res.status(201).json({
+      message: "Student added successfully",
+      student: {
+        ...student.toObject(),
+        username,
+        password, // Return password for display (only when created)
+      },
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Add Student Error:", err);
+    res.status(500).json({ message: "Failed to add student", error: err.message });
   }
 };
 
-exports.createCoachWithUser = async (req, res) => {
+exports.getAllStudents = async (req, res) => {
   try {
-    const { username, password, coachData } = req.body;
-    if (!username || !password || !coachData) return res.status(400).json({ message: 'username, password and coachData required' });
+    const students = await Student.find()
+      .populate("user", "username role")
+      .populate("attendanceRecords")
+      .sort({ createdAt: -1 });
 
-    const existing = await User.findOne({ username });
-    if (existing) return res.status(400).json({ message: 'username exists' });
+    // Include username and password for each student
+    const studentsWithCredentials = await Promise.all(
+      students.map(async (student) => {
+        const user = await User.findById(student.user);
+        return {
+          ...student.toObject(),
+          username: user.username,
+          // Note: We cannot retrieve password as it's hashed, but we can note that it was set
+        };
+      })
+    );
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, passwordHash, role: 'coach', createdBy: req.user._id });
-
-    const coach = await Coach.create({ user: user._id, ...coachData });
-    res.status(201).json({ message: 'Coach created', coach, userId: user._id });
+    res.json(studentsWithCredentials);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Get Students Error:", err);
+    res.status(500).json({ message: "Error fetching students", error: err.message });
   }
 };
 
-// overall fees & attendance report
-// Query parameters: from, to (YYYY-MM-DD)
-exports.overallReport = async (req, res) => {
+exports.getStudentCredentials = async (req, res) => {
   try {
-    const from = req.query.from ? new Date(req.query.from) : new Date('1970-01-01');
-    const to = req.query.to ? new Date(req.query.to) : new Date();
+    const student = await Student.findById(req.params.id).populate("user", "username");
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
 
-    // total fees collected
-    const fees = await Fee.aggregate([
-      { $match: { date: { $gte: from, $lte: to } } },
-      { $group: { _id: null, totalCollected: { $sum: "$amount" }, count: { $sum: 1 } } }
-    ]);
+    // Note: We cannot retrieve the actual password as it's hashed
+    // In a real scenario, you might want to store a temporary password or generate a reset token
+    res.json({
+      studentId: student._id,
+      studentName: `${student.firstName} ${student.lastName || ""}`,
+      username: student.user.username,
+      message: "Password cannot be retrieved as it's encrypted. Use password reset if needed.",
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching student credentials", error: err.message });
+  }
+};
 
-    // attendance summary: present/absent counts
-    const attendance = await Attendance.aggregate([
-      { $match: { date: { $gte: from, $lte: to } } },
-      { $group: { _id: "$status", count: { $sum: 1 } } }
-    ]);
+exports.updateStudent = async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    })
+      .populate("user", "username")
+      .populate("attendanceRecords");
 
-    // counts
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({ message: "Student updated successfully", student });
+  } catch (err) {
+    console.error("Update Student Error:", err);
+    res.status(500).json({ message: "Error updating student", error: err.message });
+  }
+};
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Delete associated records
+    await Fee.deleteMany({ student: student._id });
+    await Attendance.deleteMany({ student: student._id });
+    
+    // Delete user account
+    await User.findByIdAndDelete(student.user);
+    
+    // Delete student profile
+    await Student.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Student deleted successfully" });
+  } catch (err) {
+    console.error("Delete Student Error:", err);
+    res.status(500).json({ message: "Error deleting student", error: err.message });
+  }
+};
+
+// Set/Update student fees
+exports.setStudentFees = async (req, res) => {
+  try {
+    const { id } = req.params; // Get student ID from route params
+    const { monthlyFee, feeDuration } = req.body;
+
+    if (monthlyFee === undefined) {
+      return res.status(400).json({ message: "monthlyFee is required" });
+    }
+
+    const student = await Student.findByIdAndUpdate(
+      id,
+      {
+        monthlyFee,
+        feeDuration: feeDuration || "1m",
+      },
+      { new: true }
+    )
+      .populate("user", "username");
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({
+      message: "Student fees updated successfully",
+      student: {
+        ...student.toObject(),
+        monthlyFee,
+        feeDuration: feeDuration || "1m",
+      },
+    });
+  } catch (err) {
+    console.error("Set Student Fees Error:", err);
+    res.status(500).json({ message: "Error setting student fees", error: err.message });
+  }
+};
+
+// ---------- COACH MANAGEMENT ----------
+exports.addCoach = async (req, res) => {
+  try {
+    const { username, password, name, email, phone, profilePhotoUrl } = req.body;
+
+    if (!username || !password || !name) {
+      return res.status(400).json({ message: "username, password, and name are required" });
+    }
+
+    // Check if username exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      username,
+      passwordHash,
+      role: "coach",
+      createdBy: req.user._id,
+    });
+
+    const coach = await Coach.create({
+      user: user._id,
+      name,
+      email,
+      phone,
+      profilePhotoUrl,
+    });
+
+    res.status(201).json({
+      message: "Coach added successfully",
+      coach: {
+        ...coach.toObject(),
+        username,
+        password, // Return password for display
+      },
+    });
+  } catch (err) {
+    console.error("Add Coach Error:", err);
+    res.status(500).json({ message: "Failed to add coach", error: err.message });
+  }
+};
+
+exports.getAllCoaches = async (req, res) => {
+  try {
+    const coaches = await Coach.find()
+      .populate("user", "username role")
+      .populate("assignedStudents", "firstName lastName")
+      .sort({ createdAt: -1 });
+
+    // Include username for each coach
+    const coachesWithCredentials = await Promise.all(
+      coaches.map(async (coach) => {
+        const user = await User.findById(coach.user);
+        return {
+          ...coach.toObject(),
+          username: user.username,
+        };
+      })
+    );
+
+    res.json(coachesWithCredentials);
+  } catch (err) {
+    console.error("Get Coaches Error:", err);
+    res.status(500).json({ message: "Error fetching coaches", error: err.message });
+  }
+};
+
+exports.updateCoach = async (req, res) => {
+  try {
+    const coach = await Coach.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    })
+      .populate("user", "username")
+      .populate("assignedStudents", "firstName lastName");
+
+    if (!coach) {
+      return res.status(404).json({ message: "Coach not found" });
+    }
+
+    res.json({ message: "Coach updated successfully", coach });
+  } catch (err) {
+    console.error("Update Coach Error:", err);
+    res.status(500).json({ message: "Error updating coach", error: err.message });
+  }
+};
+
+exports.deleteCoach = async (req, res) => {
+  try {
+    const coach = await Coach.findById(req.params.id);
+    if (!coach) {
+      return res.status(404).json({ message: "Coach not found" });
+    }
+
+    // Delete associated attendance records marked by this coach
+    await Attendance.deleteMany({ coach: coach.user });
+
+    // Delete user account
+    await User.findByIdAndDelete(coach.user);
+
+    // Delete coach profile
+    await Coach.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Coach deleted successfully" });
+  } catch (err) {
+    console.error("Delete Coach Error:", err);
+    res.status(500).json({ message: "Error deleting coach", error: err.message });
+  }
+};
+
+// ---------- DASHBOARD REPORTS ----------
+exports.getDashboardStats = async (req, res) => {
+  try {
     const totalStudents = await Student.countDocuments();
     const totalCoaches = await Coach.countDocuments();
 
+    // Calculate total fees collection
+    const feesStats = await Fee.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          totalAmount: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const collectedFees = feesStats.find((s) => s._id === "collected")?.totalAmount || 0;
+    const pendingFees = feesStats.find((s) => s._id === "pending")?.totalAmount || 0;
+    const totalFeesCollection = collectedFees;
+
+    // Calculate attendance count
+    const totalAttendanceRecords = await Attendance.countDocuments();
+    const presentCount = await Attendance.countDocuments({ status: "present" });
+    const absentCount = await Attendance.countDocuments({ status: "absent" });
+    const leaveCount = await Attendance.countDocuments({ status: "leave" });
+
     res.json({
-      period: { from, to },
-      fees: fees[0] || { totalCollected: 0, count: 0 },
-      attendance,
-      totals: { totalStudents, totalCoaches }
+      counts: {
+        totalStudents,
+        totalCoaches,
+      },
+      fees: {
+        totalCollection: totalFeesCollection,
+        collected: collectedFees,
+        pending: pendingFees,
+        collectedCount: feesStats.find((s) => s._id === "collected")?.count || 0,
+        pendingCount: feesStats.find((s) => s._id === "pending")?.count || 0,
+      },
+      attendance: {
+        totalRecords: totalAttendanceRecords,
+        present: presentCount,
+        absent: absentCount,
+        leave: leaveCount,
+      },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Dashboard Stats Error:", err);
+    res.status(500).json({ message: "Error generating dashboard stats", error: err.message });
   }
 };
-// list all students created by this senior coach, with full student details
-exports.listMyStudents = async (req, res) => {
+
+// ---------- FEES REPORT ----------
+exports.getFeesReport = async (req, res) => {
   try {
-    const students = await Student.find()
-      .populate({
-        path: "user",
-        match: { createdBy: req.user._id, role: "student" },
-        select: "username name role createdBy"
-      });
+    const { status, month, studentId } = req.query;
 
-    // Filter out null (those not created by this srcoach)
-    const myStudents = students.filter(s => s.user !== null);
+    let query = {};
+    if (status) query.status = status;
+    if (month) query.month = month;
+    if (studentId) query.student = studentId;
 
-    res.json(myStudents);
+    const fees = await Fee.find(query)
+      .populate("student", "firstName lastName monthlyFee feeDuration")
+      .populate("collectedBy", "username")
+      .sort({ date: -1 });
+
+    // Calculate summary
+    const summary = await Fee.aggregate([
+      ...(Object.keys(query).length > 0 ? [{ $match: query }] : []),
+      {
+        $group: {
+          _id: "$status",
+          totalAmount: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const collected = summary.find((s) => s._id === "collected")?.totalAmount || 0;
+    const pending = summary.find((s) => s._id === "pending")?.totalAmount || 0;
+
+    res.json({
+      fees,
+      summary: {
+        total: collected + pending,
+        collected,
+        pending,
+        collectedCount: summary.find((s) => s._id === "collected")?.count || 0,
+        pendingCount: summary.find((s) => s._id === "pending")?.count || 0,
+      },
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Fees Report Error:", err);
+    res.status(500).json({ message: "Error generating fees report", error: err.message });
   }
 };
 
-// list all coaches created by this senior coach, with full coach details
-exports.listMyCoaches = async (req, res) => {
+// Get pending fees
+exports.getPendingFees = async (req, res) => {
   try {
-    const coaches = await Coach.find()
-      .populate({
-        path: "user",
-        match: { createdBy: req.user._id, role: "coach" },
-        select: "username name role createdBy"
-      });
+    const pendingFees = await Fee.find({ status: "pending" })
+      .populate("student", "firstName lastName monthlyFee feeDuration phone parentName parentPhone")
+      .sort({ date: -1 });
 
-    const myCoaches = coaches.filter(c => c.user !== null);
-
-    res.json(myCoaches);
+    res.json({
+      count: pendingFees.length,
+      totalAmount: pendingFees.reduce((sum, fee) => sum + fee.amount, 0),
+      fees: pendingFees,
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Pending Fees Error:", err);
+    res.status(500).json({ message: "Error fetching pending fees", error: err.message });
   }
 };
 
-// SR Coach can update their created users (partial)
-exports.updateUserBySrCoach = async (req, res) => {
+// Get collected fees
+exports.getCollectedFees = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const updates = req.body;
-    const user = await
+    const collectedFees = await Fee.find({ status: "collected" })
+      .populate("student", "firstName lastName")
+      .populate("collectedBy", "username")
+      .sort({ collectedAt: -1 });
 
-    User.findOneAndUpdate({ _id: userId, createdBy: req.user._id }, updates, { new: true });
-    if (!user) return res.status(404).json({ message: 'User not found or not authorized' });
-    res.json(user);
+    res.json({
+      count: collectedFees.length,
+      totalAmount: collectedFees.reduce((sum, fee) => sum + fee.amount, 0),
+      fees: collectedFees,
+    });
+  } catch (err) {
+    console.error("Collected Fees Error:", err);
+    res.status(500).json({ message: "Error fetching collected fees", error: err.message });
   }
-    catch (err) {
-    res.status(500).json({ message: err.message });
-    }
 };
-// SR Coach can delete their created users
-exports.deleteUserBySrCoach = async (req, res) => {
-    try {
-    const userId = req.params.id;
-    const user = await User.findOne
-        
-    AndDelete({ _id: userId, createdBy: req.user._id });
-    if (!user) return res.status(404).json({ message: 'User not found or not authorized' });
-    res.json({ message: 'User deleted' });
-    } catch (err) {
-    res.status(500).json({ message: err.message });
+
+// Mark fee as collected (by month)
+exports.markFeeCollected = async (req, res) => {
+  try {
+    const { feeId } = req.params; // Get feeId from route params
+    const { month, mode } = req.body;
+
+    if (!month) {
+      return res.status(400).json({ message: "month is required" });
     }
+
+    const fee = await Fee.findByIdAndUpdate(
+      feeId,
+      {
+        status: "collected",
+        month,
+        mode: mode || "cash",
+        collectedBy: req.user._id,
+        collectedAt: new Date(),
+      },
+      { new: true }
+    )
+      .populate("student", "firstName lastName")
+      .populate("collectedBy", "username");
+
+    if (!fee) {
+      return res.status(404).json({ message: "Fee record not found" });
+    }
+
+    res.json({
+      message: "Fee marked as collected successfully",
+      fee,
+    });
+  } catch (err) {
+    console.error("Mark Fee Collected Error:", err);
+    res.status(500).json({ message: "Error marking fee as collected", error: err.message });
+  }
 };
-    
+
+// ---------- ATTENDANCE REPORT ----------
+exports.getAttendanceReport = async (req, res) => {
+  try {
+    const { startDate, endDate, studentId, status } = req.query;
+
+    let query = {};
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate);
+      if (endDate) query.date.$lte = new Date(endDate);
+    }
+    if (studentId) query.student = studentId;
+    if (status) query.status = status;
+
+    const attendance = await Attendance.find(query)
+      .populate("student", "firstName lastName batch")
+      .populate("coach", "username")
+      .sort({ date: -1 });
+
+    // Calculate summary
+    const summary = await Attendance.aggregate([
+      ...(Object.keys(query).length > 0 ? [{ $match: query }] : []),
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const present = summary.find((s) => s._id === "present")?.count || 0;
+    const absent = summary.find((s) => s._id === "absent")?.count || 0;
+    const leave = summary.find((s) => s._id === "leave")?.count || 0;
+
+    res.json({
+      attendance,
+      summary: {
+        total: attendance.length,
+        present,
+        absent,
+        leave,
+      },
+    });
+  } catch (err) {
+    console.error("Attendance Report Error:", err);
+    res.status(500).json({ message: "Error generating attendance report", error: err.message });
+  }
+};
+
+// Overall report (for backward compatibility)
+exports.overallReport = async (req, res) => {
+  try {
+    // Call getDashboardStats logic directly
+    const totalStudents = await Student.countDocuments();
+    const totalCoaches = await Coach.countDocuments();
+
+    // Calculate total fees collection
+    const feesStats = await Fee.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          totalAmount: { $sum: "$amount" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const collectedFees = feesStats.find((s) => s._id === "collected")?.totalAmount || 0;
+    const pendingFees = feesStats.find((s) => s._id === "pending")?.totalAmount || 0;
+    const totalFeesCollection = collectedFees;
+
+    res.json({
+      totalStudents,
+      totalCoaches,
+      totalFeesCollection,
+      collectedFees,
+      pendingFees,
+    });
+  } catch (err) {
+    console.error("Overall Report Error:", err);
+    res.status(500).json({ message: "Error generating report", error: err.message });
+  }
+};

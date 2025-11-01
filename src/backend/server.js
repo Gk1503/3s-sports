@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connectDB(process.env.MONGO_URI);
 seedSeniorCoach();
 
-// routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/coaches', coachRoutes);
