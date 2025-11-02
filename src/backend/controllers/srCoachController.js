@@ -47,6 +47,7 @@ exports.addStudent = async (req, res) => {
       passwordHash,
       role: "student",
       createdBy: req.user._id,
+      temporaryPassword: password, // Store temporarily for display
     });
 
     // Create Student profile
@@ -67,6 +68,18 @@ exports.addStudent = async (req, res) => {
       feeDuration: feeDuration || "1m",
       extraInfo,
     });
+
+    // Create pending fee record if monthlyFee is set
+    if (monthlyFee && monthlyFee > 0) {
+      await Fee.create({
+        student: student._id,
+        amount: monthlyFee,
+        feeForMonths: feeDuration || "1m",
+        date: new Date(),
+        month: new Date().toISOString().slice(0, 7), // Current month in YYYY-MM format
+        status: "pending",
+      });
+    }
 
     res.status(201).json({
       message: "Student added successfully",
@@ -110,18 +123,16 @@ exports.getAllStudents = async (req, res) => {
 
 exports.getStudentCredentials = async (req, res) => {
   try {
-    const student = await Student.findById(req.params.id).populate("user", "username");
+    const student = await Student.findById(req.params.id).populate("user", "username temporaryPassword");
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // Note: We cannot retrieve the actual password as it's hashed
-    // In a real scenario, you might want to store a temporary password or generate a reset token
     res.json({
       studentId: student._id,
       studentName: `${student.firstName} ${student.lastName || ""}`,
       username: student.user.username,
-      message: "Password cannot be retrieved as it's encrypted. Use password reset if needed.",
+      password: student.user.temporaryPassword || "Password not available",
     });
   } catch (err) {
     res.status(500).json({ message: "Error fetching student credentials", error: err.message });
@@ -233,6 +244,7 @@ exports.addCoach = async (req, res) => {
       passwordHash,
       role: "coach",
       createdBy: req.user._id,
+      temporaryPassword: password, // Store temporarily for display
     });
 
     const coach = await Coach.create({
@@ -279,6 +291,24 @@ exports.getAllCoaches = async (req, res) => {
   } catch (err) {
     console.error("Get Coaches Error:", err);
     res.status(500).json({ message: "Error fetching coaches", error: err.message });
+  }
+};
+
+exports.getCoachCredentials = async (req, res) => {
+  try {
+    const coach = await Coach.findById(req.params.id).populate("user", "username temporaryPassword");
+    if (!coach) {
+      return res.status(404).json({ message: "Coach not found" });
+    }
+
+    res.json({
+      coachId: coach._id,
+      coachName: coach.name || "N/A",
+      username: coach.user.username,
+      password: coach.user.temporaryPassword || "Password not available",
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching coach credentials", error: err.message });
   }
 };
 
@@ -488,9 +518,40 @@ exports.markFeeCollected = async (req, res) => {
       return res.status(404).json({ message: "Fee record not found" });
     }
 
+    // Calculate next due date
+    const nextDueDate = new Date(fee.collectedAt || fee.date);
+    const months = fee.feeForMonths === '1m' ? 1 : fee.feeForMonths === '3m' ? 3 : fee.feeForMonths === '6m' ? 6 : 12;
+    nextDueDate.setMonth(nextDueDate.getMonth() + months);
+
+    // Auto-create pending fee for next month if student has monthlyFee set
+    const student = await Student.findById(fee.student);
+    if (student && student.monthlyFee > 0) {
+      const nextMonth = new Date(month + '-01');
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const nextMonthStr = nextMonth.toISOString().slice(0, 7);
+      
+      // Check if fee already exists for next month
+      const existingFee = await Fee.findOne({
+        student: fee.student,
+        month: nextMonthStr,
+      });
+      
+      if (!existingFee) {
+        await Fee.create({
+          student: fee.student,
+          amount: student.monthlyFee,
+          feeForMonths: student.feeDuration || "1m",
+          date: new Date(),
+          month: nextMonthStr,
+          status: "pending",
+        });
+      }
+    }
+
     res.json({
       message: "Fee marked as collected successfully",
       fee,
+      nextDueDate: nextDueDate.toISOString().slice(0, 10),
     });
   } catch (err) {
     console.error("Mark Fee Collected Error:", err);
@@ -579,5 +640,111 @@ exports.overallReport = async (req, res) => {
   } catch (err) {
     console.error("Overall Report Error:", err);
     res.status(500).json({ message: "Error generating report", error: err.message });
+  }
+};
+
+// Create fee manually
+exports.createFee = async (req, res) => {
+  try {
+    const { studentId, amount, feeForMonths, month, status } = req.body;
+    
+    if (!studentId || !amount || !month) {
+      return res.status(400).json({ message: "studentId, amount, and month are required" });
+    }
+    
+    const fee = await Fee.create({
+      student: studentId,
+      amount: parseFloat(amount),
+      feeForMonths: feeForMonths || "1m",
+      date: new Date(),
+      month,
+      status: status || "pending",
+    });
+    
+    const populatedFee = await Fee.findById(fee._id)
+      .populate("student", "firstName lastName monthlyFee");
+    
+    res.json({
+      message: "Fee created successfully",
+      fee: populatedFee,
+    });
+  } catch (err) {
+    console.error("Create Fee Error:", err);
+    res.status(500).json({ message: "Error creating fee", error: err.message });
+  }
+};
+
+// ---------- PROFILE MANAGEMENT ----------
+// Get srcoach profile (we'll use User model, as srcoach doesn't have a separate profile model)
+exports.getProfile = async (req, res) => {
+  try {
+    // SrCoach uses User model directly, so we return user info
+    const user = await User.findById(req.user._id);
+    res.json({
+      username: user.username,
+      role: user.role,
+      profilePhotoUrl: user.profilePhotoUrl ? `http://localhost:5000${user.profilePhotoUrl}` : null,
+    });
+  } catch (err) {
+    console.error("Get Profile Error:", err);
+    res.status(500).json({ message: "Error fetching profile", error: err.message });
+  }
+};
+
+// Update srcoach profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const allowedUpdates = ["username"];
+    const updates = {};
+    Object.keys(req.body).forEach((key) => {
+      if (allowedUpdates.includes(key)) {
+        updates[key] = req.body[key];
+      }
+    });
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        username: user.username,
+        role: user.role,
+        profilePhotoUrl: user.profilePhotoUrl ? `http://localhost:5000${user.profilePhotoUrl}` : null,
+      },
+    });
+  } catch (err) {
+    console.error("Update Profile Error:", err);
+    res.status(500).json({ message: "Error updating profile", error: err.message });
+  }
+};
+
+// Upload profile photo for srcoach
+exports.uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const profilePhotoUrl = `/uploads/profile-photos/${req.file.filename}`;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePhotoUrl },
+      { new: true }
+    );
+
+    res.json({
+      message: "Profile photo uploaded successfully",
+      user: {
+        username: user.username,
+        role: user.role,
+        profilePhotoUrl: `http://localhost:5000${profilePhotoUrl}`,
+      },
+    });
+  } catch (err) {
+    console.error("Upload Profile Photo Error:", err);
+    res.status(500).json({
+      message: "Error uploading profile photo",
+      error: err.message,
+    });
   }
 };

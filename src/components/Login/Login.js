@@ -42,20 +42,22 @@ const LoginModal = ({ closeModal, setUser }) => {
   setUser(userData); // (optional, if parent tracks it)
   closeModal();
 
-  // navigate
-  switch (data.role) {
-  case "student":
-    navigate("/student-dashboard");
-    break;
-  case "coach":
-    navigate("/coach-dashboard");
-    break;
-  case "seniorCoach": // ✅ fixed
-    navigate("/srcoach-dashboard");
-    break;
-  default:
-    navigate("/");
-}
+  // Navigate immediately - don't wait for anything
+  setTimeout(() => {
+    switch (data.role) {
+    case "student":
+      navigate("/student-dashboard");
+      break;
+    case "coach":
+      navigate("/coach-dashboard");
+      break;
+    case "seniorCoach": // ✅ fixed
+      navigate("/srcoach-dashboard");
+      break;
+    default:
+      navigate("/");
+    }
+  }, 0);
       } else {
         setError(data.message || "Login failed. Please check credentials.");
       }

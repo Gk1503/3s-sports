@@ -124,9 +124,9 @@ const StudentDashboard = () => {
       if (res.ok) {
         const updatedStudent = await res.json();
         setStudent(updatedStudent.student || updatedStudent);
-        setProfileImage(updatedStudent.student?.profilePhotoUrl || profileImage);
         setShowProfileEdit(false);
         alert("Profile updated successfully!");
+        fetchProfile(); // Refresh to get updated data
       } else {
         const error = await res.json();
         alert(error.message || "Profile update failed");
@@ -137,18 +137,40 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleImageChange = async (e) => {
+    if (e.target.files && e.target.files[0] && user?.token) {
       const file = e.target.files[0];
-      // For file upload, you'd need to convert to base64 or upload to a server first
-      // For now, we'll just store the file reference
-      setProfileImage(file);
-      // You can create an object URL for preview
-      // const reader = new FileReader();
-      // reader.onloadend = () => {
-      //   setProfileImage(reader.result);
-      // };
-      // reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('profilePhoto', file);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/students/profile/photo", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setProfileImage(data.student.profilePhotoUrl);
+          setStudent({ ...student, profilePhotoUrl: data.student.profilePhotoUrl });
+          alert("Profile photo updated successfully!");
+          fetchProfile(); // Refresh to get updated data
+          
+          // Trigger navbar update via custom event
+          window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { 
+            detail: { profilePhotoUrl: data.student.profilePhotoUrl } 
+          }));
+        } else {
+          const error = await res.json();
+          alert(error.message || "Photo upload failed");
+        }
+      } catch (err) {
+        console.error("Photo upload failed", err);
+        alert("Error uploading photo");
+      }
     }
   };
 
@@ -197,9 +219,7 @@ const StudentDashboard = () => {
         <div id="profile-section">
           <img
             src={
-              profileImage instanceof File
-                ? URL.createObjectURL(profileImage)
-                : profileImage || student?.profilePhotoUrl || "https://via.placeholder.com/150"
+              profileImage || student?.profilePhotoUrl || "https://via.placeholder.com/150"
             }
             alt={studentName}
             id="sidebar-profile-img"
@@ -256,7 +276,7 @@ const StudentDashboard = () => {
               }
               placeholder="Address"
             />
-            <label htmlFor="profile-image-upload" id="profile-upload-label">
+            <label htmlFor="profile-image-upload" id="profile-upload-label" style={{ cursor: "pointer", padding: "10px", background: "#00bfff", color: "#fff", borderRadius: "8px", textAlign: "center" }}>
               Upload Photo
             </label>
             <input
@@ -344,11 +364,11 @@ const StudentDashboard = () => {
               <table id="fees-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
                     <th>Amount</th>
-                    <th>Duration</th>
-                    <th>Month</th>
                     <th>Status</th>
+                    <th>Month</th>
+                    <th>Collected Date</th>
+                    <th>Duration</th>
                     <th>Mode</th>
                   </tr>
                 </thead>
@@ -362,10 +382,7 @@ const StudentDashboard = () => {
                   ) : (
                     fees.map((fee) => (
                       <tr key={fee._id}>
-                        <td>{new Date(fee.date).toLocaleDateString()}</td>
                         <td>₹{fee.amount}</td>
-                        <td>{fee.feeForMonths}</td>
-                        <td>{fee.month || "-"}</td>
                         <td
                           style={{
                             color:
@@ -375,6 +392,15 @@ const StudentDashboard = () => {
                         >
                           {fee.status?.toUpperCase()}
                         </td>
+                        <td>{fee.month || (fee.date ? new Date(fee.date).toISOString().slice(0, 7) : "-")}</td>
+                        <td>
+                          {fee.collectedAt
+                            ? new Date(fee.collectedAt).toLocaleDateString()
+                            : fee.status === "collected" && fee.date
+                            ? new Date(fee.date).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td>{fee.feeForMonths || "-"}</td>
                         <td>{fee.mode?.toUpperCase() || "-"}</td>
                       </tr>
                     ))
@@ -388,54 +414,141 @@ const StudentDashboard = () => {
         {activeTab === "attendance" && (
           <section id="attendance-view">
             <h2>Attendance Report</h2>
-            <div id="attendance-summary">
+            
+            {/* Month-wise Summary */}
+            <div style={{ marginBottom: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Monthly Attendance Summary</h3>
+              <div className="table-wrapper">
+                <table id="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Total Days</th>
+                      <th>Present</th>
+                      <th>Absent</th>
+                      <th>Leave</th>
+                      <th>Attendance %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      // Group attendance by month
+                      const monthlyData = {};
+                      attendance.forEach((record) => {
+                        if (record.date) {
+                          const date = new Date(record.date);
+                          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                          if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = {
+                              month: monthKey,
+                              total: 0,
+                              present: 0,
+                              absent: 0,
+                              leave: 0,
+                            };
+                          }
+                          monthlyData[monthKey].total++;
+                          if (record.status === "present") monthlyData[monthKey].present++;
+                          else if (record.status === "absent") monthlyData[monthKey].absent++;
+                          else if (record.status === "leave") monthlyData[monthKey].leave++;
+                        }
+                      });
+
+                      const monthlyArray = Object.values(monthlyData).sort((a, b) => b.month.localeCompare(a.month));
+
+                      return monthlyArray.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center" }}>No attendance records</td>
+                        </tr>
+                      ) : (
+                        monthlyArray.map((monthData) => {
+                          const percentage = monthData.total > 0 
+                            ? ((monthData.present / monthData.total) * 100).toFixed(1)
+                            : "0";
+                          const monthName = new Date(monthData.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                          return (
+                            <tr key={monthData.month}>
+                              <td>{monthName}</td>
+                              <td>{monthData.total}</td>
+                              <td>{monthData.present}</td>
+                              <td>{monthData.absent}</td>
+                              <td>{monthData.leave}</td>
+                              <td>
+                                <span style={{
+                                  padding: "4px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.85rem",
+                                  fontWeight: "600",
+                                  color: "#fff",
+                                  background: percentage >= 75 ? "#10b981" : percentage >= 50 ? "#f6ad55" : "#e53e3e",
+                                }}>
+                                  {percentage}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      );
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Overall Summary */}
+            <div id="attendance-summary" style={{ marginBottom: "20px" }}>
               <p id="present-count">{totalPresent}</p>
               <p id="subtext">Days Present</p>
               <p>Total: {attendance.length} days</p>
               <p>Attendance: {attendanceSummary.percentage}%</p>
             </div>
-            <div id="attendance-table-container">
-              <table id="attendance-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendance.length === 0 ? (
+
+            {/* Detailed Attendance List */}
+            <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>All Attendance Records</h3>
+              <div id="attendance-table-container">
+                <table id="attendance-table">
+                  <thead>
                     <tr>
-                      <td colSpan="3" style={{ textAlign: "center" }}>
-                        No attendance records found
-                      </td>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Note</th>
                     </tr>
-                  ) : (
-                    attendance
-                      .sort(
-                        (a, b) =>
-                          new Date(b.date) - new Date(a.date)
-                      )
-                      .map((record) => (
-                        <tr key={record._id}>
-                          <td>{new Date(record.date).toLocaleDateString()}</td>
-                          <td
-                            id={
-                              record.status === "present"
-                                ? "present"
-                                : record.status === "absent"
-                                ? "absent"
-                                : "leave"
-                            }
-                          >
-                            {record.status?.toUpperCase()}
-                          </td>
-                          <td>{record.note || "-"}</td>
-                        </tr>
-                      ))
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {attendance.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: "center" }}>
+                          No attendance records found
+                        </td>
+                      </tr>
+                    ) : (
+                      attendance
+                        .sort(
+                          (a, b) =>
+                            new Date(b.date) - new Date(a.date)
+                        )
+                        .map((record) => (
+                          <tr key={record._id}>
+                            <td>{new Date(record.date).toLocaleDateString()}</td>
+                            <td
+                              id={
+                                record.status === "present"
+                                  ? "present"
+                                  : record.status === "absent"
+                                  ? "absent"
+                                  : "leave"
+                              }
+                            >
+                              {record.status?.toUpperCase()}
+                            </td>
+                            <td>{record.note || "-"}</td>
+                          </tr>
+                        ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         )}

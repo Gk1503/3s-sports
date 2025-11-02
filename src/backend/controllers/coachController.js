@@ -2,6 +2,7 @@ const Student = require("../models/Student");
 const Attendance = require("../models/Attendance");
 const Fee = require("../models/Fee");
 const Coach = require("../models/Coach");
+const User = require("../models/User");
 
 // Get all students (coach can view all students)
 exports.getAllStudents = async (req, res) => {
@@ -263,9 +264,15 @@ exports.markFeeCollection = async (req, res) => {
       .populate("student", "firstName lastName monthlyFee")
       .populate("collectedBy", "username");
 
+    // Calculate next due date
+    const nextDueDate = new Date(fee.collectedAt || fee.date);
+    const months = fee.feeForMonths === '1m' ? 1 : fee.feeForMonths === '3m' ? 3 : fee.feeForMonths === '6m' ? 6 : 12;
+    nextDueDate.setMonth(nextDueDate.getMonth() + months);
+
     res.json({
       message: "Fee collection marked successfully",
       fee: populatedFee,
+      nextDueDate: nextDueDate.toISOString().slice(0, 10),
     });
   } catch (err) {
     console.error("Mark Fee Collection Error:", err);
@@ -367,6 +374,107 @@ exports.getFeeRecords = async (req, res) => {
     console.error("Get Fee Records Error:", err);
     res.status(500).json({
       message: "Error fetching fee records",
+      error: err.message,
+    });
+  }
+};
+
+// Get coach profile
+exports.getProfile = async (req, res) => {
+  try {
+    const coach = await Coach.findOne({ user: req.user._id })
+      .populate("user", "username role")
+      .populate("assignedStudents", "firstName lastName");
+
+    if (!coach) {
+      return res.status(404).json({ message: "Coach profile not found" });
+    }
+
+    res.json({
+      ...coach.toObject(),
+      username: coach.user.username,
+      profilePhotoUrl: coach.profilePhotoUrl ? `http://localhost:5000${coach.profilePhotoUrl}` : null,
+    });
+  } catch (err) {
+    console.error("Get Profile Error:", err);
+    res.status(500).json({
+      message: "Error fetching profile",
+      error: err.message,
+    });
+  }
+};
+
+// Update coach profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const allowedUpdates = ["name", "phone", "email"];
+    const updates = {};
+    Object.keys(req.body).forEach((key) => {
+      if (allowedUpdates.includes(key)) {
+        updates[key] = req.body[key];
+      }
+    });
+
+    const coach = await Coach.findOneAndUpdate(
+      { user: req.user._id },
+      updates,
+      { new: true, runValidators: true }
+    )
+      .populate("user", "username role");
+
+    if (!coach) {
+      return res.status(404).json({ message: "Coach profile not found" });
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      coach: {
+        ...coach.toObject(),
+        username: coach.user.username,
+        profilePhotoUrl: coach.profilePhotoUrl ? `http://localhost:5000${coach.profilePhotoUrl}` : null,
+      },
+    });
+  } catch (err) {
+    console.error("Update Profile Error:", err);
+    res.status(500).json({
+      message: "Error updating profile",
+      error: err.message,
+    });
+  }
+};
+
+// Upload profile photo
+exports.uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const profilePhotoUrl = `/uploads/profile-photos/${req.file.filename}`;
+
+    const coach = await Coach.findOneAndUpdate(
+      { user: req.user._id },
+      { profilePhotoUrl },
+      { new: true, runValidators: true }
+    )
+      .populate("user", "username role");
+
+    if (!coach) {
+      return res.status(404).json({ message: "Coach profile not found" });
+    }
+
+    res.json({
+      message: "Profile photo uploaded successfully",
+      coach: {
+        ...coach.toObject(),
+        username: coach.user.username,
+        profilePhotoUrl: `http://localhost:5000${profilePhotoUrl}`,
+      },
+    });
+  } catch (err) {
+    console.error("Upload Profile Photo Error:", err);
+    res.status(500).json({
+      message: "Error uploading profile photo",
       error: err.message,
     });
   }

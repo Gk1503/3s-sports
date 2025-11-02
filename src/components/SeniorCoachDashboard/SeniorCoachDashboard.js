@@ -25,6 +25,7 @@ const SeniorCoachDashboard = () => {
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showCoachModal, setShowCoachModal] = useState(false);
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+  const [showCoachCredentialsModal, setShowCoachCredentialsModal] = useState(false);
   const [showFeesModal, setShowFeesModal] = useState(false);
   const [showFeesReportModal, setShowFeesReportModal] = useState(false);
   
@@ -32,12 +33,22 @@ const SeniorCoachDashboard = () => {
   const [editingCoach, setEditingCoach] = useState(null);
   const [selectedStudentForFees, setSelectedStudentForFees] = useState(null);
   const [selectedStudentForCredentials, setSelectedStudentForCredentials] = useState(null);
+  const [selectedCoachForCredentials, setSelectedCoachForCredentials] = useState(null);
+  const [selectedStudentForAttendance, setSelectedStudentForAttendance] = useState(null);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [showFeeMarkModal, setShowFeeMarkModal] = useState(false);
+  const [studentAttendanceData, setStudentAttendanceData] = useState([]);
+  const [allStudentsWithFees, setAllStudentsWithFees] = useState([]);
   
   const [studentFormData, setStudentFormData] = useState({});
   const [coachFormData, setCoachFormData] = useState({});
   const [feesFormData, setFeesFormData] = useState({
     monthlyFee: "",
     feeDuration: "1m",
+  });
+  const [feeMarkFormData, setFeeMarkFormData] = useState({
+    mode: "cash",
+    month: new Date().toISOString().slice(0, 7),
   });
 
   // Fetch students
@@ -182,11 +193,186 @@ const SeniorCoachDashboard = () => {
       fetchFeesReport();
       fetchPendingFees();
       fetchCollectedFees();
+      fetchAllStudentsWithFees();
     }
     if (activeTab === "reports") {
       fetchAttendanceReport();
     }
   }, [activeTab, fetchFeesReport, fetchPendingFees, fetchCollectedFees, fetchAttendanceReport]);
+
+  // Fetch all students with fees status
+  const fetchAllStudentsWithFees = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const [studentsRes, feesRes] = await Promise.all([
+        fetch("http://localhost:5000/api/srcoach/students", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }),
+        fetch("http://localhost:5000/api/srcoach/fees/report", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }),
+      ]);
+      
+      if (studentsRes.ok && feesRes.ok) {
+        const studentsData = await studentsRes.json();
+        const feesData = await feesRes.json();
+        
+        const studentsWithFees = (studentsData || []).map(student => {
+          const studentFees = (feesData.fees || []).filter(f => 
+            f.student?._id === student._id || f.student === student._id
+          );
+          const pendingFees = studentFees.filter(f => f.status === "pending");
+          const collectedFees = studentFees.filter(f => f.status === "collected");
+          
+          return {
+            ...student,
+            pendingAmount: pendingFees.reduce((sum, f) => sum + f.amount, 0),
+            collectedAmount: collectedFees.reduce((sum, f) => sum + f.amount, 0),
+            feeStatus: pendingFees.length > 0 ? "pending" : collectedFees.length > 0 ? "collected" : "none",
+          };
+        });
+        
+        setAllStudentsWithFees(studentsWithFees);
+      }
+    } catch (err) {
+      console.error("Error fetching students with fees:", err);
+    }
+  }, [user?.token]);
+
+  // Calculate next due date
+  const calculateNextDueDate = (lastCollectedDate, feeForMonths) => {
+    if (!lastCollectedDate) return null;
+    const date = new Date(lastCollectedDate);
+    const months = feeForMonths === '1m' ? 1 : feeForMonths === '3m' ? 3 : feeForMonths === '6m' ? 6 : 12;
+    date.setMonth(date.getMonth() + months);
+    return date.toISOString().slice(0, 10);
+  };
+
+  // View coach credentials
+  const handleViewCoachCredentials = async (coach) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${coach._id}/credentials`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedCoachForCredentials({
+          ...coach,
+          username: data.username,
+          password: data.password,
+        });
+        setShowCoachCredentialsModal(true);
+      } else {
+        const error = await res.json();
+        alert(error.message || "Error fetching coach credentials");
+      }
+    } catch (err) {
+      console.error("Error fetching coach credentials:", err);
+      alert("Error fetching coach credentials");
+    }
+  };
+
+  // View student attendance
+  const handleViewStudentAttendance = async (student) => {
+    setSelectedStudentForAttendance(student);
+    try {
+      const res = await fetch(`http://localhost:5000/api/srcoach/attendance/report?studentId=${student._id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStudentAttendanceData(data.attendance || []);
+        setShowAttendanceModal(true);
+      }
+    } catch (err) {
+      console.error("Error fetching student attendance:", err);
+      alert("Error fetching attendance data");
+    }
+  };
+
+  // Handle fee marking with mode selection
+  const handleMarkFee = (fee) => {
+    setSelectedStudentForFees(fee);
+    setFeeMarkFormData({
+      mode: "cash",
+      month: fee.month || new Date().toISOString().slice(0, 7),
+    });
+    setShowFeeMarkModal(true);
+  };
+
+  const handleSubmitFeeMark = async (e) => {
+    e.preventDefault();
+    if (!selectedStudentForFees?._id) return;
+    
+    try {
+      const res = await fetch(`http://localhost:5000/api/srcoach/fees/${selectedStudentForFees._id}/collect`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          month: feeMarkFormData.month,
+          mode: feeMarkFormData.mode,
+        }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        const nextDueDate = calculateNextDueDate(new Date(), selectedStudentForFees.feeForMonths || "1m");
+        alert(`Fee marked as collected!\nNext due date: ${nextDueDate ? new Date(nextDueDate).toLocaleDateString() : 'N/A'}`);
+        fetchPendingFees();
+        fetchCollectedFees();
+        fetchAllStudentsWithFees();
+        fetchDashboardStats();
+        setShowFeeMarkModal(false);
+        setSelectedStudentForFees(null);
+        
+        // Auto-create next month fee if needed
+        if (selectedStudentForFees?.student?.monthlyFee && selectedStudentForFees.student.monthlyFee > 0) {
+          const nextMonth = new Date(feeMarkFormData.month + '-01');
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          const nextMonthStr = nextMonth.toISOString().slice(0, 7);
+          
+          // Check if fee already exists for next month
+          const checkRes = await fetch(`http://localhost:5000/api/srcoach/fees/pending`, {
+            headers: { Authorization: `Bearer ${user.token}` },
+          });
+          if (checkRes.ok) {
+            const pendingData = await checkRes.json();
+            const exists = pendingData.fees?.some(f => 
+              (f.student?._id === selectedStudentForFees.student?._id || f.student === selectedStudentForFees.student?._id) &&
+              f.month === nextMonthStr
+            );
+            
+            if (!exists) {
+              // Auto-create pending fee for next month
+              await fetch("http://localhost:5000/api/srcoach/fees/report", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({
+                  studentId: selectedStudentForFees.student?._id || selectedStudentForFees.student,
+                  amount: selectedStudentForFees.student?.monthlyFee || selectedStudentForFees.amount,
+                  feeForMonths: selectedStudentForFees.student?.feeDuration || selectedStudentForFees.feeForMonths || "1m",
+                  month: nextMonthStr,
+                  status: "pending",
+                }),
+              });
+            }
+          }
+        }
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to mark fee as collected");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error marking fee");
+    }
+  };
 
   // Form handlers
   const handleStudentFormChange = (e) => {
@@ -229,7 +415,6 @@ const SeniorCoachDashboard = () => {
           address: studentFormData.address,
           parentName: studentFormData.parentName,
           parentPhone: studentFormData.parentPhone,
-          profilePhotoUrl: studentFormData.profilePhotoUrl,
           monthlyFee: studentFormData.monthlyFee || 0,
           feeDuration: studentFormData.feeDuration || "1m",
           extraInfo: studentFormData.extraInfo,
@@ -338,8 +523,27 @@ const SeniorCoachDashboard = () => {
 
   // View credentials
   const handleViewCredentials = async (student) => {
-    setSelectedStudentForCredentials(student);
-    setShowCredentialsModal(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/srcoach/students/${student._id}/credentials`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSelectedStudentForCredentials({
+          ...student,
+          username: data.username,
+          password: data.password,
+        });
+        setShowCredentialsModal(true);
+      } else {
+        alert(data.message || "Failed to fetch credentials");
+      }
+    } catch (err) {
+      console.error("Error fetching credentials:", err);
+      alert("Error fetching credentials");
+    }
   };
 
   // Set student fees
@@ -487,7 +691,7 @@ const SeniorCoachDashboard = () => {
     <div id="srcoach-dashboard">
       {/* Sidebar */}
       <aside id="sidebar">
-        <h2 id="sidebar-title">🏏 3Sports</h2>
+        <h2 id="sidebar-title">🏏 3S Sports</h2>
         <ul>
           {["overview", "students", "coaches", "fees", "reports"].map((tab) => (
             <li
@@ -499,7 +703,7 @@ const SeniorCoachDashboard = () => {
                   activeTab === tab
                     ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
                     : "transparent",
-                color: activeTab === tab ? "#fff" : "#12394f",
+                color: "#fff",
               }}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -594,11 +798,72 @@ const SeniorCoachDashboard = () => {
                         <td>{s.batch || "N/A"}</td>
                         <td>₹{s.monthlyFee || 0}</td>
                         <td>{s.username || "N/A"}</td>
-                        <td>
-                          <button onClick={() => handleEditStudent(s)}>Edit</button>
-                          <button onClick={() => handleDeleteStudent(s._id)}>Delete</button>
-                          <button onClick={() => handleViewCredentials(s)}>Credentials</button>
-                          <button onClick={() => handleSetFees(s)}>Set Fees</button>
+                        <td style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                          <button 
+                            onClick={() => handleEditStudent(s)}
+                            style={{
+                              background: "linear-gradient(90deg, #3182ce, #2563eb)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Edit</button>
+                          <button 
+                            onClick={() => handleDeleteStudent(s._id)}
+                            style={{
+                              background: "linear-gradient(90deg, #e53e3e, #c53030)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Delete</button>
+                          <button 
+                            onClick={() => handleViewCredentials(s)}
+                            style={{
+                              background: "linear-gradient(90deg, #f6ad55, #ed8936)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Credentials</button>
+                          <button 
+                            onClick={() => handleSetFees(s)}
+                            style={{
+                              background: "linear-gradient(90deg, #10b981, #059669)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Set Fees</button>
+                          <button 
+                            onClick={() => handleViewStudentAttendance(s)}
+                            style={{
+                              background: "linear-gradient(90deg, #805ad5, #6b46c1)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Attendance</button>
                         </td>
                       </tr>
                     ))
@@ -650,9 +915,46 @@ const SeniorCoachDashboard = () => {
                         <td>{c.email || "N/A"}</td>
                         <td>{c.phone || "N/A"}</td>
                         <td>{c.username || "N/A"}</td>
-                        <td>
-                          <button onClick={() => handleEditCoach(c)}>Edit</button>
-                          <button onClick={() => handleDeleteCoach(c._id)}>Delete</button>
+                        <td style={{ display: "flex", gap: "8px" }}>
+                          <button 
+                            onClick={() => handleEditCoach(c)}
+                            style={{
+                              background: "linear-gradient(90deg, #3182ce, #2563eb)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Edit</button>
+                          <button 
+                    
+                            style={{
+                              background: "linear-gradient(90deg, #f6ad55, #ed8936)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Credentials</button>
+                          <button 
+                            onClick={() => handleDeleteCoach(c._id)}
+                            style={{
+                              background: "linear-gradient(90deg, #e53e3e, #c53030)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Delete</button>
                         </td>
                       </tr>
                     ))
@@ -666,21 +968,82 @@ const SeniorCoachDashboard = () => {
         {/* Fees Tab */}
         {activeTab === "fees" && (
           <section id="fees-section">
-            <div id="fee-collected">
-              <h3>Collected Fees</h3>
-              <p>₹{dashboardStats?.fees?.collected || 0}</p>
-            </div>
-            <div id="fee-pending">
-              <h3>Pending Fees</h3>
-              <p>₹{dashboardStats?.fees?.pending || 0}</p>
-            </div>
-            <div id="fee-total">
-              <h3>Total Collection</h3>
-              <p>₹{dashboardStats?.fees?.totalCollection || 0}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "30px" }}>
+              <div id="fee-collected">
+                <h3>Collected Fees</h3>
+                <p>₹{dashboardStats?.fees?.collected || 0}</p>
+              </div>
+              <div id="fee-pending">
+                <h3>Pending Fees</h3>
+                <p>₹{dashboardStats?.fees?.pending || 0}</p>
+              </div>
+              <div id="fee-total">
+                <h3>Total Collection</h3>
+                <p>₹{dashboardStats?.fees?.totalCollection || 0}</p>
+              </div>
             </div>
 
-            <div style={{ marginTop: "30px" }}>
-              <h3>Pending Fees List</h3>
+            {/* All Students with Fees Status */}
+            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>All Students - Fees Status</h3>
+              <div className="table-wrapper">
+                <table id="fees-table">
+                  <thead>
+                    <tr>
+                      <th>Student Name</th>
+                      <th>Monthly Fee</th>
+                      <th>Pending Amount</th>
+                      <th>Collected Amount</th>
+                      <th>Status</th>
+                      <th>Next Due Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allStudentsWithFees.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: "center" }}>No students found</td>
+                      </tr>
+                    ) : (
+                      allStudentsWithFees.map((student) => {
+                        // Get last collected fee
+                        const lastCollectedFee = collectedFees.find(f => 
+                          (f.student?._id === student._id || f.student === student._id)
+                        );
+                        const nextDueDate = lastCollectedFee && student.feeDuration 
+                          ? calculateNextDueDate(lastCollectedFee.collectedAt || lastCollectedFee.date, student.feeDuration || "1m")
+                          : null;
+                        
+                        return (
+                          <tr key={student._id}>
+                            <td>{student.firstName} {student.lastName || ""}</td>
+                            <td>₹{student.monthlyFee || 0}</td>
+                            <td>₹{student.pendingAmount || 0}</td>
+                            <td>₹{student.collectedAmount || 0}</td>
+                            <td>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                                color: "#fff",
+                                background: student.feeStatus === "pending" ? "#e53e3e" : student.feeStatus === "collected" ? "#10b981" : "#64748b",
+                              }}>
+                                {student.feeStatus === "pending" ? "Pending" : student.feeStatus === "collected" ? "Collected" : "No Fees"}
+                              </span>
+                            </td>
+                            <td>{nextDueDate ? new Date(nextDueDate).toLocaleDateString() : "-"}</td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pending Fees List - Month Wise */}
+            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Pending Fees (Month-wise)</h3>
               <div className="table-wrapper">
                 <table id="fees-table">
                   <thead>
@@ -689,17 +1052,18 @@ const SeniorCoachDashboard = () => {
                       <th>Amount</th>
                       <th>Month</th>
                       <th>Duration</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {pendingFees.length === 0 ? (
                       <tr>
-                        <td colSpan="4" style={{ textAlign: "center" }}>
+                        <td colSpan="5" style={{ textAlign: "center" }}>
                           No pending fees
                         </td>
                       </tr>
                     ) : (
-                      pendingFees.map((fee) => (
+                      pendingFees.sort((a, b) => (a.month || "").localeCompare(b.month || "")).map((fee) => (
                         <tr key={fee._id}>
                           <td>
                             {fee.student?.firstName} {fee.student?.lastName || ""}
@@ -707,8 +1071,71 @@ const SeniorCoachDashboard = () => {
                           <td>₹{fee.amount}</td>
                           <td>{fee.month || "-"}</td>
                           <td>{fee.feeForMonths}</td>
+                          <td>
+                            <button
+                              onClick={() => handleMarkFee({ ...fee, student: fee.student })}
+                              style={{
+                                background: "linear-gradient(90deg, #10b981, #059669)",
+                                color: "#fff",
+                                border: "none",
+                                padding: "6px 12px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Mark Collected
+                            </button>
+                          </td>
                         </tr>
                       ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Collected Fees List - Month Wise */}
+            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Collected Fees (Month-wise)</h3>
+              <div className="table-wrapper">
+                <table id="fees-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Amount</th>
+                      <th>Month</th>
+                      <th>Duration</th>
+                      <th>Mode</th>
+                      <th>Collected Date</th>
+                      <th>Next Due Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {collectedFees.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: "center" }}>
+                          No collected fees
+                        </td>
+                      </tr>
+                    ) : (
+                      collectedFees.sort((a, b) => (a.month || "").localeCompare(b.month || "")).map((fee) => {
+                        const nextDueDate = calculateNextDueDate(fee.collectedAt || fee.date, fee.feeForMonths);
+                        return (
+                          <tr key={fee._id}>
+                            <td>
+                              {fee.student?.firstName} {fee.student?.lastName || ""}
+                            </td>
+                            <td>₹{fee.amount}</td>
+                            <td>{fee.month || "-"}</td>
+                            <td>{fee.feeForMonths}</td>
+                            <td style={{ textTransform: "uppercase", fontWeight: "600" }}>{fee.mode || "cash"}</td>
+                            <td>{fee.collectedAt ? new Date(fee.collectedAt).toLocaleDateString() : "-"}</td>
+                            <td>{nextDueDate ? new Date(nextDueDate).toLocaleDateString() : "-"}</td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -722,22 +1149,82 @@ const SeniorCoachDashboard = () => {
           <section id="reports-section">
             <h2>Reports</h2>
 
-            {attendanceReport && (
-              <div style={{ marginBottom: "30px" }}>
-                <h3>Attendance Report</h3>
-                <p>Total Records: {attendanceReport.summary?.total || 0}</p>
-                <p>Present: {attendanceReport.summary?.present || 0}</p>
-                <p>Absent: {attendanceReport.summary?.absent || 0}</p>
-                <p>Leave: {attendanceReport.summary?.leave || 0}</p>
+            {/* Attendance Sheet */}
+            <div style={{ marginBottom: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Attendance Sheet</h3>
+              {attendanceReport && (
+                <div style={{ marginBottom: "20px" }}>
+                  <p><strong>Total Records:</strong> {attendanceReport.summary?.total || 0}</p>
+                  <p><strong>Present:</strong> {attendanceReport.summary?.present || 0}</p>
+                  <p><strong>Absent:</strong> {attendanceReport.summary?.absent || 0}</p>
+                  <p><strong>Leave:</strong> {attendanceReport.summary?.leave || 0}</p>
+                </div>
+              )}
+              
+              <div className="table-wrapper">
+                <table id="fees-table">
+                  <thead>
+                    <tr>
+                      <th>Student Name</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Coach</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendanceReport?.attendance?.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: "center" }}>No attendance records</td>
+                      </tr>
+                    ) : (
+                      attendanceReport?.attendance?.slice(0, 20).map((record) => (
+                        <tr key={record._id}>
+                          <td>{record.student?.firstName} {record.student?.lastName || ""}</td>
+                          <td>{new Date(record.date).toLocaleDateString()}</td>
+                          <td>
+                            <span style={{
+                              padding: "4px 12px",
+                              borderRadius: "6px",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                              color: "#fff",
+                              background: record.status === "present" ? "#10b981" : record.status === "absent" ? "#e53e3e" : "#f6ad55",
+                            }}>
+                              {record.status?.toUpperCase()}
+                            </span>
+                          </td>
+                          <td>{record.coach?.username || "-"}</td>
+                          <td>
+                            <button
+                              onClick={() => handleViewStudentAttendance(record.student)}
+                              style={{
+                                background: "linear-gradient(90deg, #3182ce, #2563eb)",
+                                color: "#fff",
+                                border: "none",
+                                padding: "4px 10px",
+                                borderRadius: "6px",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+            </div>
 
             {feesReport && (
-              <div>
+              <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
                 <h3>Fees Report Summary</h3>
-                <p>Total: ₹{feesReport.summary?.total || 0}</p>
-                <p>Collected: ₹{feesReport.summary?.collected || 0}</p>
-                <p>Pending: ₹{feesReport.summary?.pending || 0}</p>
+                <p><strong>Total:</strong> ₹{feesReport.summary?.total || 0}</p>
+                <p><strong>Collected:</strong> ₹{feesReport.summary?.collected || 0}</p>
+                <p><strong>Pending:</strong> ₹{feesReport.summary?.pending || 0}</p>
               </div>
             )}
           </section>
@@ -795,12 +1282,20 @@ const SeniorCoachDashboard = () => {
                 value={studentFormData.phone || ""}
                 onChange={handleStudentFormChange}
               />
-              <input
-                name="gender"
-                placeholder="Gender"
-                value={studentFormData.gender || ""}
-                onChange={handleStudentFormChange}
-              />
+              <select
+  name="gender"
+  value={studentFormData.gender || ""}
+  onChange={handleStudentFormChange}
+   // optional Bootstrap class for styling
+>
+  <option value="" disabled>
+    Select Gender
+  </option>
+  <option value="Male">Male</option>
+  <option value="Female">Female</option>
+  <option value="Other">Other</option>
+</select>
+
               <input
                 name="dob"
                 placeholder="Date of Birth"
@@ -830,12 +1325,6 @@ const SeniorCoachDashboard = () => {
                 name="parentPhone"
                 placeholder="Parent Phone"
                 value={studentFormData.parentPhone || ""}
-                onChange={handleStudentFormChange}
-              />
-              <input
-                name="profilePhotoUrl"
-                placeholder="Profile Photo URL"
-                value={studentFormData.profilePhotoUrl || ""}
                 onChange={handleStudentFormChange}
               />
               <input
@@ -891,8 +1380,11 @@ const SeniorCoachDashboard = () => {
             <p>
               <strong>Username:</strong> {selectedStudentForCredentials.username || "N/A"}
             </p>
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              Password is encrypted and cannot be retrieved. Use password reset if needed.
+            <p>
+              <strong>Password:</strong>{" "}
+              <span style={{ fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: "#0b66c3" }}>
+                {selectedStudentForCredentials.password || "N/A"}
+              </span>
             </p>
             <div id="modal-buttons">
               <button
@@ -950,6 +1442,136 @@ const SeniorCoachDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Fee Marking Modal */}
+      {showFeeMarkModal && selectedStudentForFees && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Mark Fee as Collected</h2>
+            <form onSubmit={handleSubmitFeeMark}>
+              <label>Payment Mode:</label>
+              <select
+                value={feeMarkFormData.mode}
+                onChange={(e) => setFeeMarkFormData({ ...feeMarkFormData, mode: e.target.value })}
+                required
+              >
+                <option value="cash">Cash</option>
+                <option value="online">Online</option>
+                <option value="cheque">Cheque</option>
+                <option value="other">Other</option>
+              </select>
+              <label>Month:</label>
+              <input
+                type="month"
+                value={feeMarkFormData.month}
+                onChange={(e) => setFeeMarkFormData({ ...feeMarkFormData, month: e.target.value })}
+                required
+              />
+              <div id="modal-buttons">
+                <button type="submit">Mark Collected</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFeeMarkModal(false);
+                    setSelectedStudentForFees(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Coach Credentials Modal */}
+      {showCoachCredentialsModal && selectedCoachForCredentials && (
+        <div id="modal-overlay">
+          <div id="modal-student">
+            <h2>Coach Credentials</h2>
+            <p>
+              <strong>Name:</strong> {selectedCoachForCredentials.name || "N/A"}
+            </p>
+            <p>
+              <strong>Username:</strong> {selectedCoachForCredentials.username || "N/A"}
+            </p>
+            <p>
+              <strong>Password:</strong>{" "}
+              <span style={{ fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: "#0b66c3" }}>
+                {selectedCoachForCredentials.password || "Password not available"}
+              </span>
+            </p>
+            <div id="modal-buttons">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCoachCredentialsModal(false);
+                  setSelectedCoachForCredentials(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Student Attendance Modal */}
+      {showAttendanceModal && selectedStudentForAttendance && (
+        <div id="modal-overlay">
+          <div id="modal-student" style={{ maxWidth: "800px", maxHeight: "80vh", overflowY: "auto" }}>
+            <h2>Attendance Details - {selectedStudentForAttendance.firstName} {selectedStudentForAttendance.lastName || ""}</h2>
+            <div className="table-wrapper" style={{ marginTop: "20px" }}>
+              <table id="fees-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Coach</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studentAttendanceData.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: "center" }}>No attendance records</td>
+                    </tr>
+                  ) : (
+                    studentAttendanceData.map((record) => (
+                      <tr key={record._id}>
+                        <td>{new Date(record.date).toLocaleDateString()}</td>
+                        <td>
+                          <span style={{
+                            padding: "4px 12px",
+                            borderRadius: "6px",
+                            fontSize: "0.85rem",
+                            fontWeight: "600",
+                            color: "#fff",
+                            background: record.status === "present" ? "#10b981" : record.status === "absent" ? "#e53e3e" : "#f6ad55",
+                          }}>
+                            {record.status?.toUpperCase()}
+                          </span>
+                        </td>
+                        <td>{record.coach?.username || "-"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div id="modal-buttons">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAttendanceModal(false);
+                  setSelectedStudentForAttendance(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

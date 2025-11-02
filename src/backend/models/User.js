@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ['student', 'coach', 'seniorCoach'], required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // who created this user (srcoach)
+  profilePhotoUrl: String,
+  temporaryPassword: String, // Store temporarily for display (only for students created by srcoach)
   createdAt: { type: Date, default: Date.now },
 });
 

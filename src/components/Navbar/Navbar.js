@@ -9,8 +9,45 @@ const Navbar = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState(null);
+  const [userProfilePhoto, setUserProfilePhoto] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fetch user profile photo
+  const fetchUserProfilePhoto = async (userRole, token) => {
+    if (!token) return;
+    try {
+      let apiUrl = "";
+      switch (userRole) {
+        case "student":
+          apiUrl = "http://localhost:5000/api/students/profile";
+          break;
+        case "coach":
+          apiUrl = "http://localhost:5000/api/coaches/profile";
+          break;
+        case "seniorCoach":
+          apiUrl = "http://localhost:5000/api/srcoach/profile";
+          break;
+        default:
+          return;
+      }
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const photoUrl = data.profilePhotoUrl || data.student?.profilePhotoUrl || data.coach?.profilePhotoUrl || data.user?.profilePhotoUrl;
+        if (photoUrl && !photoUrl.startsWith('http')) {
+          // If relative URL, prepend base URL
+          setUserProfilePhoto(`http://localhost:5000${photoUrl}`);
+        } else {
+          setUserProfilePhoto(photoUrl);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching profile photo:", err);
+    }
+  };
 
   // Check for logged-in user on mount and when location changes
   useEffect(() => {
@@ -19,14 +56,43 @@ const Navbar = () => {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
+        fetchUserProfilePhoto(parsedUser.role, parsedUser.token);
       } catch (err) {
         console.error("Error parsing user data:", err);
         localStorage.removeItem("user");
       }
     } else {
       setUser(null);
+      setUserProfilePhoto(null);
     }
   }, [location]);
+
+  // Listen for profile photo updates
+  useEffect(() => {
+    const handleProfilePhotoUpdate = async (event) => {
+      if (event.detail && event.detail.profilePhotoUrl) {
+        // Directly set the photo URL from the event
+        setUserProfilePhoto(event.detail.profilePhotoUrl);
+      } else {
+        // Refetch profile photo from API
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            await fetchUserProfilePhoto(parsedUser.role, parsedUser.token);
+          } catch (err) {
+            console.error("Error fetching updated profile photo:", err);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('profilePhotoUpdated', handleProfilePhotoUpdate);
+
+    return () => {
+      window.removeEventListener('profilePhotoUpdated', handleProfilePhotoUpdate);
+    };
+  }, []); // Empty deps array - we'll get user from localStorage inside
 
   // Determine if we're on a dashboard page
   const isDashboardPage = 
@@ -132,9 +198,12 @@ const Navbar = () => {
                     onClick={() => setShowMenu(!showMenu)}
                   >
                     <img
-                      src="https://via.placeholder.com/45"
+                      src={userProfilePhoto || "https://via.placeholder.com/45"}
                       alt={getUserDisplayName()}
                       className="user-avatar"
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/45";
+                      }}
                     />
                     <span className="user-info">
                       <span className="user-name">{getUserDisplayName()}</span>
@@ -173,9 +242,12 @@ const Navbar = () => {
                   onClick={() => setShowMenu(!showMenu)}
                 >
                   <img
-                    src="https://via.placeholder.com/45"
+                    src={userProfilePhoto || "https://via.placeholder.com/45"}
                     alt={getUserDisplayName()}
                     className="user-avatar"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/45";
+                    }}
                   />
                   <span className="user-info">
                     <span className="user-name">{getUserDisplayName()}</span>

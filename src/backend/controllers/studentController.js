@@ -17,6 +17,7 @@ exports.getProfile = async (req, res) => {
     res.json({
       ...student.toObject(),
       username: student.user.username,
+      profilePhotoUrl: student.profilePhotoUrl ? `http://localhost:5000${student.profilePhotoUrl}` : null,
     });
   } catch (err) {
     console.error("Get Profile Error:", err);
@@ -72,6 +73,43 @@ exports.updateProfile = async (req, res) => {
     console.error("Update Profile Error:", err);
     res.status(500).json({
       message: "Error updating profile",
+      error: err.message,
+    });
+  }
+};
+
+// Upload profile photo
+exports.uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const profilePhotoUrl = `/uploads/profile-photos/${req.file.filename}`;
+
+    const student = await Student.findOneAndUpdate(
+      { user: req.user._id },
+      { profilePhotoUrl },
+      { new: true, runValidators: true }
+    )
+      .populate("user", "username role");
+
+    if (!student) {
+      return res.status(404).json({ message: "Student profile not found" });
+    }
+
+    res.json({
+      message: "Profile photo uploaded successfully",
+      student: {
+        ...student.toObject(),
+        username: student.user.username,
+        profilePhotoUrl: `http://localhost:5000${profilePhotoUrl}`,
+      },
+    });
+  } catch (err) {
+    console.error("Upload Profile Photo Error:", err);
+    res.status(500).json({
+      message: "Error uploading profile photo",
       error: err.message,
     });
   }

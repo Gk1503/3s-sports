@@ -3,9 +3,15 @@ const router = express.Router();
 const { protect } = require("../middleware/auth");
 const { allowRoles } = require("../middleware/roles");
 const coachCtrl = require("../controllers/coachController");
+const upload = require("../middleware/upload");
 
 // Protect all routes - only coach can access
 router.use(protect, allowRoles("coach"));
+
+// ---------- PROFILE ----------
+router.get("/profile", coachCtrl.getProfile); // Get coach profile
+router.put("/profile", coachCtrl.updateProfile); // Update own profile
+router.post("/profile/photo", upload.single('profilePhoto'), coachCtrl.uploadProfilePhoto); // Upload profile photo
 
 // ---------- STUDENTS ----------
 router.get("/students", coachCtrl.getAllStudents); // View all students

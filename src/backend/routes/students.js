@@ -8,8 +8,10 @@ const studentCtrl = require("../controllers/studentController");
 router.use(protect, allowRoles("student"));
 
 // ---------- PROFILE ----------
+const upload = require("../middleware/upload");
 router.get("/profile", studentCtrl.getProfile); // Get student profile (including photo)
 router.put("/profile", studentCtrl.updateProfile); // Update own profile
+router.post("/profile/photo", upload.single('profilePhoto'), studentCtrl.uploadProfilePhoto); // Upload profile photo
 
 // ---------- DASHBOARD ----------
 router.get("/dashboard", studentCtrl.getDashboard); // Get dashboard with summary

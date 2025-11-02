@@ -55,7 +55,7 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   border-radius: 10px;
   transition: all 0.2s ease;
   font-weight: 600;
-  color: #12394f;
+  color: #fff !important;
 }
 #sidebar li:hover { 
   background: linear-gradient(90deg, rgba(11,102,195,0.15), rgba(30,144,255,0.08));
