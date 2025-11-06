@@ -70,7 +70,7 @@ const LoginModal = ({ closeModal, setUser }) => {
     <div id="modal-overlay" onClick={closeModal} className={darkMode ? "dark" : ""}>
       <div id="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 id="modal-title">3SPORTS Login</h2>
+          <h2 id="modal-title">3S SPORTS Login</h2>
           <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? "☀️" : "🌙"}
           </button>

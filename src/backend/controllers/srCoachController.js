@@ -421,6 +421,27 @@ exports.getFeesReport = async (req, res) => {
       .populate("student", "firstName lastName monthlyFee feeDuration")
       .populate("collectedBy", "username")
       .sort({ date: -1 });
+    
+    // Get coach names for collectedBy
+    const Coach = require("../models/Coach");
+    const feesWithCoachNames = await Promise.all(
+      fees.map(async (fee) => {
+        if (fee.collectedBy) {
+          const userId = fee.collectedBy._id || fee.collectedBy;
+          const coach = await Coach.findOne({ user: userId });
+          const coachName = coach?.name || fee.collectedBy?.username || "-";
+          return {
+            ...fee.toObject(),
+            collectedBy: {
+              ...fee.collectedBy?.toObject(),
+              name: coachName,
+              username: fee.collectedBy?.username || coachName
+            }
+          };
+        }
+        return fee.toObject();
+      })
+    );
 
     // Calculate summary
     const summary = await Fee.aggregate([
@@ -438,7 +459,7 @@ exports.getFeesReport = async (req, res) => {
     const pending = summary.find((s) => s._id === "pending")?.totalAmount || 0;
 
     res.json({
-      fees,
+      fees: feesWithCoachNames,
       summary: {
         total: collected + pending,
         collected,
@@ -479,10 +500,31 @@ exports.getCollectedFees = async (req, res) => {
       .populate("collectedBy", "username")
       .sort({ collectedAt: -1 });
 
+    // Get coach names for collectedBy
+    const Coach = require("../models/Coach");
+    const feesWithCoachNames = await Promise.all(
+      collectedFees.map(async (fee) => {
+        if (fee.collectedBy) {
+          const userId = fee.collectedBy._id || fee.collectedBy;
+          const coach = await Coach.findOne({ user: userId });
+          const coachName = coach?.name || fee.collectedBy?.username || "-";
+          return {
+            ...fee.toObject(),
+            collectedBy: {
+              ...fee.collectedBy?.toObject(),
+              name: coachName,
+              username: fee.collectedBy?.username || coachName
+            }
+          };
+        }
+        return fee.toObject();
+      })
+    );
+
     res.json({
       count: collectedFees.length,
       totalAmount: collectedFees.reduce((sum, fee) => sum + fee.amount, 0),
-      fees: collectedFees,
+      fees: feesWithCoachNames,
     });
   } catch (err) {
     console.error("Collected Fees Error:", err);
@@ -577,6 +619,27 @@ exports.getAttendanceReport = async (req, res) => {
       .populate("student", "firstName lastName batch")
       .populate("coach", "username")
       .sort({ date: -1 });
+    
+    // Get coach names
+    const Coach = require("../models/Coach");
+    const attendanceWithCoachNames = await Promise.all(
+      attendance.map(async (record) => {
+        if (record.coach) {
+          const userId = record.coach._id || record.coach;
+          const coach = await Coach.findOne({ user: userId });
+          const coachName = coach?.name || record.coach?.username || "-";
+          return {
+            ...record.toObject(),
+            coach: {
+              ...record.coach?.toObject(),
+              name: coachName,
+              username: record.coach?.username || coachName
+            }
+          };
+        }
+        return record.toObject();
+      })
+    );
 
     // Calculate summary
     const summary = await Attendance.aggregate([
@@ -594,7 +657,7 @@ exports.getAttendanceReport = async (req, res) => {
     const leave = summary.find((s) => s._id === "leave")?.count || 0;
 
     res.json({
-      attendance,
+      attendance: attendanceWithCoachNames,
       summary: {
         total: attendance.length,
         present,

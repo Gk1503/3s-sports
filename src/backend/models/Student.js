@@ -14,9 +14,17 @@ const studentSchema = new mongoose.Schema({
   parentName: String,
   parentPhone: String,
   extraInfo: String,
-  monthlyFee: { type: Number, default: 0 }, // Monthly fee amount set by srcoach
-  feeDuration: { type: String, enum: ['1m', '3m', '6m', '12m'], default: '1m' }, // Fee duration
+  // Skills: primaryRole, handedness, wicketKeeper boolean, and tags for multiple skills
+  skills: {
+    role: { type: String, enum: ['batsman', 'bowler', 'all-rounder'], default: 'batsman' },
+    handedness: { type: String, enum: ['right', 'left'], default: 'right' },
+    wicketKeeper: { type: Boolean, default: false },
+    tags: [{ type: String }],
+  },
+  monthlyFee: { type: Number, default: 0 },
+  feeDuration: { type: String, enum: ['1m', '3m', '6m', '12m'], default: '1m' },
   attendanceRecords: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attendance' }],
+  registrationSource: { type: String, enum: ['srcoach', 'self'], default: 'srcoach' },
   createdAt: { type: Date, default: Date.now }
 });
 

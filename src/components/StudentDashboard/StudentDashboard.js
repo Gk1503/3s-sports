@@ -319,11 +319,46 @@ const StudentDashboard = () => {
         {activeTab === "dashboard" && (
           <section id="dashboard-view">
             <h2>Welcome, {studentName}</h2>
-            <div id="batch-info">
-              <p>
-                Batch: <span id="batch-highlight">{student?.batch || "N/A"}</span>
-              </p>
+            
+            {/* Profile Details Section */}
+            <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", marginBottom: "20px" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Profile Details</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px" }}>
+                <div>
+                  <strong>Name:</strong> {student?.firstName} {student?.lastName || ""}
+                </div>
+                <div>
+                  <strong>Email:</strong> {student?.email || "N/A"}
+                </div>
+                <div>
+                  <strong>Phone:</strong> {student?.phone || "N/A"}
+                </div>
+                <div>
+                  <strong>Gender:</strong> {student?.gender || "N/A"}
+                </div>
+                <div>
+                  <strong>Date of Birth:</strong> {student?.dob ? new Date(student.dob).toLocaleDateString() : "N/A"}
+                </div>
+                <div>
+                  <strong>Batch:</strong> <span id="batch-highlight">{student?.batch || "N/A"}</span>
+                </div>
+                <div>
+                  <strong>Address:</strong> {student?.address || "N/A"}
+                </div>
+                <div>
+                  <strong>Parent Name:</strong> {student?.parentName || "N/A"}
+                </div>
+                <div>
+                  <strong>Parent Phone:</strong> {student?.parentPhone || "N/A"}
+                </div>
+                {student?.extraInfo && (
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <strong>Extra Info:</strong> {student.extraInfo}
+                  </div>
+                )}
+              </div>
             </div>
+
             <div id="fees-info">
               <div id="fee-card">
                 Monthly Fee: ₹{feesSummary.monthlyFee} ({feesSummary.feeDuration})

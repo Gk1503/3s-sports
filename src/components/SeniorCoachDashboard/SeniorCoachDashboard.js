@@ -39,6 +39,7 @@ const SeniorCoachDashboard = () => {
   const [showFeeMarkModal, setShowFeeMarkModal] = useState(false);
   const [studentAttendanceData, setStudentAttendanceData] = useState([]);
   const [allStudentsWithFees, setAllStudentsWithFees] = useState([]);
+  const [srCoachProfile, setSrCoachProfile] = useState(null);
   
   const [studentFormData, setStudentFormData] = useState({});
   const [coachFormData, setCoachFormData] = useState({});
@@ -182,11 +183,67 @@ const SeniorCoachDashboard = () => {
     }
   }, [user?.token]);
 
+  // Fetch srcoach profile
+  const fetchSrCoachProfile = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/srcoach/profile", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSrCoachProfile(data);
+      }
+    } catch (err) {
+      console.error("Error fetching srcoach profile:", err);
+    }
+  }, [user?.token]);
+
+  // Profile Photo Upload Handler
+  const handleProfilePhotoUpload = async (e) => {
+    if (e.target.files && e.target.files[0] && user?.token) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('profilePhoto', file);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/srcoach/profile/photo", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setSrCoachProfile(data.user);
+          alert("Profile photo updated successfully!");
+          fetchSrCoachProfile(); // Refresh to get updated data
+          
+          // Trigger navbar update via custom event
+          window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { 
+            detail: { profilePhotoUrl: data.user.profilePhotoUrl } 
+          }));
+        } else {
+          const error = await res.json();
+          alert(error.message || "Photo upload failed");
+        }
+      } catch (err) {
+        console.error("Photo upload failed", err);
+        alert("Error uploading photo");
+      }
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
     fetchCoaches();
     fetchDashboardStats();
-  }, [fetchStudents, fetchCoaches, fetchDashboardStats]);
+    fetchSrCoachProfile();
+  }, [fetchStudents, fetchCoaches, fetchDashboardStats, fetchSrCoachProfile]);
 
   useEffect(() => {
     if (activeTab === "fees") {
@@ -404,14 +461,14 @@ const SeniorCoachDashboard = () => {
         },
         body: JSON.stringify({
           username: studentFormData.username,
-          password: studentFormData.password,
+  password: studentFormData.password,
           firstName: studentFormData.firstName,
           lastName: studentFormData.lastName,
           email: studentFormData.email,
           phone: studentFormData.phone,
           gender: studentFormData.gender,
           dob: studentFormData.dob,
-          batch: studentFormData.batch,
+    batch: studentFormData.batch,
           address: studentFormData.address,
           parentName: studentFormData.parentName,
           parentPhone: studentFormData.parentPhone,
@@ -468,11 +525,11 @@ const SeniorCoachDashboard = () => {
       const res = await fetch(
         `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user?.token}`,
-          },
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`,
+        },
           body: JSON.stringify(studentFormData),
         }
       );
@@ -610,11 +667,11 @@ const SeniorCoachDashboard = () => {
     const isEditing = !!editingCoach;
 
     try {
-      const url = isEditing
-        ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
-        : "http://localhost:5000/api/srcoach/coaches";
-      const method = isEditing ? "PUT" : "POST";
-
+    const url = isEditing
+      ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
+      : "http://localhost:5000/api/srcoach/coaches";
+    const method = isEditing ? "PUT" : "POST";
+    
       const payload = isEditing
         ? coachFormData
         : {
@@ -692,22 +749,65 @@ const SeniorCoachDashboard = () => {
       {/* Sidebar */}
       <aside id="sidebar">
         <h2 id="sidebar-title">🏏 3S Sports</h2>
-        <ul>
-          {["overview", "students", "coaches", "fees", "reports"].map((tab) => (
-            <li
-              key={tab}
-              id={`sidebar-${tab}`}
-              onClick={() => setActiveTab(tab)}
+        
+        {/* Profile Photo Section */}
+        <div style={{ marginBottom: "20px", textAlign: "center" }}>
+          <img
+            src={srCoachProfile?.profilePhotoUrl || "https://via.placeholder.com/100"}
+            alt="Senior Coach Profile"
+            style={{
+              width: "100px",
+              height: "100px",
+              borderRadius: "50%",
+              border: "3px solid #00bfff",
+              objectFit: "cover",
+              marginBottom: "10px",
+            }}
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/100";
+            }}
+          />
+          <div>
+            <label
+              htmlFor="srcoach-profile-photo-upload"
               style={{
-                background:
-                  activeTab === tab
-                    ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
-                    : "transparent",
+                cursor: "pointer",
+                padding: "8px 16px",
+                background: "#00bfff",
                 color: "#fff",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                display: "inline-block",
               }}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </li>
+              Update Photo
+            </label>
+            <input
+              type="file"
+              id="srcoach-profile-photo-upload"
+              accept="image/*"
+              onChange={handleProfilePhotoUpload}
+              style={{ display: "none" }}
+            />
+          </div>
+        </div>
+        
+        <ul>
+          {["overview", "students", "coaches", "fees", "reports"].map((tab) => (
+              <li
+                key={tab}
+                id={`sidebar-${tab}`}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  background:
+                    activeTab === tab
+                      ? "linear-gradient(90deg,#0b66c3, #1e90ff)"
+                      : "transparent",
+                color: "#fff",
+                }}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </li>
           ))}
         </ul>
       </aside>
@@ -770,27 +870,44 @@ const SeniorCoachDashboard = () => {
               </button>
             </div>
             <div className="table-wrapper">
-              <table id="students-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Contact</th>
-                    <th>Batch</th>
+                <table id="students-table">
+                  <thead>
+                    <tr>
+                    <th>Photo</th>
+                      <th>Name</th>
+                      <th>Contact</th>
+                      <th>Batch</th>
                     <th>Monthly Fee</th>
                     <th>Username</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                   {students.length === 0 ? (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: "center" }}>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
                         No students found
                       </td>
                     </tr>
                   ) : (
                     students.map((s) => (
                       <tr key={s._id}>
+                        <td>
+                          <img
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            alt={`${s.firstName} ${s.lastName || ""}`}
+                          style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "2px solid #00bfff",
+                            }}
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/50";
+                            }}
+                          />
+                        </td>
                         <td>
                           {s.firstName} {s.lastName || ""}
                         </td>
@@ -868,8 +985,8 @@ const SeniorCoachDashboard = () => {
                       </tr>
                     ))
                   )}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
             </div>
           </section>
         )}
@@ -910,7 +1027,7 @@ const SeniorCoachDashboard = () => {
                     </tr>
                   ) : (
                     coaches.map((c) => (
-                      <tr key={c._id}>
+                    <tr key={c._id}>
                         <td>{c.name || "N/A"}</td>
                         <td>{c.email || "N/A"}</td>
                         <td>{c.phone || "N/A"}</td>
@@ -930,19 +1047,6 @@ const SeniorCoachDashboard = () => {
                             }}
                           >Edit</button>
                           <button 
-                    
-                            style={{
-                              background: "linear-gradient(90deg, #f6ad55, #ed8936)",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              fontWeight: "600",
-                            }}
-                          >Credentials</button>
-                          <button 
                             onClick={() => handleDeleteCoach(c._id)}
                             style={{
                               background: "linear-gradient(90deg, #e53e3e, #c53030)",
@@ -955,8 +1059,8 @@ const SeniorCoachDashboard = () => {
                               fontWeight: "600",
                             }}
                           >Delete</button>
-                        </td>
-                      </tr>
+                      </td>
+                    </tr>
                     ))
                   )}
                 </tbody>
@@ -969,14 +1073,14 @@ const SeniorCoachDashboard = () => {
         {activeTab === "fees" && (
           <section id="fees-section">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "30px" }}>
-              <div id="fee-collected">
-                <h3>Collected Fees</h3>
+            <div id="fee-collected">
+              <h3>Collected Fees</h3>
                 <p>₹{dashboardStats?.fees?.collected || 0}</p>
-              </div>
-              <div id="fee-pending">
-                <h3>Pending Fees</h3>
+            </div>
+            <div id="fee-pending">
+              <h3>Pending Fees</h3>
                 <p>₹{dashboardStats?.fees?.pending || 0}</p>
-              </div>
+            </div>
               <div id="fee-total">
                 <h3>Total Collection</h3>
                 <p>₹{dashboardStats?.fees?.totalCollection || 0}</p>
@@ -1093,7 +1197,7 @@ const SeniorCoachDashboard = () => {
                     )}
                   </tbody>
                 </table>
-              </div>
+                </div>
             </div>
 
             {/* Collected Fees List - Month Wise */}
@@ -1108,6 +1212,7 @@ const SeniorCoachDashboard = () => {
                       <th>Month</th>
                       <th>Duration</th>
                       <th>Mode</th>
+                      <th>Collected By</th>
                       <th>Collected Date</th>
                       <th>Next Due Date</th>
                     </tr>
@@ -1115,7 +1220,7 @@ const SeniorCoachDashboard = () => {
                   <tbody>
                     {collectedFees.length === 0 ? (
                       <tr>
-                        <td colSpan="7" style={{ textAlign: "center" }}>
+                        <td colSpan="8" style={{ textAlign: "center" }}>
                           No collected fees
                         </td>
                       </tr>
@@ -1131,6 +1236,7 @@ const SeniorCoachDashboard = () => {
                             <td>{fee.month || "-"}</td>
                             <td>{fee.feeForMonths}</td>
                             <td style={{ textTransform: "uppercase", fontWeight: "600" }}>{fee.mode || "cash"}</td>
+                            <td>{fee.collectedBy?.name || fee.collectedBy?.username || "-"}</td>
                             <td>{fee.collectedAt ? new Date(fee.collectedAt).toLocaleDateString() : "-"}</td>
                             <td>{nextDueDate ? new Date(nextDueDate).toLocaleDateString() : "-"}</td>
                           </tr>
@@ -1143,11 +1249,11 @@ const SeniorCoachDashboard = () => {
             </div>
           </section>
         )}
-
+        
         {/* Reports Tab */}
         {activeTab === "reports" && (
-          <section id="reports-section">
-            <h2>Reports</h2>
+            <section id="reports-section">
+              <h2>Reports</h2>
 
             {/* Attendance Sheet */}
             <div style={{ marginBottom: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
@@ -1194,7 +1300,7 @@ const SeniorCoachDashboard = () => {
                               {record.status?.toUpperCase()}
                             </span>
                           </td>
-                          <td>{record.coach?.username || "-"}</td>
+                          <td>{record.coach?.name || record.coach?.username || "-"}</td>
                           <td>
                             <button
                               onClick={() => handleViewStudentAttendance(record.student)}
@@ -1221,14 +1327,59 @@ const SeniorCoachDashboard = () => {
 
             {feesReport && (
               <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-                <h3>Fees Report Summary</h3>
-                <p><strong>Total:</strong> ₹{feesReport.summary?.total || 0}</p>
-                <p><strong>Collected:</strong> ₹{feesReport.summary?.collected || 0}</p>
-                <p><strong>Pending:</strong> ₹{feesReport.summary?.pending || 0}</p>
+                <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Fees Report</h3>
+                <div style={{ marginBottom: "20px" }}>
+                  <p><strong>Total:</strong> ₹{feesReport.summary?.total || 0}</p>
+                  <p><strong>Collected:</strong> ₹{feesReport.summary?.collected || 0}</p>
+                  <p><strong>Pending:</strong> ₹{feesReport.summary?.pending || 0}</p>
+                </div>
+                <div className="table-wrapper">
+                  <table id="fees-table">
+                    <thead>
+                      <tr>
+                        <th>Student Name</th>
+                        <th>Amount</th>
+                        <th>Month</th>
+                        <th>Status</th>
+                        <th>Collected By</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {feesReport.fees?.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center" }}>No fees records</td>
+                        </tr>
+                      ) : (
+                        feesReport.fees?.slice(0, 20).map((fee) => (
+                          <tr key={fee._id}>
+                            <td>{fee.student?.firstName} {fee.student?.lastName || ""}</td>
+                            <td>₹{fee.amount}</td>
+                            <td>{fee.month || "-"}</td>
+                            <td>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                                color: "#fff",
+                                background: fee.status === "collected" ? "#10b981" : "#e53e3e",
+                              }}>
+                                {fee.status?.toUpperCase()}
+                              </span>
+                            </td>
+                            <td>{fee.collectedBy?.name || fee.collectedBy?.username || "-"}</td>
+                            <td>{fee.collectedAt ? new Date(fee.collectedAt).toLocaleDateString() : fee.date ? new Date(fee.date).toLocaleDateString() : "-"}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
-          </section>
-        )}
+            </section>
+          )}
       </main>
 
       {/* Add/Edit Student Modal */}
@@ -1294,7 +1445,7 @@ const SeniorCoachDashboard = () => {
   <option value="Male">Male</option>
   <option value="Female">Female</option>
   <option value="Other">Other</option>
-</select>
+              </select>
 
               <input
                 name="dob"
@@ -1581,41 +1732,41 @@ const SeniorCoachDashboard = () => {
         <div id="modal-overlay">
           <div id="modal-coach">
             <h2>{editingCoach ? "Edit Coach" : "Add Coach"}</h2>
-            <form onSubmit={handleAddCoach}>
-              <input
-                name="name"
-                placeholder="Full Name"
-                value={coachFormData.name || ""}
-                onChange={handleCoachFormChange}
-                required
+            <form onSubmit={handleAddCoach}> 
+              <input 
+                name="name" 
+                placeholder="Full Name" 
+                value={coachFormData.name || ""} 
+                onChange={handleCoachFormChange} 
+                required 
               />
               {!editingCoach && (
                 <>
-                  <input
-                    name="username"
-                    placeholder="Username"
-                    value={coachFormData.username || ""}
-                    onChange={handleCoachFormChange}
+                  <input 
+                    name="username" 
+                    placeholder="Username" 
+                    value={coachFormData.username || ""} 
+                    onChange={handleCoachFormChange} 
                     required
                   />
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={coachFormData.password || ""}
-                    onChange={handleCoachFormChange}
+                  <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Password" 
+                    value={coachFormData.password || ""} 
+                    onChange={handleCoachFormChange} 
                     required
                   />
                 </>
               )}
-              <input
+              <input 
                 name="email"
                 placeholder="Email"
                 type="email"
                 value={coachFormData.email || ""}
-                onChange={handleCoachFormChange}
+                onChange={handleCoachFormChange} 
               />
-              <input
+              <input 
                 name="phone"
                 placeholder="Phone"
                 value={coachFormData.phone || ""}
@@ -1625,7 +1776,7 @@ const SeniorCoachDashboard = () => {
                 name="profilePhotoUrl"
                 placeholder="Profile Photo URL"
                 value={coachFormData.profilePhotoUrl || ""}
-                onChange={handleCoachFormChange}
+                onChange={handleCoachFormChange} 
               />
               <div id="modal-buttons">
                 <button type="submit">{editingCoach ? "Update" : "Add"}</button>

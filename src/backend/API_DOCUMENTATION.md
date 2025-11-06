@@ -32,6 +32,33 @@ Create new user (only seniorCoach can create users)
 }
 ```
 
+### POST `/api/auth/register-student` (Public)
+Self-registration for students (fees not set here)
+```json
+{
+  "username": "string",
+  "password": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "phone": "string",
+  "gender": "string",
+  "dob": "YYYY-MM-DD",
+  "address": "string",
+  "batch": "string",
+  "parentName": "string",
+  "parentPhone": "string",
+  "profilePhotoUrl": "string",
+  "skills": {
+    "role": "batsman|bowler|all-rounder",
+    "handedness": "right|left",
+    "wicketKeeper": true,
+    "tags": ["string"]
+  },
+  "extraInfo": "string"
+}
+```
+
 ---
 
 ## 2. Senior Coach Routes (`/api/srcoach`)
@@ -334,6 +361,10 @@ Make sure to set these in your `.env` file:
 - `JWT_SECRET` - Secret key for JWT tokens
 - `JWT_EXPIRES_IN` - Token expiration (default: 7d)
 - `PORT` - Server port (default: 5000)
+
+
+
+
 
 
 

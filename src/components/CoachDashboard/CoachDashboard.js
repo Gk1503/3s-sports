@@ -734,6 +734,7 @@ const CoachDashboard = () => {
               <table id="students-table">
                 <thead>
                   <tr>
+                    <th>Photo</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone</th>
@@ -745,13 +746,29 @@ const CoachDashboard = () => {
                 <tbody>
                   {students.length === 0 ? (
                     <tr>
-                      <td colSpan="6" style={{ textAlign: "center" }}>
+                      <td colSpan="7" style={{ textAlign: "center" }}>
                         No students found
                       </td>
                     </tr>
                   ) : (
                     students.map((s) => (
                       <tr key={s._id}>
+                        <td>
+                          <img
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            alt={`${s.firstName} ${s.lastName || ""}`}
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "2px solid #00bfff",
+                            }}
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/50";
+                            }}
+                          />
+                        </td>
                         <td>
                           {s.firstName} {s.lastName || ""}
                         </td>
@@ -781,6 +798,7 @@ const CoachDashboard = () => {
               <table id="fees-table">
                 <thead>
                   <tr>
+                    <th>Photo</th>
                     <th>Name</th>
                     <th>Batch</th>
                     <th>Monthly Fee</th>
@@ -790,13 +808,29 @@ const CoachDashboard = () => {
                 <tbody>
                   {students.length === 0 ? (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: "center" }}>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
                         No students found
                       </td>
                     </tr>
                   ) : (
                     students.map((s) => (
                       <tr key={s._id}>
+                        <td>
+                          <img
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            alt={`${s.firstName} ${s.lastName || ""}`}
+                            style={{
+                              width: "50px",
+                              height: "50px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border: "2px solid #00bfff",
+                            }}
+                            onError={(e) => {
+                              e.target.src = "https://via.placeholder.com/50";
+                            }}
+                          />
+                        </td>
                         <td>
                           {s.firstName} {s.lastName || ""}
                         </td>
@@ -863,6 +897,7 @@ const CoachDashboard = () => {
               <table id="attendance-table">
                 <thead>
                   <tr>
+                    <th>Photo</th>
                     <th>Name</th>
                     <th>Batch</th>
                     <th>Mark Attendance</th>
@@ -872,7 +907,7 @@ const CoachDashboard = () => {
                 <tbody>
                   {filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: "center" }}>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
                         No students found
                       </td>
                     </tr>
@@ -883,6 +918,22 @@ const CoachDashboard = () => {
                       
                       return (
                         <tr key={s._id}>
+                          <td>
+                            <img
+                              src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                              alt={`${s.firstName} ${s.lastName || ""}`}
+                              style={{
+                                width: "50px",
+                                height: "50px",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "2px solid #00bfff",
+                              }}
+                              onError={(e) => {
+                                e.target.src = "https://via.placeholder.com/50";
+                              }}
+                            />
+                          </td>
                           <td>
                             {s.firstName} {s.lastName || ""}
                           </td>
