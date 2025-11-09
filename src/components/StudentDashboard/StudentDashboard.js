@@ -1,86 +1,216 @@
 import React, { useEffect, useState } from "react";
 import "./StudentDashboard.css";
 
-const StudentDashboard = ({ user, token }) => {
-  const [student, setStudent] = useState({
-    name: "Student Name",
-    batch: "N/A",
-    batchTime: "N/A",
-    photo: "",
-    attendance: [],
-    progress: { batting: 0, bowling: 0, diet: 0, fitness: 0 },
-    fees: { total: 0, paid: 0, due: 0 },
-  });
+const StudentDashboard = () => {
+  const [student, setStudent] = useState(null);
+  const [fees, setFees] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [profileImage, setProfileImage] = useState("");
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    address: "",
+  });
 
- useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-  fetch("http://localhost:5000/api/students/me", {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(res => res.json())
-    .then(data => setStudent(data));
-}, []);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    fetchStudentData(token); // Call fetchStudentData with token
-}, []);
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  const fetchStudentData = async (token) => {
+  // Fetch student profile
+  const fetchProfile = async () => {
+    if (!user?.token) return;
+
     try {
-      const res = await fetch("http://localhost:5000/api/students/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch("http://localhost:5000/api/students/profile", {
+        headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setStudent(data);
-        setProfileImage(data.photo || "");
-        setFormData({ name: data.name });
+        setProfileImage(data.profilePhotoUrl || "");
+        setFormData({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          phone: data.phone || "",
+          email: data.email || "",
+          address: data.address || "",
+        });
       } else {
-       console.error("Failed to fetch student data");
+        console.error("Failed to fetch profile");
       }
     } catch (err) {
-      console.error("Failed to fetch student data", err);
+      console.error("Failed to fetch profile", err);
     }
   };
 
-const handleProfileSave = async () => {
-    const token = localStorage.getItem("token");
-    const form = new FormData();
-    // The backend expects 'name' and 'profileImage'. It uses the URL path ID for the user to update.
-    form.append("name", formData.name); 
-    if (profileImage instanceof File) form.append("profileImage", profileImage);
+  // Fetch fees
+  const fetchFees = async () => {
+    if (!user?.token) return;
 
-    // **IMPORTANT:** Use the user ID to hit the profile update endpoint
-    const res = await fetch(`http://localhost:5000/api/srcoach/update-profile/${user._id}`, { // Assuming 'user' is the prop containing the logged-in User object
+    try {
+      const res = await fetch("http://localhost:5000/api/students/fees", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFees(data.fees || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch fees", err);
+    }
+  };
+
+  // Fetch attendance
+  const fetchAttendance = async () => {
+    if (!user?.token) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/students/attendance", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAttendance(data.attendance || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch attendance", err);
+    }
+  };
+
+  // Fetch dashboard summary
+  const fetchDashboard = async () => {
+    if (!user?.token) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/students/dashboard", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDashboardData(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+    fetchFees();
+    fetchAttendance();
+    fetchDashboard();
+  }, []);
+
+  const handleProfileSave = async () => {
+    if (!user?.token) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/students/profile", {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-        // NOTE: Do NOT set 'Content-Type': 'application/json' when using FormData for file uploads.
-    });
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          ...formData,
+          profilePhotoUrl: profileImage, // For now, we expect a URL string
+          // If you want file upload, you'll need to handle it differently with FormData
+        }),
+      });
 
-    if (res.ok) {
+      if (res.ok) {
         const updatedStudent = await res.json();
-        setStudent(updatedStudent); // Set the entire updated student object
-        setProfileImage(updatedStudent.photo || "");
+        setStudent(updatedStudent.student || updatedStudent);
         setShowProfileEdit(false);
-    } else {
-        console.error("Profile update failed");
-    }
-};
-
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfileImage(e.target.files[0]);
+        alert("Profile updated successfully!");
+        fetchProfile(); // Refresh to get updated data
+      } else {
+        const error = await res.json();
+        alert(error.message || "Profile update failed");
+      }
+    } catch (err) {
+      console.error("Profile update failed", err);
+      alert("Error updating profile");
     }
   };
 
-  const totalPresent = student.attendance?.filter(a => a.status === "Present").length || 0;
+  const handleImageChange = async (e) => {
+    if (e.target.files && e.target.files[0] && user?.token) {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('profilePhoto', file);
+
+      try {
+        const res = await fetch("http://localhost:5000/api/students/profile/photo", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setProfileImage(data.student.profilePhotoUrl);
+          setStudent({ ...student, profilePhotoUrl: data.student.profilePhotoUrl });
+          alert("Profile photo updated successfully!");
+          fetchProfile(); // Refresh to get updated data
+          
+          // Trigger navbar update via custom event
+          window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { 
+            detail: { profilePhotoUrl: data.student.profilePhotoUrl } 
+          }));
+        } else {
+          const error = await res.json();
+          alert(error.message || "Photo upload failed");
+        }
+      } catch (err) {
+        console.error("Photo upload failed", err);
+        alert("Error uploading photo");
+      }
+    }
+  };
+
+  if (!student && !dashboardData) {
+    return (
+      <div id="student-dashboard">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  const studentName =
+    student?.firstName && student?.lastName
+      ? `${student.firstName} ${student.lastName}`
+      : student?.firstName || "Student";
+
+  const feesSummary = dashboardData?.stats?.fees || {
+    monthlyFee: student?.monthlyFee || 0,
+    feeDuration: student?.feeDuration || "1m",
+    pendingAmount: fees.reduce(
+      (sum, fee) => (fee.status === "pending" ? sum + fee.amount : sum),
+      0
+    ),
+    pendingCount: fees.filter((fee) => fee.status === "pending").length,
+  };
+
+  const attendanceSummary = dashboardData?.stats?.recentAttendance || {
+    total: attendance.length,
+    present: attendance.filter((a) => a.status === "present").length,
+    percentage:
+      attendance.length > 0
+        ? (
+            (attendance.filter((a) => a.status === "present").length /
+              attendance.length) *
+            100
+          ).toFixed(2)
+        : 0,
+  };
+
+  const totalPresent = attendance.filter((a) => a.status === "present").length;
 
   return (
     <div id="student-dashboard">
@@ -89,14 +219,12 @@ const handleProfileSave = async () => {
         <div id="profile-section">
           <img
             src={
-              profileImage instanceof File
-                ? URL.createObjectURL(profileImage)
-                : profileImage || "https://via.placeholder.com/150"
+              profileImage || student?.profilePhotoUrl || "https://via.placeholder.com/150"
             }
-            alt={student.name}
+            alt={studentName}
             id="sidebar-profile-img"
           />
-          <p id="sidebar-profile-name">{student.name}</p>
+          <p id="sidebar-profile-name">{studentName}</p>
           <button
             id="edit-profile-btn"
             onClick={() => setShowProfileEdit(!showProfileEdit)}
@@ -109,11 +237,46 @@ const handleProfileSave = async () => {
           <div id="profile-edit-section">
             <input
               type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.firstName}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
               id="profile-name-input"
+              placeholder="First Name"
             />
-            <label htmlFor="profile-image-upload" id="profile-upload-label">
+            <input
+              type="text"
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+              placeholder="Last Name"
+            />
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              placeholder="Email"
+            />
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              placeholder="Phone"
+            />
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              placeholder="Address"
+            />
+            <label htmlFor="profile-image-upload" id="profile-upload-label" style={{ cursor: "pointer", padding: "10px", background: "#00bfff", color: "#fff", borderRadius: "8px", textAlign: "center" }}>
               Upload Photo
             </label>
             <input
@@ -123,7 +286,9 @@ const handleProfileSave = async () => {
               onChange={handleImageChange}
               style={{ display: "none" }}
             />
-            <button id="save-profile-btn" onClick={handleProfileSave}>Save</button>
+            <button id="save-profile-btn" onClick={handleProfileSave}>
+              Save
+            </button>
           </div>
         )}
 
@@ -131,15 +296,21 @@ const handleProfileSave = async () => {
           <button
             className={`sidebar-btn ${activeTab === "dashboard" ? "active" : ""}`}
             onClick={() => setActiveTab("dashboard")}
-          >Dashboard</button>
+          >
+            Dashboard
+          </button>
+          <button
+            className={`sidebar-btn ${activeTab === "fees" ? "active" : ""}`}
+            onClick={() => setActiveTab("fees")}
+          >
+            Fees
+          </button>
           <button
             className={`sidebar-btn ${activeTab === "attendance" ? "active" : ""}`}
             onClick={() => setActiveTab("attendance")}
-          >Attendance</button>
-          <button
-            className={`sidebar-btn ${activeTab === "progress" ? "active" : ""}`}
-            onClick={() => setActiveTab("progress")}
-          >Progress</button>
+          >
+            Attendance
+          </button>
         </nav>
       </aside>
 
@@ -147,71 +318,432 @@ const handleProfileSave = async () => {
       <main id="dashboard-main">
         {activeTab === "dashboard" && (
           <section id="dashboard-view">
-            <h2>Welcome, {student.name}</h2>
-            <div id="batch-info">
-              <p>Batch: <span id="batch-highlight">{student.batch} ({student.batchTime})</span></p>
+            <h2>Welcome, {studentName}</h2>
+            
+            {/* Profile Photo and Skills Section */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "20px" }}>
+              {/* Profile Photo */}
+              <div style={{ background: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", textAlign: "center" }}>
+                <img
+                  src={profileImage || student?.profilePhotoUrl || "https://via.placeholder.com/200"}
+                  alt={studentName}
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "4px solid #00bfff",
+                    marginBottom: "15px",
+                    boxShadow: "0 4px 15px rgba(0, 191, 255, 0.3)",
+                  }}
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/200";
+                  }}
+                />
+                <h3 style={{ color: "#002b5c", marginBottom: "10px" }}>{studentName}</h3>
+                {student?.skills?.role && (
+                  <span style={{
+                    padding: "8px 16px",
+                    borderRadius: "20px",
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    background: student.skills.role === "batsman" ? "#10b981" : student.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                    color: "#fff",
+                    display: "inline-block",
+                  }}>
+                    {student.skills.role === "batsman" ? "🏏 Batsman" : student.skills.role === "bowler" ? "⚾ Bowler" : "🌟 All-rounder"}
+                  </span>
+                )}
+              </div>
+
+              {/* Skills Section with Images */}
+              {student?.skills && (
+                <div style={{ background: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+                  <h3 style={{ marginBottom: "20px", color: "#002b5c", borderBottom: "2px solid #00bfff", paddingBottom: "10px" }}>Skills & Role</h3>
+                  
+                  {/* Role Badge */}
+                  <div style={{ marginBottom: "20px" }}>
+                    <strong style={{ display: "block", marginBottom: "8px", color: "#495057" }}>Role:</strong>
+                    <span style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "1rem",
+                      fontWeight: "600",
+                      background: student.skills.role === "batsman" ? "#10b981" : student.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                      color: "#fff",
+                      display: "inline-block",
+                    }}>
+                      {student.skills.role === "batsman" ? "🏏 Batsman" : student.skills.role === "bowler" ? "⚾ Bowler" : student.skills.role === "all-rounder" ? "🌟 All-rounder" : "N/A"}
+                    </span>
+                  </div>
+
+                  {/* Batting Skills */}
+                  {(student.skills.role === "batsman" || student.skills.role === "all-rounder") && student.skills.battingHand && (
+                    <div style={{ marginBottom: "20px", padding: "15px", background: "#f8f9fa", borderRadius: "12px" }}>
+                      <strong style={{ display: "block", marginBottom: "10px", color: "#002b5c" }}>🏏 Batting Style</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+                        <div style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "50%",
+                          background: student.skills.battingHand === "right" 
+                            ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+                            : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: "2rem",
+                          fontWeight: "bold",
+                          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                        }}>
+                          {student.skills.battingHand === "right" ? "R" : "L"}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "1.1rem", fontWeight: "600", color: "#002b5c" }}>
+                            {student.skills.battingHand === "right" ? "Right Hand" : "Left Hand"} Batsman
+                          </div>
+                          {student.skills.wicketKeeper && (
+                            <div style={{ marginTop: "8px" }}>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                background: "#d4edda",
+                                color: "#155724",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                              }}>
+                                🧤 Wicket Keeper
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bowling Skills */}
+                  {(student.skills.role === "bowler" || student.skills.role === "all-rounder") && student.skills.bowlingHand && (
+                    <div style={{ marginBottom: "20px", padding: "15px", background: "#f8f9fa", borderRadius: "12px" }}>
+                      <strong style={{ display: "block", marginBottom: "10px", color: "#002b5c" }}>⚾ Bowling Style</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+                        <div style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "50%",
+                          background: student.skills.bowlingType === "fast"
+                            ? "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+                            : student.skills.bowlingType === "medium-fast"
+                            ? "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+                            : "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: "2rem",
+                          fontWeight: "bold",
+                          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                        }}>
+                          {student.skills.bowlingHand === "right" ? "R" : "L"}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "1.1rem", fontWeight: "600", color: "#002b5c" }}>
+                            {student.skills.bowlingHand === "right" ? "Right Hand" : "Left Hand"} Bowler
+                          </div>
+                          {student.skills.bowlingType && (
+                            <div style={{ marginTop: "8px" }}>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                background: student.skills.bowlingType === "fast"
+                                  ? "#f8d7da"
+                                  : student.skills.bowlingType === "medium-fast"
+                                  ? "#d1ecf1"
+                                  : "#d4edda",
+                                color: student.skills.bowlingType === "fast"
+                                  ? "#721c24"
+                                  : student.skills.bowlingType === "medium-fast"
+                                  ? "#0c5460"
+                                  : "#155724",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                              }}>
+                                {student.skills.bowlingType === "fast" ? "⚡ Fast Bowler" : student.skills.bowlingType === "medium-fast" ? "🎯 Medium Fast" : "🌀 Spinner"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+
+            {/* Profile Details Section */}
+            <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", marginBottom: "20px" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Profile Details</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px" }}>
+                <div>
+                  <strong>Name:</strong> {student?.firstName} {student?.lastName || ""}
+                </div>
+                <div>
+                  <strong>Email:</strong> {student?.email || "N/A"}
+                </div>
+                <div>
+                  <strong>Phone:</strong> {student?.phone || "N/A"}
+                </div>
+                <div>
+                  <strong>Gender:</strong> {student?.gender || "N/A"}
+                </div>
+                <div>
+                  <strong>Date of Birth:</strong> {student?.dob ? new Date(student.dob).toLocaleDateString() : "N/A"}
+                </div>
+                <div>
+                  <strong>Batch:</strong> <span id="batch-highlight">{student?.batch || "N/A"}</span>
+                </div>
+                <div>
+                  <strong>Address:</strong> {student?.address || "N/A"}
+                </div>
+                <div>
+                  <strong>Parent Name:</strong> {student?.parentName || "N/A"}
+                </div>
+                <div>
+                  <strong>Parent Phone:</strong> {student?.parentPhone || "N/A"}
+                </div>
+                {student?.extraInfo && (
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <strong>Extra Info:</strong> {student.extraInfo}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div id="fees-info">
-              <div id="fee-card">Total Fees: ₹{student.fees?.total}</div>
-              <div id="fee-card">Paid: ₹{student.fees?.paid}</div>
-              <div id="fee-card">Due: ₹{student.fees?.due}</div>
+              <div id="fee-card">
+                Monthly Fee: ₹{feesSummary.monthlyFee} ({feesSummary.feeDuration})
+              </div>
+              <div id="fee-card">
+                Pending: ₹{feesSummary.pendingAmount}
+              </div>
+              <div id="fee-card">
+                Pending Count: {feesSummary.pendingCount}
+              </div>
+            </div>
+            <div id="attendance-info" style={{ marginTop: "20px" }}>
+              <h3>Recent Attendance (Last 30 days)</h3>
+              <div id="fee-card">
+                Total Days: {attendanceSummary.total}
+              </div>
+              <div id="fee-card">
+                Present: {attendanceSummary.present}
+              </div>
+              <div id="fee-card">
+                Attendance: {attendanceSummary.percentage}%
+              </div>
             </div>
           </section>
         )}
 
-        {activeTab === "attendance" && (
-          <section id="attendance-view">
-            <h2>Attendance</h2>
-            <div id="attendance-summary">
-              <p id="present-count">{totalPresent}</p>
-              <p id="subtext">Days Present</p>
+        {activeTab === "fees" && (
+          <section id="fees-view">
+            <h2>Fees Report</h2>
+            <div id="fees-summary">
+              <div>
+                <p>Monthly Fee: ₹{feesSummary.monthlyFee}</p>
+                <p>Fee Duration: {feesSummary.feeDuration}</p>
+                <p>Pending Amount: ₹{feesSummary.pendingAmount}</p>
+              </div>
             </div>
-            <div id="attendance-table-container">
-              <table id="attendance-table">
+            <div id="fees-table-container">
+              <table id="fees-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
+                    <th>Amount</th>
                     <th>Status</th>
+                    <th>Month</th>
+                    <th>Collected Date</th>
+                    <th>Duration</th>
+                    <th>Mode</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {student.attendance?.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record.date}</td>
-                      <td id={record.status === "Present" ? "present" : "absent"}>{record.status}</td>
+                  {fees.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: "center" }}>
+                        No fees records found
+                      </td>
                     </tr>
-                  )) || <tr><td colSpan="2">No attendance data</td></tr>}
+                  ) : (
+                    fees.map((fee) => (
+                      <tr key={fee._id}>
+                        <td>₹{fee.amount}</td>
+                        <td
+                          style={{
+                            color:
+                              fee.status === "collected" ? "#10b981" : "#e53e3e",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {fee.status?.toUpperCase()}
+                        </td>
+                        <td>{fee.month || (fee.date ? new Date(fee.date).toISOString().slice(0, 7) : "-")}</td>
+                        <td>
+                          {fee.collectedAt
+                            ? new Date(fee.collectedAt).toLocaleDateString()
+                            : fee.status === "collected" && fee.date
+                            ? new Date(fee.date).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td>{fee.feeForMonths || "-"}</td>
+                        <td>{fee.mode?.toUpperCase() || "-"}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </section>
         )}
 
-        {activeTab === "progress" && (
-          <section id="progress-view">
-            <h2>Progress</h2>
-            <div id="progress-circles">
-              {Object.entries(student.progress || {}).map(([key, value], index) => (
-                <div id="circle-container" key={index}>
-                  <svg id="progress-circle" viewBox="0 0 36 36">
-                    <path
-                      id="circle-bg"
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <path
-                      id="circle-bar"
-                      strokeDasharray={`${value}, 100`}
-                      d="M18 2.0845
-                        a 15.9155 15.9155 0 0 1 0 31.831
-                        a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <text x="18" y="20.35" id="circle-text">{value}%</text>
-                  </svg>
-                  <p id="circle-label">{key.charAt(0).toUpperCase() + key.slice(1)}</p>
-                </div>
-              ))}
+        {activeTab === "attendance" && (
+          <section id="attendance-view">
+            <h2>Attendance Report</h2>
+            
+            {/* Month-wise Summary */}
+            <div style={{ marginBottom: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Monthly Attendance Summary</h3>
+              <div className="table-wrapper">
+                <table id="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Total Days</th>
+                      <th>Present</th>
+                      <th>Absent</th>
+                      <th>Leave</th>
+                      <th>Attendance %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      // Group attendance by month
+                      const monthlyData = {};
+                      attendance.forEach((record) => {
+                        if (record.date) {
+                          const date = new Date(record.date);
+                          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                          if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = {
+                              month: monthKey,
+                              total: 0,
+                              present: 0,
+                              absent: 0,
+                              leave: 0,
+                            };
+                          }
+                          monthlyData[monthKey].total++;
+                          if (record.status === "present") monthlyData[monthKey].present++;
+                          else if (record.status === "absent") monthlyData[monthKey].absent++;
+                          else if (record.status === "leave") monthlyData[monthKey].leave++;
+                        }
+                      });
+
+                      const monthlyArray = Object.values(monthlyData).sort((a, b) => b.month.localeCompare(a.month));
+
+                      return monthlyArray.length === 0 ? (
+                        <tr>
+                          <td colSpan="6" style={{ textAlign: "center" }}>No attendance records</td>
+                        </tr>
+                      ) : (
+                        monthlyArray.map((monthData) => {
+                          const percentage = monthData.total > 0 
+                            ? ((monthData.present / monthData.total) * 100).toFixed(1)
+                            : "0";
+                          const monthName = new Date(monthData.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                          return (
+                            <tr key={monthData.month}>
+                              <td>{monthName}</td>
+                              <td>{monthData.total}</td>
+                              <td>{monthData.present}</td>
+                              <td>{monthData.absent}</td>
+                              <td>{monthData.leave}</td>
+                              <td>
+                                <span style={{
+                                  padding: "4px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.85rem",
+                                  fontWeight: "600",
+                                  color: "#fff",
+                                  background: percentage >= 75 ? "#10b981" : percentage >= 50 ? "#f6ad55" : "#e53e3e",
+                                }}>
+                                  {percentage}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      );
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Overall Summary */}
+            <div id="attendance-summary" style={{ marginBottom: "20px" }}>
+              <p id="present-count">{totalPresent}</p>
+              <p id="subtext">Days Present</p>
+              <p>Total: {attendance.length} days</p>
+              <p>Attendance: {attendanceSummary.percentage}%</p>
+            </div>
+
+            {/* Detailed Attendance List */}
+            <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+              <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>All Attendance Records</h3>
+              <div id="attendance-table-container">
+                <table id="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendance.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: "center" }}>
+                          No attendance records found
+                        </td>
+                      </tr>
+                    ) : (
+                      attendance
+                        .sort(
+                          (a, b) =>
+                            new Date(b.date) - new Date(a.date)
+                        )
+                        .map((record) => (
+                          <tr key={record._id}>
+                            <td>{new Date(record.date).toLocaleDateString()}</td>
+                            <td
+                              id={
+                                record.status === "present"
+                                  ? "present"
+                                  : record.status === "absent"
+                                  ? "absent"
+                                  : "leave"
+                              }
+                            >
+                              {record.status?.toUpperCase()}
+                            </td>
+                            <td>{record.note || "-"}</td>
+                          </tr>
+                        ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         )}
@@ -221,4 +753,3 @@ const handleProfileSave = async () => {
 };
 
 export default StudentDashboard;
-

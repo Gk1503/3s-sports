@@ -14,8 +14,7 @@ import StudentDashboard from "./components/StudentDashboard/StudentDashboard";
 import SeniorCoachDashboard from "./components/SeniorCoachDashboard/SeniorCoachDashboard";
 import CoachDashboard from "./components/CoachDashboard/CoachDashboard";
 import NotFound from "./components/common/NotFound";
-
-
+import SR from "./components/RegisterStudent/RegisterStudent"
 
 // ✅ Protected Route
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -46,6 +45,7 @@ function AppContent() {
         {/* <Route path="/matches" element={<Matches />} /> */}
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/sr" element={<SR />} />
 
         {/* Protected Dashboard Routes */}
         <Route
@@ -59,17 +59,17 @@ function AppContent() {
         <Route
           path="/coach-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["coach", "srCoach"]}>
+            
               <CoachDashboard />
-            </ProtectedRoute>
+          
           }
         />
         <Route
           path="/srcoach-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["srCoach"]}>
+           
               <SeniorCoachDashboard />
-            </ProtectedRoute>
+       
           }
         />
 

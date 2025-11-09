@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import "./Login.css";
 
 const LoginModal = ({ closeModal, setUser }) => {
@@ -42,21 +42,22 @@ const LoginModal = ({ closeModal, setUser }) => {
   setUser(userData); // (optional, if parent tracks it)
   closeModal();
 
-  // navigate
-  switch (data.role) {
+  // Navigate immediately - don't wait for anything
+  setTimeout(() => {
+    switch (data.role) {
     case "student":
       navigate("/student-dashboard");
       break;
     case "coach":
       navigate("/coach-dashboard");
       break;
-    case "srCoach":
+    case "seniorCoach": // ✅ fixed
       navigate("/srcoach-dashboard");
       break;
     default:
       navigate("/");
-  }
-
+    }
+  }, 0);
       } else {
         setError(data.message || "Login failed. Please check credentials.");
       }
@@ -69,27 +70,26 @@ const LoginModal = ({ closeModal, setUser }) => {
     <div id="modal-overlay" onClick={closeModal} className={darkMode ? "dark" : ""}>
       <div id="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 id="modal-title">3SPORTS Login</h2>
+          <h2 id="modal-title">3S SPORTS Login</h2>
           <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? "☀️" : "🌙"}
           </button>
         </div>
 
         <div id="role-selector">
-          {["student", "coach", "srCoach"].map((r) => (
-            <label key={r}>
-              <input
-                type="radio"
-                name="role"
-                value={r}
-                checked={role === r}
-                onChange={() => setRole(r)}
-              />
-              {r === "srCoach" ? "Sr. Coach" : r.charAt(0).toUpperCase() + r.slice(1)}
-            </label>
-          ))}
-        </div>
-
+  {["student", "coach", "seniorCoach"].map((r) => (
+    <label key={r}>
+      <input
+        type="radio"
+        name="role"
+        value={r}
+        checked={role === r}
+        onChange={() => setRole(r)}
+      />
+      {r === "seniorCoach" ? "Sr. Coach" : r.charAt(0).toUpperCase() + r.slice(1)}
+    </label>
+  ))}
+</div>
         <form id="login-form" onSubmit={handleSubmit}>
           <input
             type="text"

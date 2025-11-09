@@ -8,12 +8,12 @@
   --danger: #e53e3e;
   --success: #10b981;
   --shadow: rgba(0,0,0,0.08);
-  --glass: rgba(255,255,255,0.8);
+  --glass: rgba(255,255,255,0.95);
 }
 
 /* ===== Reset & Base ===== */
 * { box-sizing: border-box; }
-body, html, #root { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); }
+body, html, #root { height: 100%; margin: 0; font-family: 'Inter', 'Poppins', sans-serif; background: var(--bg); }
 button { cursor: pointer; }
 button:focus, input:focus, select:focus, textarea:focus { outline: none; }
 
@@ -23,47 +23,73 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   min-height: 100vh;
   gap: 20px;
   padding: 16px;
+  background: linear-gradient(135deg, #f0f4f9 0%, #e2e8f0 100%);
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* ===== Sidebar ===== */
 #sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #e0f0ff, #ffffff);
-  border-radius: 16px;
+  background: linear-gradient(180deg, #001f3f 0%, #002b5c 100%);
+  border-radius: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 8px 24px var(--shadow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 32px);
+  overflow-y: auto;
 }
+
 #sidebar-title {
   text-align: center;
   font-size: 22px;
   font-weight: 700;
-  color: var(--accent);
+  color: #fff;
   margin-bottom: 12px;
+  text-shadow: 0 2px 10px rgba(0, 191, 255, 0.3);
 }
+
 #sidebar ul {
   list-style: none;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  margin-top: 10px;
 }
+
 #sidebar li {
-  padding: 12px 16px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  color: #12394f;
+  padding: 18px 22px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff !important;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
 }
+
 #sidebar li:hover { 
-  background: linear-gradient(90deg, rgba(11,102,195,0.15), rgba(30,144,255,0.08));
+  background: rgba(255, 255, 255, 0.15);
   transform: translateX(4px);
+  border-left-color: #00bfff;
+  box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
 }
-#sidebar li.active {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  color: #fff;
+
+#sidebar li[style*="linear-gradient"] {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2)) !important;
+  box-shadow: 0 4px 15px rgba(11, 102, 195, 0.4);
+  border-left-color: #fff;
+  transform: translateX(4px);
 }
 
 /* ===== Main Content ===== */
@@ -72,232 +98,556 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
+
 #main-header h1 {
-  font-size: 24px;
+  font-size: 28px;
   color: #0f3b5f;
   font-weight: 700;
   margin: 0;
+  background: linear-gradient(90deg, #0f3b5f, #004080);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ===== Overview Cards ===== */
 #overview-section {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
 }
+
 #stat-total-students, #stat-total-coaches, #stat-collected-fees, #stat-pending-fees {
-  background: var(--card);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 8px 20px var(--shadow);
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px var(--shadow);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--accent);
 }
-#overview-section h3 { color: #234a63; font-weight: 600; margin:0; font-size:14px; }
-#overview-section p { font-size: 20px; font-weight: 800; color: var(--accent); margin:0; }
+
+#stat-total-students:hover, #stat-total-coaches:hover, #stat-collected-fees:hover, #stat-pending-fees:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+#stat-collected-fees {
+  border-left-color: var(--success);
+}
+
+#stat-pending-fees {
+  border-left-color: var(--danger);
+}
+
+#overview-section h3 { 
+  color: #64748b; 
+  font-weight: 600; 
+  margin: 0; 
+  font-size: 14px; 
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#overview-section p { 
+  font-size: 28px; 
+  font-weight: 800; 
+  color: var(--accent); 
+  margin: 0; 
+}
+
+#stat-collected-fees p {
+  color: var(--success);
+}
+
+#stat-pending-fees p {
+  color: var(--danger);
+}
 
 /* ===== Chart ===== */
 #chart-container {
   grid-column: 1 / -1;
   background: var(--card);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 8px 20px var(--shadow);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px var(--shadow);
 }
-#chart-container h2 { margin: 0 0 10px; font-size: 16px; color: #12394f; }
+
+#chart-container h2 { 
+  margin: 0 0 20px; 
+  font-size: 20px; 
+  color: #0f3b5f; 
+  font-weight: 700;
+}
 
 /* ===== Students Table ===== */
-#students-header, #coaches-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-#students-header h2, #coaches-header h2 { font-size: 18px; color: #0f3b5f; }
+#students-header, #coaches-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#students-header h2, #coaches-header h2 { 
+  font-size: 24px; 
+  color: #0f3b5f; 
+  font-weight: 700;
+  margin: 0;
+}
+
 #students-add-btn, #coaches-add-btn {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
-  padding: 8px 14px;
+  padding: 12px 24px;
   border-radius: 12px;
   border: none;
   font-weight: 700;
-  transition: transform 0.15s ease;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(11, 102, 195, 0.3);
 }
-#students-add-btn:hover, #coaches-add-btn:hover { transform: translateY(-2px); }
+
+#students-add-btn:hover, #coaches-add-btn:hover { 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11, 102, 195, 0.4);
+}
+
+/* ===== Table Wrapper ===== */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--shadow);
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ===== Students Table Styles ===== */
-#students-table {
+#students-table, #coaches-table, #fees-table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px var(--shadow);
+  background: var(--card);
+  min-width: 800px;
 }
-#students-table th, #students-table td {
-  padding: 12px 14px;
-  text-align: left;
-}
-#students-table thead th {
-  background: linear-gradient(180deg, #f4f8fb, #ffffff);
+
+#students-table thead th, #coaches-table thead th, #fees-table thead th {
+  background: linear-gradient(90deg, #001f3f, #002b5c);
   font-weight: 700;
   font-size: 13px;
-  color: #244b63;
+  color: #fff;
+  padding: 16px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-#students-table tbody tr { background: var(--card); transition: all 0.2s ease; }
-#students-table tbody tr:hover { transform: translateX(2px); background: rgba(11,102,195,0.04); }
-#students-table tbody td { font-size: 14px; color: #294452; border-bottom: 1px solid #e0e6ef; }
-#students-table button {
+
+#students-table tbody tr, #coaches-table tbody tr, #fees-table tbody tr { 
+  background: var(--card); 
+  transition: all 0.2s ease; 
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#students-table tbody tr:hover, #coaches-table tbody tr:hover, #fees-table tbody tr:hover { 
+  background: rgba(11, 102, 195, 0.04);
+  transform: scale(1.01);
+}
+
+#students-table tbody td, #coaches-table tbody td, #fees-table tbody td { 
+  font-size: 14px; 
+  color: #334155; 
+  padding: 16px;
+}
+
+#students-table button, #coaches-table button {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
-  padding: 4px 8px;
+  padding: 8px 14px;
   border-radius: 8px;
-  margin-right: 6px;
+  margin: 4px;
   font-size: 12px;
   border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
-#students-table button:last-child { background: #e53e3e; }
 
-/* ===== Coaches Full-Width Table ===== */
-#coaches-section {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+#students-table button:hover, #coaches-table button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-#coaches-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px var(--shadow);
-}
-#coaches-table th, #coaches-table td {
-  padding: 12px 14px;
-  text-align: left;
-}
-#coaches-table thead th {
-  background: linear-gradient(180deg, #f4f8fb, #ffffff);
-  font-weight: 700;
-  font-size: 13px;
-  color: #244b63;
-}
-#coaches-table tbody tr { background: var(--card); transition: all 0.2s ease; }
-#coaches-table tbody tr:hover { transform: translateX(2px); background: rgba(11,102,195,0.04); }
-#coaches-table tbody td { font-size: 14px; color: #294452; border-bottom: 1px solid #e0e6ef; }
-#coaches-table button {
-  padding: 4px 8px;
-  border-radius: 8px;
-  margin-right: 6px;
-  font-size: 12px;
-  border: none;
-  color: #fff;
-}
-#coaches-table button:first-child { background: var(--accent); }
-#coaches-table button:last-child { background: var(--danger); }
 
 /* ===== Modals ===== */
 #modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7,20,35,0.4);
+  background: rgba(7, 20, 35, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 16px;
   z-index: 2000;
+  backdrop-filter: blur(4px);
 }
+
 #modal-student, #modal-coach {
   background: var(--glass);
-  backdrop-filter: blur(12px);
-  border-radius: 16px;
-  padding: 20px;
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 32px;
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 12px 32px var(--shadow);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
-#modal-student h2, #modal-coach h2 { margin-top: 0; color: #0f3b5f; }
+
+#modal-student h2, #modal-coach h2 { 
+  margin-top: 0; 
+  color: #0f3b5f; 
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
 #modal-student form, #modal-coach form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
 }
+
 #modal-student form input, #modal-student form select,
 #modal-coach form input, #modal-coach form select {
-  padding: 10px;
+  padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid #dbeefc;
+  border: 2px solid #e2e8f0;
   font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
-#modal-student form textarea { grid-column: span 2; min-height: 80px; border-radius:12px; padding:10px; }
+
+#modal-student form input:focus, #modal-student form select:focus,
+#modal-coach form input:focus, #modal-coach form select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.1);
+}
+
+#modal-student form textarea { 
+  grid-column: 1 / -1; 
+  min-height: 100px; 
+  border-radius: 12px; 
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  font-family: inherit;
+  resize: vertical;
+}
 
 #modal-buttons {
-  grid-column: span 2;
+  grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
+
 #modal-buttons button:first-child {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: none;
-}
-#modal-buttons button:last-child {
-  background: transparent;
-  border: 1px solid #12394f;
-  color: #12394f;
-  padding: 8px 14px;
-  border-radius: 12px;
-}
-
-/* ===== Notifications ===== */
-#notifications-section #notify-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-#notify-form textarea {
-  border-radius: 12px;
-  border: 1px solid #dbeefc;
-  padding: 12px;
-  font-size: 14px;
-  resize: vertical;
-}
-#notify-form button {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  color: #fff;
-  padding: 10px 14px;
+  padding: 12px 24px;
   border-radius: 12px;
   border: none;
   font-weight: 700;
-  width: 120px;
-  align-self: flex-end;
+  transition: all 0.3s ease;
 }
-#notification-list {
+
+#modal-buttons button:first-child:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(11, 102, 195, 0.4);
+}
+
+#modal-buttons button:last-child {
+  background: transparent;
+  border: 2px solid #12394f;
+  color: #12394f;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+#modal-buttons button:last-child:hover {
+  background: #12394f;
+  color: #fff;
+}
+
+/* ===== Fees Section ===== */
+#fees-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
 }
-#notification-list > div {
-  background: var(--card);
-  padding: 12px;
-  border-radius: 14px;
-  box-shadow: 0 6px 20px var(--shadow);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+
+#fee-collected, #fee-pending, #fee-total {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px var(--shadow);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+#fee-collected:hover, #fee-pending:hover, #fee-total:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+#fee-collected h3, #fee-pending h3, #fee-total h3 {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#fee-collected p, #fee-pending p, #fee-total p {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+}
+
+#fee-collected p {
+  color: var(--success);
+}
+
+#fee-pending p {
+  color: var(--danger);
+}
+
+#fee-total p {
+  color: var(--accent);
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 1100px) {
-  #overview-section { grid-template-columns: repeat(2, 1fr); }
-  #modal-student form, #modal-coach form { grid-template-columns: 1fr; }
+@media (max-width: 1200px) {
+  #overview-section { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
 }
-@media (max-width: 800px) {
-  #srcoach-dashboard { flex-direction: column; padding: 12px; }
-  #sidebar { width: 100%; flex-direction: row; overflow-x:auto; padding:12px; border-radius:12px; }
-  #sidebar ul { flex-direction: row; gap: 8px; }
-  #sidebar li { padding: 8px 10px; font-size:13px; white-space: nowrap; }
-  #overview-section { grid-template-columns: 1fr; }
-  #students-table, #coaches-table { font-size: 13px; }
+
+@media (max-width: 992px) {
+  #srcoach-dashboard {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  #sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    flex-direction: row;
+    padding: 16px;
+    border-radius: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+
+  #sidebar-title {
+    font-size: 18px;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  #sidebar ul {
+    flex-direction: row;
+    gap: 8px;
+    flex: 1;
+  }
+
+  #sidebar li {
+    padding: 14px 18px;
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+    margin-bottom: 4px;
+  }
+
+  #sidebar li:hover {
+    transform: translateY(-2px);
+    border-left: none;
+    border-bottom-color: #00bfff;
+  }
+
+  #sidebar li[style*="linear-gradient"] {
+    border-bottom-color: #fff;
+  }
+
+  #main-content {
+    width: 100%;
+  }
+
+  #overview-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #modal-student form, #modal-coach form { 
+    grid-template-columns: 1fr; 
+  }
+}
+
+@media (max-width: 768px) {
+  #main-header h1 {
+    font-size: 22px;
+  }
+
+  #overview-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  #students-header, #coaches-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #students-add-btn, #coaches-add-btn {
+    width: 100%;
+  }
+
+  .table-wrapper {
+    margin: 0 -12px;
+    border-radius: 0;
+  }
+
+  #students-table, #coaches-table, #fees-table {
+    font-size: 12px;
+  }
+
+  #students-table thead th, #coaches-table thead th, #fees-table thead th,
+  #students-table tbody td, #coaches-table tbody td, #fees-table tbody td {
+    padding: 12px 8px;
+  }
+
+  #students-table button, #coaches-table button {
+    padding: 6px 10px;
+    font-size: 11px;
+    margin: 2px;
+  }
+
+  #modal-student, #modal-coach {
+    padding: 24px 20px;
+    margin: 16px;
+    max-height: 85vh;
+  }
+
+  #modal-student h2, #modal-coach h2 {
+    font-size: 20px;
+  }
+
+  #modal-buttons {
+    flex-direction: column;
+  }
+
+  #modal-buttons button {
+    width: 100%;
+  }
+
+  #fee-collected, #fee-pending, #fee-total {
+    padding: 20px;
+  }
+
+  #fee-collected p, #fee-pending p, #fee-total p {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  #srcoach-dashboard {
+    padding: 8px;
+  }
+
+  #sidebar {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  #sidebar-title {
+    font-size: 16px;
+  }
+
+  #sidebar li {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  #main-header h1 {
+    font-size: 20px;
+  }
+
+  #overview-section h3 {
+    font-size: 12px;
+  }
+
+  #overview-section p {
+    font-size: 24px;
+  }
+
+  #students-header h2, #coaches-header h2 {
+    font-size: 20px;
+  }
+
+  #chart-container {
+    padding: 16px;
+  }
+
+  #chart-container h2 {
+    font-size: 16px;
+  }
+
+  #modal-student, #modal-coach {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  #modal-student form input, #modal-student form select,
+  #modal-coach form input, #modal-coach form select {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+/* ===== Scrollbar Styling ===== */
+.table-wrapper::-webkit-scrollbar,
+#sidebar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+#sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+#sidebar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+#sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

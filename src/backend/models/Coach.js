@@ -1,9 +1,13 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-const CoachSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-    specialization: { type: String, default: 'General' },
-    contact: { type: String },
-}, { timestamps: true });
+const coachSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  name: String,
+  phone: String,
+  email: String,
+  profilePhotoUrl: String,
+  assignedStudents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
+  createdAt: { type: Date, default: Date.now }
+});
 
-export default mongoose.model('Coach', CoachSchema);
+module.exports = mongoose.model('Coach', coachSchema);
