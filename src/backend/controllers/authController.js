@@ -58,6 +58,12 @@ exports.registerBySrCoach = async (req, res) => {
 // Public student self-registration (no fees settings here)
 exports.registerStudentPublic = async (req, res) => {
   try {
+    // Handle multer errors (file upload errors)
+    if (req.fileValidationError) {
+      return res.status(400).json({ message: req.fileValidationError });
+    }
+
+    // Handle FormData - extract fields from req.body
     const {
       username,
       password,
@@ -71,21 +77,26 @@ exports.registerStudentPublic = async (req, res) => {
       batch,
       parentName,
       parentPhone,
-      profilePhotoUrl,
-      skills, // { role, handedness, wicketKeeper, tags: [] }
+      skills, // JSON string from FormData
       extraInfo,
     } = req.body;
 
+    // Validate required fields
     if (!username || !password || !firstName) {
       return res.status(400).json({ message: 'username, password, and firstName are required' });
     }
 
+    // Check if username already exists
     const existing = await User.findOne({ username });
-    if (existing) return res.status(400).json({ message: 'username already exists' });
+    if (existing) {
+      return res.status(400).json({ message: 'username already exists' });
+    }
 
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    // Create User account
     const user = await User.create({
       username,
       passwordHash,
@@ -93,26 +104,53 @@ exports.registerStudentPublic = async (req, res) => {
       createdBy: null,
     });
 
+    // Handle profile photo upload
+    let profilePhotoUrl = null;
+    if (req.file) {
+      profilePhotoUrl = `/uploads/profile-photos/${req.file.filename}`;
+    }
+
+    // Parse skills JSON string if it's a string, otherwise use as is
+    let skillsData = {};
+    if (skills) {
+      try {
+        skillsData = typeof skills === 'string' ? JSON.parse(skills) : skills;
+      } catch (parseErr) {
+        console.error('Error parsing skills:', parseErr);
+        skillsData = {};
+      }
+    }
+
+    // Build skills object with new structure
+    const skillsObj = {
+      role: skillsData?.role || null,
+      battingHand: skillsData?.battingHand || null,
+      bowlingHand: skillsData?.bowlingHand || null,
+      bowlingType: skillsData?.bowlingType || null,
+      wicketKeeper: !!skillsData?.wicketKeeper || false,
+      // Legacy support
+      handedness: skillsData?.handedness || skillsData?.battingHand || skillsData?.bowlingHand || null,
+      tags: Array.isArray(skillsData?.tags) ? skillsData.tags : [],
+    };
+
+    // Create Student profile
     const student = await Student.create({
       user: user._id,
       firstName,
       lastName,
-      email,
-      phone,
-      gender,
-      dob,
-      address,
-      batch,
-      parentName,
-      parentPhone,
-      profilePhotoUrl,
-      skills: {
-        role: skills?.role,
-        handedness: skills?.handedness,
-        wicketKeeper: !!skills?.wicketKeeper,
-        tags: Array.isArray(skills?.tags) ? skills.tags : [],
-      },
-      extraInfo,
+      email: email || null,
+      phone: phone || null,
+      gender: gender || null,
+      dob: dob || null,
+      address: address || null,
+      batch: batch || null,
+      parentName: parentName || null,
+      parentPhone: parentPhone || null,
+      profilePhotoUrl: profilePhotoUrl,
+      skills: skillsObj,
+      extraInfo: extraInfo || null,
+      monthlyFee: 0, // Default to 0, can be set by senior coach later
+      feeDuration: '1m', // Default duration
       registrationSource: 'self',
     });
 
@@ -120,9 +158,13 @@ exports.registerStudentPublic = async (req, res) => {
       message: 'Student registered successfully',
       userId: user._id,
       studentId: student._id,
+      username: user.username,
     });
   } catch (err) {
     console.error('Public student registration error:', err);
-    return res.status(500).json({ message: 'Failed to register student' });
+    return res.status(500).json({ 
+      message: 'Failed to register student',
+      error: err.message 
+    });
   }
 };

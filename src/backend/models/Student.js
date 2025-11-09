@@ -14,11 +14,15 @@ const studentSchema = new mongoose.Schema({
   parentName: String,
   parentPhone: String,
   extraInfo: String,
-  // Skills: primaryRole, handedness, wicketKeeper boolean, and tags for multiple skills
+  // Skills: role, battingHand, bowlingHand, bowlingType, wicketKeeper
   skills: {
-    role: { type: String, enum: ['batsman', 'bowler', 'all-rounder'], default: 'batsman' },
-    handedness: { type: String, enum: ['right', 'left'], default: 'right' },
+    role: { type: String, enum: ['batsman', 'bowler', 'all-rounder'] },
+    battingHand: { type: String, enum: ['right', 'left'] },
+    bowlingHand: { type: String, enum: ['right', 'left'] },
+    bowlingType: { type: String, enum: ['fast', 'medium-fast', 'spinner'] },
     wicketKeeper: { type: Boolean, default: false },
+    // Legacy support
+    handedness: { type: String, enum: ['right', 'left'] },
     tags: [{ type: String }],
   },
   monthlyFee: { type: Number, default: 0 },

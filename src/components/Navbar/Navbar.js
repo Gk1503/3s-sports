@@ -100,8 +100,13 @@ const Navbar = () => {
     location.pathname === "/coach-dashboard" ||
     location.pathname === "/srcoach-dashboard";
 
-  const logout = () => {
+  const logout = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setUser(null);
+    setUserProfilePhoto(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setShowMenu(false);
@@ -109,6 +114,22 @@ const Navbar = () => {
     navigate("/");
     window.location.reload(); // Force page refresh to clear all state
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMenu && !event.target.closest('.user-menu')) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showMenu]);
 
   const getDashboardRoute = (role) => {
     switch (role) {
@@ -211,11 +232,13 @@ const Navbar = () => {
                     </span>
                   </div>
                   {showMenu && (
-                    <div className="dropdown-menu">
+                    <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
                       <p className="dropdown-user-name">{getUserDisplayName()}</p>
                       <p className="dropdown-user-role">{getUserRoleDisplay()}</p>
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           navigate(getDashboardRoute(user.role));
                           setShowMenu(false);
                           setIsOpen(false);
@@ -223,7 +246,16 @@ const Navbar = () => {
                       >
                         Go to Dashboard
                       </button>
-                      <button onClick={logout}>Logout</button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          logout(e);
+                        }}
+                        className="logout-btn"
+                      >
+                        Logout
+                      </button>
                     </div>
                   )}
                 </div>
@@ -255,10 +287,19 @@ const Navbar = () => {
                   </span>
                 </div>
                 {showMenu && (
-                  <div className="dropdown-menu">
+                  <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
                     <p className="dropdown-user-name">{getUserDisplayName()}</p>
                     <p className="dropdown-user-role">{getUserRoleDisplay()}</p>
-                    <button onClick={logout}>Logout</button>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        logout(e);
+                      }}
+                      className="logout-btn"
+                    >
+                      Logout
+                    </button>
                   </div>
                 )}
               </div>

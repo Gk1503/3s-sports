@@ -320,6 +320,166 @@ const StudentDashboard = () => {
           <section id="dashboard-view">
             <h2>Welcome, {studentName}</h2>
             
+            {/* Profile Photo and Skills Section */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "20px" }}>
+              {/* Profile Photo */}
+              <div style={{ background: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", textAlign: "center" }}>
+                <img
+                  src={profileImage || student?.profilePhotoUrl || "https://via.placeholder.com/200"}
+                  alt={studentName}
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "4px solid #00bfff",
+                    marginBottom: "15px",
+                    boxShadow: "0 4px 15px rgba(0, 191, 255, 0.3)",
+                  }}
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/200";
+                  }}
+                />
+                <h3 style={{ color: "#002b5c", marginBottom: "10px" }}>{studentName}</h3>
+                {student?.skills?.role && (
+                  <span style={{
+                    padding: "8px 16px",
+                    borderRadius: "20px",
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    background: student.skills.role === "batsman" ? "#10b981" : student.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                    color: "#fff",
+                    display: "inline-block",
+                  }}>
+                    {student.skills.role === "batsman" ? "🏏 Batsman" : student.skills.role === "bowler" ? "⚾ Bowler" : "🌟 All-rounder"}
+                  </span>
+                )}
+              </div>
+
+              {/* Skills Section with Images */}
+              {student?.skills && (
+                <div style={{ background: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
+                  <h3 style={{ marginBottom: "20px", color: "#002b5c", borderBottom: "2px solid #00bfff", paddingBottom: "10px" }}>Skills & Role</h3>
+                  
+                  {/* Role Badge */}
+                  <div style={{ marginBottom: "20px" }}>
+                    <strong style={{ display: "block", marginBottom: "8px", color: "#495057" }}>Role:</strong>
+                    <span style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      fontSize: "1rem",
+                      fontWeight: "600",
+                      background: student.skills.role === "batsman" ? "#10b981" : student.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                      color: "#fff",
+                      display: "inline-block",
+                    }}>
+                      {student.skills.role === "batsman" ? "🏏 Batsman" : student.skills.role === "bowler" ? "⚾ Bowler" : student.skills.role === "all-rounder" ? "🌟 All-rounder" : "N/A"}
+                    </span>
+                  </div>
+
+                  {/* Batting Skills */}
+                  {(student.skills.role === "batsman" || student.skills.role === "all-rounder") && student.skills.battingHand && (
+                    <div style={{ marginBottom: "20px", padding: "15px", background: "#f8f9fa", borderRadius: "12px" }}>
+                      <strong style={{ display: "block", marginBottom: "10px", color: "#002b5c" }}>🏏 Batting Style</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+                        <div style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "50%",
+                          background: student.skills.battingHand === "right" 
+                            ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+                            : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: "2rem",
+                          fontWeight: "bold",
+                          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                        }}>
+                          {student.skills.battingHand === "right" ? "R" : "L"}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "1.1rem", fontWeight: "600", color: "#002b5c" }}>
+                            {student.skills.battingHand === "right" ? "Right Hand" : "Left Hand"} Batsman
+                          </div>
+                          {student.skills.wicketKeeper && (
+                            <div style={{ marginTop: "8px" }}>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                background: "#d4edda",
+                                color: "#155724",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                              }}>
+                                🧤 Wicket Keeper
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bowling Skills */}
+                  {(student.skills.role === "bowler" || student.skills.role === "all-rounder") && student.skills.bowlingHand && (
+                    <div style={{ marginBottom: "20px", padding: "15px", background: "#f8f9fa", borderRadius: "12px" }}>
+                      <strong style={{ display: "block", marginBottom: "10px", color: "#002b5c" }}>⚾ Bowling Style</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+                        <div style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "50%",
+                          background: student.skills.bowlingType === "fast"
+                            ? "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+                            : student.skills.bowlingType === "medium-fast"
+                            ? "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+                            : "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontSize: "2rem",
+                          fontWeight: "bold",
+                          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                        }}>
+                          {student.skills.bowlingHand === "right" ? "R" : "L"}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "1.1rem", fontWeight: "600", color: "#002b5c" }}>
+                            {student.skills.bowlingHand === "right" ? "Right Hand" : "Left Hand"} Bowler
+                          </div>
+                          {student.skills.bowlingType && (
+                            <div style={{ marginTop: "8px" }}>
+                              <span style={{
+                                padding: "4px 12px",
+                                borderRadius: "6px",
+                                background: student.skills.bowlingType === "fast"
+                                  ? "#f8d7da"
+                                  : student.skills.bowlingType === "medium-fast"
+                                  ? "#d1ecf1"
+                                  : "#d4edda",
+                                color: student.skills.bowlingType === "fast"
+                                  ? "#721c24"
+                                  : student.skills.bowlingType === "medium-fast"
+                                  ? "#0c5460"
+                                  : "#155724",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                              }}>
+                                {student.skills.bowlingType === "fast" ? "⚡ Fast Bowler" : student.skills.bowlingType === "medium-fast" ? "🎯 Medium Fast" : "🌀 Spinner"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Profile Details Section */}
             <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)", marginBottom: "20px" }}>
               <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Profile Details</h3>

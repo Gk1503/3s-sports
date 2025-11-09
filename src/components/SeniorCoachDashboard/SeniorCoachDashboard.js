@@ -28,6 +28,7 @@ const SeniorCoachDashboard = () => {
   const [showCoachCredentialsModal, setShowCoachCredentialsModal] = useState(false);
   const [showFeesModal, setShowFeesModal] = useState(false);
   const [showFeesReportModal, setShowFeesReportModal] = useState(false);
+  const [showStudentDetailsModal, setShowStudentDetailsModal] = useState(false);
   
   const [editingStudent, setEditingStudent] = useState(null);
   const [editingCoach, setEditingCoach] = useState(null);
@@ -35,6 +36,7 @@ const SeniorCoachDashboard = () => {
   const [selectedStudentForCredentials, setSelectedStudentForCredentials] = useState(null);
   const [selectedCoachForCredentials, setSelectedCoachForCredentials] = useState(null);
   const [selectedStudentForAttendance, setSelectedStudentForAttendance] = useState(null);
+  const [selectedStudentForDetails, setSelectedStudentForDetails] = useState(null);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [showFeeMarkModal, setShowFeeMarkModal] = useState(false);
   const [studentAttendanceData, setStudentAttendanceData] = useState([]);
@@ -748,23 +750,24 @@ const SeniorCoachDashboard = () => {
     <div id="srcoach-dashboard">
       {/* Sidebar */}
       <aside id="sidebar">
+
         <h2 id="sidebar-title">🏏 3S Sports</h2>
         
         {/* Profile Photo Section */}
-        <div style={{ marginBottom: "20px", textAlign: "center" }}>
+        <div style={{ marginBottom: "15px", textAlign: "center" }}>
           <img
-            src={srCoachProfile?.profilePhotoUrl || "https://via.placeholder.com/100"}
+            src={srCoachProfile?.profilePhotoUrl || "https://via.placeholder.com/60"}
             alt="Senior Coach Profile"
             style={{
-              width: "100px",
-              height: "100px",
+              width: "60px",
+              height: "60px",
               borderRadius: "50%",
-              border: "3px solid #00bfff",
+              border: "2px solid #00bfff",
               objectFit: "cover",
-              marginBottom: "10px",
+              marginBottom: "8px",
             }}
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/100";
+              e.target.src = "https://via.placeholder.com/60";
             }}
           />
           <div>
@@ -772,11 +775,11 @@ const SeniorCoachDashboard = () => {
               htmlFor="srcoach-profile-photo-upload"
               style={{
                 cursor: "pointer",
-                padding: "8px 16px",
+                padding: "6px 12px",
                 background: "#00bfff",
                 color: "#fff",
-                borderRadius: "8px",
-                fontSize: "0.9rem",
+                borderRadius: "6px",
+                fontSize: "0.75rem",
                 display: "inline-block",
               }}
             >
@@ -811,7 +814,7 @@ const SeniorCoachDashboard = () => {
           ))}
         </ul>
       </aside>
-
+          
       {/* Main Content */}
       <main id="main-content">
         <header id="main-header">
@@ -877,6 +880,7 @@ const SeniorCoachDashboard = () => {
                       <th>Name</th>
                       <th>Contact</th>
                       <th>Batch</th>
+                    <th>Role/Skills</th>
                     <th>Monthly Fee</th>
                     <th>Username</th>
                       <th>Actions</th>
@@ -885,7 +889,7 @@ const SeniorCoachDashboard = () => {
                   <tbody>
                   {students.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: "center" }}>
+                      <td colSpan="8" style={{ textAlign: "center" }}>
                         No students found
                       </td>
                     </tr>
@@ -913,9 +917,55 @@ const SeniorCoachDashboard = () => {
                         </td>
                         <td>{s.phone || "N/A"}</td>
                         <td>{s.batch || "N/A"}</td>
+                        <td>
+                          {s.skills?.role ? (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                              <span style={{
+                                padding: "4px 8px",
+                                borderRadius: "6px",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                background: s.skills.role === "batsman" ? "#10b981" : s.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                                color: "#fff",
+                                display: "inline-block",
+                                width: "fit-content",
+                              }}>
+                                {s.skills.role === "batsman" ? "🏏 Batsman" : s.skills.role === "bowler" ? "⚾ Bowler" : "🌟 All-rounder"}
+                              </span>
+                              {s.skills.battingHand && (
+                                <span style={{ fontSize: "0.7rem", color: "#666" }}>
+                                  Bat: {s.skills.battingHand === "right" ? "Right" : "Left"}
+                                </span>
+                              )}
+                              {s.skills.bowlingType && (
+                                <span style={{ fontSize: "0.7rem", color: "#666" }}>
+                                  Bowl: {s.skills.bowlingType === "fast" ? "Fast" : s.skills.bowlingType === "medium-fast" ? "Medium Fast" : "Spinner"}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ color: "#999" }}>Not specified</span>
+                          )}
+                        </td>
                         <td>₹{s.monthlyFee || 0}</td>
                         <td>{s.username || "N/A"}</td>
                         <td style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                          <button 
+                            onClick={() => {
+                              setSelectedStudentForDetails(s);
+                              setShowStudentDetailsModal(true);
+                            }}
+                            style={{
+                              background: "linear-gradient(90deg, #805ad5, #6b46c1)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Details</button>
                           <button 
                             onClick={() => handleEditStudent(s)}
                             style={{
@@ -1032,7 +1082,7 @@ const SeniorCoachDashboard = () => {
                         <td>{c.email || "N/A"}</td>
                         <td>{c.phone || "N/A"}</td>
                         <td>{c.username || "N/A"}</td>
-                        <td style={{ display: "flex", gap: "8px" }}>
+                        <td style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                           <button 
                             onClick={() => handleEditCoach(c)}
                             style={{
@@ -1046,6 +1096,19 @@ const SeniorCoachDashboard = () => {
                               fontWeight: "600",
                             }}
                           >Edit</button>
+                          <button 
+                            onClick={() => handleViewCoachCredentials(c)}
+                            style={{
+                              background: "linear-gradient(90deg, #f6ad55, #ed8936)",
+                              color: "#fff",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "0.85rem",
+                              fontWeight: "600",
+                            }}
+                          >Credentials</button>
                           <button 
                             onClick={() => handleDeleteCoach(c._id)}
                             style={{
@@ -1792,6 +1855,162 @@ const SeniorCoachDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Student Details Modal */}
+      {showStudentDetailsModal && selectedStudentForDetails && (
+        <div id="modal-overlay">
+          <div id="modal-student" style={{ maxWidth: "700px", maxHeight: "90vh", overflowY: "auto" }}>
+            <h2>Student Details - {selectedStudentForDetails.firstName} {selectedStudentForDetails.lastName || ""}</h2>
+            
+            <div style={{ marginBottom: "20px" }}>
+              <img
+                src={selectedStudentForDetails.profilePhotoUrl ? (selectedStudentForDetails.profilePhotoUrl.startsWith('http') ? selectedStudentForDetails.profilePhotoUrl : `http://localhost:5000${selectedStudentForDetails.profilePhotoUrl}`) : "https://via.placeholder.com/150"}
+                alt={`${selectedStudentForDetails.firstName} ${selectedStudentForDetails.lastName || ""}`}
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "4px solid #00bfff",
+                  marginBottom: "20px",
+                }}
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/150";
+                }}
+              />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px", marginBottom: "20px" }}>
+              <div>
+                <strong>Name:</strong> {selectedStudentForDetails.firstName} {selectedStudentForDetails.lastName || ""}
+              </div>
+              <div>
+                <strong>Email:</strong> {selectedStudentForDetails.email || "N/A"}
+              </div>
+              <div>
+                <strong>Phone:</strong> {selectedStudentForDetails.phone || "N/A"}
+              </div>
+              <div>
+                <strong>Gender:</strong> {selectedStudentForDetails.gender || "N/A"}
+              </div>
+              <div>
+                <strong>Date of Birth:</strong> {selectedStudentForDetails.dob ? new Date(selectedStudentForDetails.dob).toLocaleDateString() : "N/A"}
+              </div>
+              <div>
+                <strong>Batch:</strong> {selectedStudentForDetails.batch || "N/A"}
+              </div>
+              <div>
+                <strong>Address:</strong> {selectedStudentForDetails.address || "N/A"}
+              </div>
+              <div>
+                <strong>Parent Name:</strong> {selectedStudentForDetails.parentName || "N/A"}
+              </div>
+              <div>
+                <strong>Parent Phone:</strong> {selectedStudentForDetails.parentPhone || "N/A"}
+              </div>
+              <div>
+                <strong>Monthly Fee:</strong> ₹{selectedStudentForDetails.monthlyFee || 0}
+              </div>
+            </div>
+
+            {selectedStudentForDetails.skills && (
+              <div style={{ background: "#f8f9fa", padding: "20px", borderRadius: "12px", marginBottom: "20px" }}>
+                <h3 style={{ marginBottom: "15px", color: "#002b5c" }}>Skills & Role</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px" }}>
+                  <div>
+                    <strong>Role:</strong>{" "}
+                    <span style={{
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.9rem",
+                      fontWeight: "600",
+                      background: selectedStudentForDetails.skills.role === "batsman" ? "#10b981" : selectedStudentForDetails.skills.role === "bowler" ? "#3182ce" : "#805ad5",
+                      color: "#fff",
+                    }}>
+                      {selectedStudentForDetails.skills.role === "batsman" ? "🏏 Batsman" : selectedStudentForDetails.skills.role === "bowler" ? "⚾ Bowler" : selectedStudentForDetails.skills.role === "all-rounder" ? "🌟 All-rounder" : "N/A"}
+                    </span>
+                  </div>
+                  {selectedStudentForDetails.skills.battingHand && (
+                    <div>
+                      <strong>Batting Hand:</strong>{" "}
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        background: "#e9ecef",
+                        fontSize: "0.9rem",
+                      }}>
+                        {selectedStudentForDetails.skills.battingHand === "right" ? "Right Hand" : "Left Hand"}
+                      </span>
+                    </div>
+                  )}
+                  {selectedStudentForDetails.skills.bowlingHand && (
+                    <div>
+                      <strong>Bowling Hand:</strong>{" "}
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        background: "#e9ecef",
+                        fontSize: "0.9rem",
+                      }}>
+                        {selectedStudentForDetails.skills.bowlingHand === "right" ? "Right Hand" : "Left Hand"}
+                      </span>
+                    </div>
+                  )}
+                  {selectedStudentForDetails.skills.bowlingType && (
+                    <div>
+                      <strong>Bowling Type:</strong>{" "}
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        background: "#e9ecef",
+                        fontSize: "0.9rem",
+                      }}>
+                        {selectedStudentForDetails.skills.bowlingType === "fast" ? "Fast Bowler" : selectedStudentForDetails.skills.bowlingType === "medium-fast" ? "Medium Fast" : "Spinner"}
+                      </span>
+                    </div>
+                  )}
+                  {selectedStudentForDetails.skills.wicketKeeper && (
+                    <div>
+                      <strong>Wicket Keeper:</strong>{" "}
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        background: "#d4edda",
+                        color: "#155724",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                      }}>
+                        Yes
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {selectedStudentForDetails.extraInfo && (
+              <div style={{ marginBottom: "20px" }}>
+                <strong>Extra Info:</strong>
+                <p style={{ marginTop: "8px", padding: "10px", background: "#f8f9fa", borderRadius: "8px" }}>
+                  {selectedStudentForDetails.extraInfo}
+                </p>
+              </div>
+            )}
+
+            <div id="modal-buttons">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowStudentDetailsModal(false);
+                  setSelectedStudentForDetails(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

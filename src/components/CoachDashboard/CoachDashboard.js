@@ -562,20 +562,20 @@ const CoachDashboard = () => {
         <h2 id="sidebar-title">🏏 Coach Panel</h2>
         
         {/* Profile Photo Section */}
-        <div style={{ marginBottom: "20px", textAlign: "center" }}>
+        <div style={{ marginBottom: "15px", textAlign: "center" }}>
           <img
-            src={coachProfile?.profilePhotoUrl || "https://via.placeholder.com/100"}
+            src={coachProfile?.profilePhotoUrl || "https://via.placeholder.com/60"}
             alt="Coach Profile"
             style={{
-              width: "100px",
-              height: "100px",
+              width: "60px",
+              height: "60px",
               borderRadius: "50%",
-              border: "3px solid #00bfff",
+              border: "2px solid #00bfff",
               objectFit: "cover",
-              marginBottom: "10px",
+              marginBottom: "8px",
             }}
             onError={(e) => {
-              e.target.src = "https://via.placeholder.com/100";
+              e.target.src = "https://via.placeholder.com/60";
             }}
           />
           <div>
@@ -583,11 +583,11 @@ const CoachDashboard = () => {
               htmlFor="coach-profile-photo-upload"
               style={{
                 cursor: "pointer",
-                padding: "8px 16px",
+                padding: "6px 12px",
                 background: "#00bfff",
                 color: "#fff",
-                borderRadius: "8px",
-                fontSize: "0.9rem",
+                borderRadius: "6px",
+                fontSize: "0.75rem",
                 display: "inline-block",
               }}
             >

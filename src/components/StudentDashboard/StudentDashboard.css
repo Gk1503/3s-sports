@@ -5,6 +5,10 @@
   font-family: "Poppins", "Inter", sans-serif;
   background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
   color: #1a202c;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* ===== Sidebar ===== */
@@ -21,6 +25,7 @@
   gap: 2rem;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
+  z-index: 100;
 }
 
 #sidebar-profile-img {
@@ -57,6 +62,7 @@
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  width: 100%;
 }
 
 #edit-profile-btn:hover {
@@ -179,6 +185,10 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* ===== Dashboard Views ===== */
@@ -276,6 +286,7 @@
   margin-top: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  -webkit-overflow-scrolling: touch;
 }
 
 #attendance-table,
@@ -283,6 +294,7 @@
   width: 100%;
   border-collapse: collapse;
   background: #fff;
+  min-width: 600px;
 }
 
 #attendance-table thead,
@@ -349,6 +361,11 @@
     width: 260px;
     padding: 2rem 1rem;
   }
+
+  #sidebar-profile-img {
+    width: 120px;
+    height: 120px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -364,27 +381,61 @@
     position: relative;
     height: auto;
     flex-wrap: wrap;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   #sidebar-profile-img {
     width: 100px;
     height: 100px;
+    order: 1;
   }
 
   #sidebar-profile-name {
     font-size: 1rem;
+    order: 2;
+    margin-top: 0;
+    margin-left: 1rem;
+  }
+
+  #edit-profile-btn {
+    order: 3;
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  #profile-edit-section {
+    order: 4;
+    width: 100%;
+    margin-top: 1rem;
   }
 
   #sidebar-menu {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    order: 5;
+    width: 100%;
+    margin-top: 1rem;
   }
 
   .sidebar-btn {
     flex: 1 1 auto;
     min-width: 120px;
     text-align: center;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+
+  .sidebar-btn:hover {
+    transform: translateY(-2px);
+    border-left: none;
+    border-bottom-color: #00bfff;
+  }
+
+  .sidebar-btn.active {
+    border-left: none;
+    border-bottom-color: #fff;
   }
 
   #dashboard-main {
@@ -392,8 +443,25 @@
     padding: 1.5rem;
   }
 
-  #profile-edit-section {
-    width: 90%;
+  #dashboard-view,
+  #fees-view,
+  #attendance-view {
+    padding: 1.5rem;
+  }
+
+  #dashboard-view h2,
+  #fees-view h2,
+  #attendance-view h2 {
+    font-size: 1.5rem;
+  }
+
+  #fees-info,
+  #attendance-info {
+    flex-direction: column;
+  }
+
+  #fee-card {
+    flex: 1 1 100%;
   }
 }
 
@@ -405,7 +473,14 @@
   #dashboard-view,
   #fees-view,
   #attendance-view {
-    padding: 1.5rem;
+    padding: 1.2rem;
+    border-radius: 16px;
+  }
+
+  #dashboard-view h2,
+  #fees-view h2,
+  #attendance-view h2 {
+    font-size: 1.3rem;
   }
 
   #sidebar-profile-img {
@@ -413,11 +488,69 @@
     height: 80px;
   }
 
+  #sidebar-profile-name {
+    font-size: 0.9rem;
+  }
+
   #present-count {
     font-size: 2.5rem;
   }
 
   #fee-card {
-    flex: 1 1 100%;
+    padding: 1rem;
+    font-size: 0.9rem;
   }
+
+  #attendance-table-container,
+  #fees-table-container {
+    margin: 0 -1rem;
+    border-radius: 0;
+  }
+
+  #attendance-table,
+  #fees-table {
+    min-width: 500px;
+    font-size: 0.85rem;
+  }
+
+  #attendance-table th,
+  #fees-table th,
+  #attendance-table td,
+  #fees-table td {
+    padding: 0.8rem 1rem;
+  }
+
+  .sidebar-btn {
+    min-width: 100px;
+    padding: 0.8rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* ===== Scrollbar Styling ===== */
+#dashboard-sidebar::-webkit-scrollbar,
+#attendance-table-container::-webkit-scrollbar,
+#fees-table-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+#dashboard-sidebar::-webkit-scrollbar-track,
+#attendance-table-container::-webkit-scrollbar-track,
+#fees-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+#dashboard-sidebar::-webkit-scrollbar-thumb,
+#attendance-table-container::-webkit-scrollbar-thumb,
+#fees-table-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+#dashboard-sidebar::-webkit-scrollbar-thumb:hover,
+#attendance-table-container::-webkit-scrollbar-thumb:hover,
+#fees-table-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
