@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./RegisterStudent.css";
 
+
 const RegisterStudent = () => {
   const [form, setForm] = useState({
     username: "",
@@ -61,7 +62,7 @@ const RegisterStudent = () => {
   const submit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    navigate('/login');
+ 
     setMessage("");
 
     try {
