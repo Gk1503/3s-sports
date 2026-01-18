@@ -16,10 +16,10 @@ html, body {
   top: 0;
   width: 100%;
   max-width: 100vw;
-  z-index: 1000;
+  z-index: 9999;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
   transition: padding 0.3s ease;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -27,6 +27,7 @@ html, body {
   padding: 0.8rem 2rem;
   background: linear-gradient(90deg, #002b5c, #003d73);
   overflow: visible;
+  z-index: 9999;
 }
 
 /* ===== Logo ===== */
@@ -149,7 +150,7 @@ html, body {
   border-radius: 12px;
   transition: background 0.3s ease;
   position: relative;
-  z-index: 1001;
+  z-index: 10001;
 }
 
 .user-profile-display:hover {
@@ -178,7 +179,7 @@ html, body {
 .user-menu {
   position: relative;
   display: inline-block;
-  z-index: 1001;
+  z-index: 10000;
 }
 
 .user-avatar {
@@ -205,13 +206,13 @@ html, body {
   color: #003366;
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 10px;
   animation: fadeInDropdown 0.3s ease forwards;
-  z-index: 1002;
+  z-index: 10002;
   pointer-events: auto;
 }
 
@@ -255,7 +256,7 @@ html, body {
   width: 100%;
   pointer-events: auto;
   position: relative;
-  z-index: 1003;
+  z-index: 10003;
 }
 
 .dropdown-menu button:hover {

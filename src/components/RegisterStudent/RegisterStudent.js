@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./RegisterStudent.css";
-
+import { useNavigate } from "react-router-dom";
 
 const RegisterStudent = () => {
   const [form, setForm] = useState({
@@ -29,7 +29,7 @@ const RegisterStudent = () => {
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
-
+  const navigate = useNavigate();
   const onChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
@@ -62,7 +62,6 @@ const RegisterStudent = () => {
   const submit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
- 
     setMessage("");
 
     try {

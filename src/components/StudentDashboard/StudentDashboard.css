@@ -11,6 +11,14 @@
   box-sizing: border-box;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 /* ===== Sidebar ===== */
 #dashboard-sidebar {
   width: 300px;
@@ -63,11 +71,17 @@
   transition: all 0.3s ease;
   font-size: 0.95rem;
   width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #edit-profile-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
+}
+
+#edit-profile-btn:active {
+  transform: translateY(0);
 }
 
 /* ===== Profile Edit Section ===== */
@@ -161,6 +175,8 @@
   transition: all 0.3s ease;
   font-weight: 500;
   border-left: 4px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .sidebar-btn:hover {
@@ -175,6 +191,10 @@
   font-weight: 600;
   border-left-color: #fff;
   box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+.sidebar-btn:active {
+  transform: scale(0.98);
 }
 
 /* ===== Main Content ===== */
@@ -354,7 +374,7 @@
 @media (max-width: 1024px) {
   #dashboard-main {
     margin-left: 260px;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
   }
 
   #dashboard-sidebar {
@@ -366,6 +386,38 @@
     width: 120px;
     height: 120px;
   }
+
+  #sidebar-profile-name {
+    font-size: 1.15rem;
+  }
+
+  #sidebar-menu {
+    gap: 0.6rem;
+  }
+
+  .sidebar-btn {
+    font-size: 1rem;
+    padding: 0.95rem 1.1rem;
+  }
+
+  #dashboard-view,
+  #fees-view,
+  #attendance-view {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  #dashboard-main {
+    margin-left: 0;
+    padding: 1.8rem 1.2rem;
+  }
+
+  #dashboard-sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -375,48 +427,57 @@
 
   #dashboard-sidebar {
     width: 100%;
-    flex-direction: row;
-    justify-content: space-around;
+    flex-direction: column;
+    justify-content: flex-start;
     padding: 1.5rem 1rem;
     position: relative;
     height: auto;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    gap: 1rem;
   }
 
   #sidebar-profile-img {
     width: 100px;
     height: 100px;
     order: 1;
+    align-self: center;
   }
 
   #sidebar-profile-name {
     font-size: 1rem;
     order: 2;
-    margin-top: 0;
-    margin-left: 1rem;
+    margin-top: 0.5rem;
+    margin-left: 0;
+    text-align: center;
   }
 
   #edit-profile-btn {
     order: 3;
-    width: auto;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    width: 100%;
+    max-width: 300px;
+    align-self: center;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
   }
 
   #profile-edit-section {
     order: 4;
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
   #sidebar-menu {
+    display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     order: 5;
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    gap: 0.6rem;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .sidebar-btn {
@@ -425,6 +486,8 @@
     text-align: center;
     border-left: none;
     border-bottom: 3px solid transparent;
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
   }
 
   .sidebar-btn:hover {
@@ -440,7 +503,7 @@
 
   #dashboard-main {
     margin-left: 0;
-    padding: 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   #dashboard-view,
@@ -456,18 +519,39 @@
   }
 
   #fees-info,
-  #attendance-info {
+  #attendance-info,
+  #batch-info {
     flex-direction: column;
   }
 
   #fee-card {
     flex: 1 1 100%;
   }
+
+  /* Profile photo and skills section responsive */
+  .profile-skills-section {
+    flex-direction: column !important;
+    padding: 1.2rem !important;
+  }
+
+  .profile-photo-container {
+    margin-right: 0 !important;
+    margin-bottom: 1rem;
+  }
+
+  .skills-details-container {
+    width: 100% !important;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
 }
 
 @media (max-width: 480px) {
   #dashboard-main {
-    padding: 1rem;
+    padding: 1rem 0.8rem;
   }
 
   #dashboard-view,
@@ -503,7 +587,7 @@
 
   #attendance-table-container,
   #fees-table-container {
-    margin: 0 -1rem;
+    margin: 0 -1.2rem;
     border-radius: 0;
   }
 
@@ -517,13 +601,70 @@
   #fees-table th,
   #attendance-table td,
   #fees-table td {
-    padding: 0.8rem 1rem;
+    padding: 0.8rem 0.8rem;
   }
 
   .sidebar-btn {
     min-width: 100px;
     padding: 0.8rem 0.6rem;
     font-size: 0.9rem;
+  }
+
+  #edit-profile-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  #sidebar-menu {
+    gap: 0.4rem;
+  }
+
+  #profile-edit-section {
+    padding: 1rem;
+  }
+
+  #save-profile-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Profile and skills section mobile */
+  .profile-skills-section {
+    padding: 1rem !important;
+    gap: 0.8rem !important;
+  }
+
+  .profile-photo-container img {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .role-badge {
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.9rem !important;
+  }
+
+  .skills-grid {
+    gap: 0.8rem !important;
+  }
+
+  .skill-card {
+    padding: 1rem !important;
+  }
+
+  .skill-card h4 {
+    font-size: 0.85rem !important;
+  }
+
+  .hand-badge, .bowling-type-badge {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .wicket-keeper-badge {
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.8rem !important;
   }
 }
 

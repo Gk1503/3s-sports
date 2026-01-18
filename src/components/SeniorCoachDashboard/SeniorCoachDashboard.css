@@ -12,10 +12,28 @@
 }
 
 /* ===== Reset & Base ===== */
-* { box-sizing: border-box; }
-body, html, #root { height: 100%; margin: 0; font-family: 'Inter', 'Poppins', sans-serif; background: var(--bg); }
-button { cursor: pointer; }
-button:focus, input:focus, select:focus, textarea:focus { outline: none; }
+* { 
+  box-sizing: border-box; 
+}
+
+html { 
+  scroll-behavior: smooth;
+}
+
+body, html, #root { 
+  height: 100%; 
+  margin: 0; 
+  font-family: 'Inter', 'Poppins', sans-serif; 
+  background: var(--bg); 
+}
+
+button { 
+  cursor: pointer; 
+}
+
+button:focus, input:focus, select:focus, textarea:focus { 
+  outline: none; 
+}
 
 /* ===== Dashboard Layout ===== */
 #srcoach-dashboard {
@@ -76,6 +94,8 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   margin-bottom: 8px;
   text-transform: capitalize;
   letter-spacing: 0.5px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #sidebar li:hover { 
@@ -83,6 +103,10 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   transform: translateX(4px);
   border-left-color: #00bfff;
   box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
+}
+
+#sidebar li:active {
+  transform: scale(0.98);
 }
 
 #sidebar li[style*="linear-gradient"] {
@@ -236,6 +260,7 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   border-collapse: collapse;
   background: var(--card);
   min-width: 800px;
+  table-layout: auto;
 }
 
 #students-table thead th, #coaches-table thead th, #fees-table thead th {
@@ -257,13 +282,18 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
 
 #students-table tbody tr:hover, #coaches-table tbody tr:hover, #fees-table tbody tr:hover { 
   background: rgba(11, 102, 195, 0.04);
-  transform: scale(1.01);
+  transform: scale(1.005);
 }
 
 #students-table tbody td, #coaches-table tbody td, #fees-table tbody td { 
   font-size: 14px; 
   color: #334155; 
   padding: 16px;
+  vertical-align: middle;
+}
+
+#coaches-table tbody td:last-child {
+  min-width: 280px;
 }
 
 #students-table button, #coaches-table button {
@@ -271,17 +301,19 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   color: #fff;
   padding: 8px 14px;
   border-radius: 8px;
-  margin: 4px;
-  font-size: 12px;
+  margin: 2px;
+  font-size: 13px;
   border: none;
   font-weight: 600;
   transition: all 0.3s ease;
   white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 #students-table button:hover, #coaches-table button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* ===== Modals ===== */
@@ -442,6 +474,33 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
   #overview-section { 
     grid-template-columns: repeat(2, 1fr); 
   }
+
+  #sidebar {
+    width: 240px;
+  }
+
+  #sidebar li {
+    padding: 16px 20px;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  #srcoach-dashboard {
+    padding: 14px;
+  }
+
+  #sidebar {
+    width: 220px;
+  }
+
+  #sidebar-title {
+    font-size: 20px;
+  }
+
+  #main-header h1 {
+    font-size: 26px;
+  }
 }
 
 @media (max-width: 992px) {
@@ -455,23 +514,29 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
     height: auto;
     position: relative;
     top: 0;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
     padding: 16px;
     border-radius: 16px;
-    overflow-x: auto;
+    overflow-x: visible;
     overflow-y: visible;
+    gap: 1rem;
   }
 
   #sidebar-title {
     font-size: 18px;
-    margin-bottom: 0;
+    margin-bottom: 0.8rem;
     white-space: nowrap;
   }
 
   #sidebar ul {
     flex-direction: row;
-    gap: 8px;
+    gap: 0.6rem;
     flex: 1;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   #sidebar li {
@@ -482,6 +547,7 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
     border-left: none;
     border-bottom: 4px solid transparent;
     margin-bottom: 4px;
+    flex-shrink: 0;
   }
 
   #sidebar li:hover {
@@ -504,6 +570,10 @@ button:focus, input:focus, select:focus, textarea:focus { outline: none; }
 
   #modal-student form, #modal-coach form { 
     grid-template-columns: 1fr; 
+  }
+
+  #main-header h1 {
+    font-size: 24px;
   }
 }
 

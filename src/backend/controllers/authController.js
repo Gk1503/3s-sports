@@ -102,6 +102,7 @@ exports.registerStudentPublic = async (req, res) => {
       passwordHash,
       role: 'student',
       createdBy: null,
+      temporaryPassword: password, // Store for SR Coach to view credentials
     });
 
     // Handle profile photo upload

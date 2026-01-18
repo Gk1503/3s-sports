@@ -1065,7 +1065,7 @@ const SeniorCoachDashboard = () => {
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Username</th>
-                    <th>Actions</th>
+                    <th style={{ minWidth: "280px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1078,52 +1078,66 @@ const SeniorCoachDashboard = () => {
                   ) : (
                     coaches.map((c) => (
                     <tr key={c._id}>
-                        <td>{c.name || "N/A"}</td>
+                        <td style={{ fontWeight: "600", color: "#002b5c" }}>{c.name || "N/A"}</td>
                         <td>{c.email || "N/A"}</td>
                         <td>{c.phone || "N/A"}</td>
-                        <td>{c.username || "N/A"}</td>
-                        <td style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                          <button 
-                            onClick={() => handleEditCoach(c)}
-                            style={{
-                              background: "linear-gradient(90deg, #3182ce, #2563eb)",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              fontWeight: "600",
-                            }}
-                          >Edit</button>
-                          <button 
-                            onClick={() => handleViewCoachCredentials(c)}
-                            style={{
-                              background: "linear-gradient(90deg, #f6ad55, #ed8936)",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              fontWeight: "600",
-                            }}
-                          >Credentials</button>
-                          <button 
-                            onClick={() => handleDeleteCoach(c._id)}
-                            style={{
-                              background: "linear-gradient(90deg, #e53e3e, #c53030)",
-                              color: "#fff",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "6px",
-                              cursor: "pointer",
-                              fontSize: "0.85rem",
-                              fontWeight: "600",
-                            }}
-                          >Delete</button>
-                      </td>
-                    </tr>
+                        <td style={{ fontFamily: "monospace", color: "#0b66c3", fontWeight: "600" }}>{c.username || "N/A"}</td>
+                        <td>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                            <button 
+                              onClick={() => handleEditCoach(c)}
+                              style={{
+                                background: "linear-gradient(90deg, #3182ce, #2563eb)",
+                                color: "#fff",
+                                border: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                                whiteSpace: "nowrap",
+                                transition: "all 0.3s ease",
+                              }}
+                              onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+                            >✏️ Edit</button>
+                            <button 
+                              onClick={() => handleViewCoachCredentials(c)}
+                              style={{
+                                background: "linear-gradient(90deg, #f6ad55, #ed8936)",
+                                color: "#fff",
+                                border: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                                whiteSpace: "nowrap",
+                                transition: "all 0.3s ease",
+                              }}
+                              onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+                            >🔑 Credentials</button>
+                            <button 
+                              onClick={() => handleDeleteCoach(c._id)}
+                              style={{
+                                background: "linear-gradient(90deg, #e53e3e, #c53030)",
+                                color: "#fff",
+                                border: "none",
+                                padding: "8px 16px",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.85rem",
+                                fontWeight: "600",
+                                whiteSpace: "nowrap",
+                                transition: "all 0.3s ease",
+                              }}
+                              onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+                            >🗑️ Delete</button>
+                          </div>
+                        </td>
+                      </tr>
                     ))
                   )}
                 </tbody>
