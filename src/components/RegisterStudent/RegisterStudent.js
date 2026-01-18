@@ -90,7 +90,7 @@ const RegisterStudent = () => {
         formData.append("profilePhoto", form.profilePhoto);
       }
 
-      const res = await fetch("http://localhost:5000/api/auth/register-student", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/auth/register-student", {
         method: "POST",
         body: formData,
       });

@@ -59,7 +59,7 @@ const SeniorCoachDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/students", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -79,7 +79,7 @@ const SeniorCoachDashboard = () => {
   const fetchCoaches = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/coaches", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/coaches", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -99,7 +99,7 @@ const SeniorCoachDashboard = () => {
   const fetchDashboardStats = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/dashboard/stats", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/dashboard/stats", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -117,7 +117,7 @@ const SeniorCoachDashboard = () => {
   const fetchFeesReport = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/fees/report", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -135,7 +135,7 @@ const SeniorCoachDashboard = () => {
   const fetchPendingFees = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/fees/pending", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/pending", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -153,7 +153,7 @@ const SeniorCoachDashboard = () => {
   const fetchCollectedFees = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/fees/collected", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/collected", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -171,7 +171,7 @@ const SeniorCoachDashboard = () => {
   const fetchAttendanceReport = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/attendance/report", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/attendance/report", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -189,7 +189,7 @@ const SeniorCoachDashboard = () => {
   const fetchSrCoachProfile = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/profile", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/profile", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -211,7 +211,7 @@ const SeniorCoachDashboard = () => {
       formData.append('profilePhoto', file);
 
       try {
-        const res = await fetch("http://localhost:5000/api/srcoach/profile/photo", {
+        const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/profile/photo", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -264,10 +264,10 @@ const SeniorCoachDashboard = () => {
     if (!user?.token) return;
     try {
       const [studentsRes, feesRes] = await Promise.all([
-        fetch("http://localhost:5000/api/srcoach/students", {
+        fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
           headers: { Authorization: `Bearer ${user.token}` },
         }),
-        fetch("http://localhost:5000/api/srcoach/fees/report", {
+        fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
           headers: { Authorization: `Bearer ${user.token}` },
         }),
       ]);
@@ -310,7 +310,7 @@ const SeniorCoachDashboard = () => {
   // View coach credentials
   const handleViewCoachCredentials = async (coach) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${coach._id}/credentials`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/coaches/${coach._id}/credentials`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -335,7 +335,7 @@ const SeniorCoachDashboard = () => {
   const handleViewStudentAttendance = async (student) => {
     setSelectedStudentForAttendance(student);
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/attendance/report?studentId=${student._id}`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/attendance/report?studentId=${student._id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -364,7 +364,7 @@ const SeniorCoachDashboard = () => {
     if (!selectedStudentForFees?._id) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/fees/${selectedStudentForFees._id}/collect`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/fees/${selectedStudentForFees._id}/collect`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -394,7 +394,7 @@ const SeniorCoachDashboard = () => {
           const nextMonthStr = nextMonth.toISOString().slice(0, 7);
           
           // Check if fee already exists for next month
-          const checkRes = await fetch(`http://localhost:5000/api/srcoach/fees/pending`, {
+          const checkRes = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/fees/pending`, {
             headers: { Authorization: `Bearer ${user.token}` },
           });
           if (checkRes.ok) {
@@ -406,7 +406,7 @@ const SeniorCoachDashboard = () => {
             
             if (!exists) {
               // Auto-create pending fee for next month
-              await fetch("http://localhost:5000/api/srcoach/fees/report", {
+              await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -455,7 +455,7 @@ const SeniorCoachDashboard = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/srcoach/students", {
+      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -525,7 +525,7 @@ const SeniorCoachDashboard = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
+        `https://threes-sports-1.onrender.com/api/srcoach/students/${editingStudent._id}`,
         {
         method: "PUT",
         headers: {
@@ -559,7 +559,7 @@ const SeniorCoachDashboard = () => {
       return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/students/${id}`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/students/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -583,7 +583,7 @@ const SeniorCoachDashboard = () => {
   // View credentials
   const handleViewCredentials = async (student) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/students/${student._id}/credentials`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/students/${student._id}/credentials`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -621,7 +621,7 @@ const SeniorCoachDashboard = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/srcoach/students/${selectedStudentForFees._id}/fees`,
+        `https://threes-sports-1.onrender.com/api/srcoach/students/${selectedStudentForFees._id}/fees`,
         {
           method: "PUT",
           headers: {
@@ -670,8 +670,8 @@ const SeniorCoachDashboard = () => {
 
     try {
     const url = isEditing
-      ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
-      : "http://localhost:5000/api/srcoach/coaches";
+      ? `https://threes-sports-1.onrender.com/api/srcoach/coaches/${editingCoach._id}`
+      : "https://threes-sports-1.onrender.com/api/srcoach/coaches";
     const method = isEditing ? "PUT" : "POST";
     
       const payload = isEditing
@@ -717,7 +717,7 @@ const SeniorCoachDashboard = () => {
       return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${id}`, {
+      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/coaches/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -898,7 +898,7 @@ const SeniorCoachDashboard = () => {
                       <tr key={s._id}>
                         <td>
                           <img
-                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `https://threes-sports-1.onrender.com${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
                             alt={`${s.firstName} ${s.lastName || ""}`}
                           style={{
                               width: "50px",
@@ -1881,7 +1881,7 @@ const SeniorCoachDashboard = () => {
             
             <div style={{ marginBottom: "20px" }}>
               <img
-                src={selectedStudentForDetails.profilePhotoUrl ? (selectedStudentForDetails.profilePhotoUrl.startsWith('http') ? selectedStudentForDetails.profilePhotoUrl : `http://localhost:5000${selectedStudentForDetails.profilePhotoUrl}`) : "https://via.placeholder.com/150"}
+                src={selectedStudentForDetails.profilePhotoUrl ? (selectedStudentForDetails.profilePhotoUrl.startsWith('http') ? selectedStudentForDetails.profilePhotoUrl : `https://threes-sports-1.onrender.com${selectedStudentForDetails.profilePhotoUrl}`) : "https://via.placeholder.com/150"}
                 alt={`${selectedStudentForDetails.firstName} ${selectedStudentForDetails.lastName || ""}`}
                 style={{
                   width: "150px",

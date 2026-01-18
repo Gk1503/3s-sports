@@ -13,15 +13,17 @@ const srRoutes = require('./routes/srcoach');
 
 const app = express();
 app.use(cors({
-  origin: ["http://localhost:3000", "https://3s-sports-dty3.vercel.app/"],
+  origin: ["http://localhost:3000","https://3s-sports-dty3.vercel.app" , "https://3s-sports-dty3.vercel.app", "*"],
   credentials: true
 }));
+
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // connect DB
 connectDB(process.env.MONGO_URI);

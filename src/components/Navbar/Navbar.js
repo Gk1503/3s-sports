@@ -20,13 +20,13 @@ const Navbar = () => {
       let apiUrl = "";
       switch (userRole) {
         case "student":
-          apiUrl = "http://localhost:5000/api/students/profile";
+          apiUrl = "https://threes-sports-1.onrender.com/api/students/profile";
           break;
         case "coach":
-          apiUrl = "http://localhost:5000/api/coaches/profile";
+          apiUrl = "https://threes-sports-1.onrender.com/api/coaches/profile";
           break;
         case "seniorCoach":
-          apiUrl = "http://localhost:5000/api/srcoach/profile";
+          apiUrl = "https://threes-sports-1.onrender.com/api/srcoach/profile";
           break;
         default:
           return;
@@ -39,7 +39,7 @@ const Navbar = () => {
         const photoUrl = data.profilePhotoUrl || data.student?.profilePhotoUrl || data.coach?.profilePhotoUrl || data.user?.profilePhotoUrl;
         if (photoUrl && !photoUrl.startsWith('http')) {
           // If relative URL, prepend base URL
-          setUserProfilePhoto(`http://localhost:5000${photoUrl}`);
+          setUserProfilePhoto(`https://threes-sports-1.onrender.com${photoUrl}`);
         } else {
           setUserProfilePhoto(photoUrl);
         }
