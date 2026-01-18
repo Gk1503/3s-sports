@@ -35,13 +35,12 @@ app.use('/api/srcoach', srRoutes);
 // health
 app.get('/', (req, res) => res.send('Cricket Academy API running'));
 
-// 🔥 START SERVER ONLY AFTER DB IS CONNECTED
+// START SERVER ONLY AFTER DB CONNECTS
 const startServer = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
     console.log("MongoDB connected");
 
-    // Run seed ONLY AFTER DB connection
     await seedSeniorCoach();
 
     const PORT = process.env.PORT || 5000;

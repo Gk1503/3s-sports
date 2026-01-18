@@ -19,7 +19,7 @@ const LoginModal = ({ closeModal, setUser }) => {
     setError("");
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/auth/login", {
+      const res = await fetch("https://3s-sports-1.onrender.com/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, role }),
@@ -108,7 +108,7 @@ const LoginModal = ({ closeModal, setUser }) => {
             required
           />
           <button id="submit-btn" type="submit">
-            Login as {role === "srCoach" ? "Senior Coach" : role.charAt(0).toUpperCase() + role.slice(1)}
+            Login as {role === "seniorCoach" ? "Senior Coach" : role.charAt(0).toUpperCase() + role.slice(1)}
           </button>
         </form>
 
