@@ -12,7 +12,11 @@ const coachRoutes = require('./routes/coaches');
 const srRoutes = require('./routes/srcoach');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "https://3s-sports-dty3.vercel.app/"],
+  credentials: true
+}));
+
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
