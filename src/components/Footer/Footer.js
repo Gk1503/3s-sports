@@ -8,10 +8,10 @@ const Footer = () => {
       <div id="footer-container">
         {/* About Section */}
         <div id="footer-about">
-          <h3 id="footer-logo">3S SPORTS</h3>
+          <h3 id="footer-logo">ELITE SPORT MANAGEMENT</h3>
           <p id="footer-about-text">
-            3S SPORTS Cricket Academy – Empowering young talents with modern training, 
-            performance tracking, and match experience.
+            Elite Sport Management – Redefining athletic excellence through world-class training,
+            strategic mentorship, and data-driven performance analysis.
           </p>
         </div>
 
@@ -20,30 +20,30 @@ const Footer = () => {
           <h4 id="footer-links-title">Quick Links</h4>
           <ul id="footer-links-list">
             <li><a href="/">Home</a></li>
-            <li><a href="/academy">Academy</a></li>
-            <li><a href="/coaches">Coaches</a></li>
-            <li><a href="/matches">Matches</a></li>
-            <li><a href="/gallery">Gallery</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href="/academy">Programs</a></li>
+            <li><a href="/coaches">Mentors</a></li>
+            <li><a href="/matches">Schedules</a></li>
+            <li><a href="/gallery">Showcase</a></li>
+            <li><a href="/contact">Inquire</a></li>
           </ul>
         </div>
 
         {/* Contact Info */}
         <div id="footer-contact">
           <h4 id="footer-contact-title">Contact Us</h4>
-          <p><FaPhone /> <a href="tel:+913702606869">+91 97026 06869</a></p>
-          <p><FaEnvelope /> <a href="mailto:info@3sportsacademy.com">info@3sportsacademy.com</a></p>
+          <p><FaPhone /> <a href="tel:+1234567890">+1 (555) 123-4567</a></p>
+          <p><FaEnvelope /> <a href="mailto:info@elitesports.com">contact@elitesports.com</a></p>
           <div id="footer-socials">
-            <a href="https://www.instagram.com/3ssportscricket?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"><FaInstagram /></a>
-            <a href="https://www.youtube.com/@3S_Sports_Academy." target="_blank"><FaYoutube /></a>
-            <a href="https://www.facebook.com/3sportsacademy" target="_blank"><FaFacebook /></a>
-            <a href="https://twitter.com/3sportsacademy" target="_blank"><FaTwitter /></a>
+            <a href="#" target="_blank"><FaInstagram /></a>
+            <a href="#" target="_blank"><FaYoutube /></a>
+            <a href="#" target="_blank"><FaFacebook /></a>
+            <a href="#" target="_blank"><FaTwitter /></a>
           </div>
         </div>
       </div>
 
       <div id="footer-bottom">
-        <p>© 2025 3S SPORTS Cricket Academy. All rights reserved. Designed by Gopalkrishnan S</p>
+        <p>© 2026 ELITE SPORT MANAGEMENT. All rights reserved.</p>
       </div>
     </footer>
   );

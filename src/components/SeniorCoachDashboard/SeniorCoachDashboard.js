@@ -42,6 +42,7 @@ const SeniorCoachDashboard = () => {
   const [studentAttendanceData, setStudentAttendanceData] = useState([]);
   const [allStudentsWithFees, setAllStudentsWithFees] = useState([]);
   const [srCoachProfile, setSrCoachProfile] = useState(null);
+  const [photoLoading, setPhotoLoading] = useState(false);
   
   const [studentFormData, setStudentFormData] = useState({});
   const [coachFormData, setCoachFormData] = useState({});
@@ -59,7 +60,7 @@ const SeniorCoachDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
+      const res = await fetch("http://localhost:5000/api/srcoach/students", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -79,7 +80,7 @@ const SeniorCoachDashboard = () => {
   const fetchCoaches = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/coaches", {
+      const res = await fetch("http://localhost:5000/api/srcoach/coaches", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -99,7 +100,7 @@ const SeniorCoachDashboard = () => {
   const fetchDashboardStats = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/dashboard/stats", {
+      const res = await fetch("http://localhost:5000/api/srcoach/dashboard/stats", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -117,7 +118,7 @@ const SeniorCoachDashboard = () => {
   const fetchFeesReport = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/report", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -135,7 +136,7 @@ const SeniorCoachDashboard = () => {
   const fetchPendingFees = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/pending", {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/pending", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -153,7 +154,7 @@ const SeniorCoachDashboard = () => {
   const fetchCollectedFees = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/collected", {
+      const res = await fetch("http://localhost:5000/api/srcoach/fees/collected", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -171,7 +172,7 @@ const SeniorCoachDashboard = () => {
   const fetchAttendanceReport = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/attendance/report", {
+      const res = await fetch("http://localhost:5000/api/srcoach/attendance/report", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -189,7 +190,7 @@ const SeniorCoachDashboard = () => {
   const fetchSrCoachProfile = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/profile", {
+      const res = await fetch("http://localhost:5000/api/srcoach/profile", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -207,11 +208,25 @@ const SeniorCoachDashboard = () => {
   const handleProfilePhotoUpload = async (e) => {
     if (e.target.files && e.target.files[0] && user?.token) {
       const file = e.target.files[0];
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size too large. Maximum size is 5MB.");
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert("Please select an image file.");
+        return;
+      }
+
       const formData = new FormData();
       formData.append('profilePhoto', file);
+      setPhotoLoading(true);
 
       try {
-        const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/profile/photo", {
+        const res = await fetch("http://localhost:5000/api/srcoach/profile/photo", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -221,13 +236,17 @@ const SeniorCoachDashboard = () => {
 
         if (res.ok) {
           const data = await res.json();
-          setSrCoachProfile(data.user);
+          // Add cache busting parameter to force image reload
+          const photoUrlWithCache = data.user.profilePhotoUrl 
+            ? `${data.user.profilePhotoUrl}?t=${Date.now()}`
+            : null;
+          const updatedUser = { ...data.user, profilePhotoUrl: photoUrlWithCache };
+          setSrCoachProfile(updatedUser);
           alert("Profile photo updated successfully!");
-          fetchSrCoachProfile(); // Refresh to get updated data
           
-          // Trigger navbar update via custom event
+          // Trigger navbar update via custom event with cache busted URL
           window.dispatchEvent(new CustomEvent('profilePhotoUpdated', { 
-            detail: { profilePhotoUrl: data.user.profilePhotoUrl } 
+            detail: { profilePhotoUrl: photoUrlWithCache } 
           }));
         } else {
           const error = await res.json();
@@ -235,39 +254,50 @@ const SeniorCoachDashboard = () => {
         }
       } catch (err) {
         console.error("Photo upload failed", err);
-        alert("Error uploading photo");
+        alert("Error uploading photo: " + err.message);
+      } finally {
+        setPhotoLoading(false);
+        // Reset input
+        e.target.value = '';
       }
     }
   };
 
   useEffect(() => {
-    fetchStudents();
-    fetchCoaches();
-    fetchDashboardStats();
-    fetchSrCoachProfile();
-  }, [fetchStudents, fetchCoaches, fetchDashboardStats, fetchSrCoachProfile]);
+    // Initial data load - only on mount
+    const loadInitialData = async () => {
+      await fetchStudents();
+      await fetchCoaches();
+      await fetchDashboardStats();
+      await fetchSrCoachProfile();
+    };
+    loadInitialData();
+  }, []); // Empty dependency array - run only on mount
 
   useEffect(() => {
+    // Tab-specific data loading
     if (activeTab === "fees") {
       fetchFeesReport();
       fetchPendingFees();
       fetchCollectedFees();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       fetchAllStudentsWithFees();
     }
     if (activeTab === "reports") {
       fetchAttendanceReport();
     }
-  }, [activeTab, fetchFeesReport, fetchPendingFees, fetchCollectedFees, fetchAttendanceReport]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]); // Only depend on activeTab changes
 
   // Fetch all students with fees status
   const fetchAllStudentsWithFees = useCallback(async () => {
     if (!user?.token) return;
     try {
       const [studentsRes, feesRes] = await Promise.all([
-        fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
+        fetch("http://localhost:5000/api/srcoach/students", {
           headers: { Authorization: `Bearer ${user.token}` },
         }),
-        fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
+        fetch("http://localhost:5000/api/srcoach/fees/report", {
           headers: { Authorization: `Bearer ${user.token}` },
         }),
       ]);
@@ -310,7 +340,7 @@ const SeniorCoachDashboard = () => {
   // View coach credentials
   const handleViewCoachCredentials = async (coach) => {
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/coaches/${coach._id}/credentials`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${coach._id}/credentials`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -335,7 +365,7 @@ const SeniorCoachDashboard = () => {
   const handleViewStudentAttendance = async (student) => {
     setSelectedStudentForAttendance(student);
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/attendance/report?studentId=${student._id}`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/attendance/report?studentId=${student._id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -364,7 +394,7 @@ const SeniorCoachDashboard = () => {
     if (!selectedStudentForFees?._id) return;
     
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/fees/${selectedStudentForFees._id}/collect`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/fees/${selectedStudentForFees._id}/collect`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -394,7 +424,7 @@ const SeniorCoachDashboard = () => {
           const nextMonthStr = nextMonth.toISOString().slice(0, 7);
           
           // Check if fee already exists for next month
-          const checkRes = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/fees/pending`, {
+          const checkRes = await fetch(`http://localhost:5000/api/srcoach/fees/pending`, {
             headers: { Authorization: `Bearer ${user.token}` },
           });
           if (checkRes.ok) {
@@ -406,7 +436,7 @@ const SeniorCoachDashboard = () => {
             
             if (!exists) {
               // Auto-create pending fee for next month
-              await fetch("https://threes-sports-1.onrender.com/api/srcoach/fees/report", {
+              await fetch("http://localhost:5000/api/srcoach/fees/report", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -455,7 +485,7 @@ const SeniorCoachDashboard = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/srcoach/students", {
+      const res = await fetch("http://localhost:5000/api/srcoach/students", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -525,7 +555,7 @@ const SeniorCoachDashboard = () => {
 
     try {
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/srcoach/students/${editingStudent._id}`,
+        `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
         {
         method: "PUT",
         headers: {
@@ -559,7 +589,7 @@ const SeniorCoachDashboard = () => {
       return;
 
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/students/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/students/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -583,7 +613,7 @@ const SeniorCoachDashboard = () => {
   // View credentials
   const handleViewCredentials = async (student) => {
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/students/${student._id}/credentials`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/students/${student._id}/credentials`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -621,7 +651,7 @@ const SeniorCoachDashboard = () => {
 
     try {
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/srcoach/students/${selectedStudentForFees._id}/fees`,
+        `http://localhost:5000/api/srcoach/students/${selectedStudentForFees._id}/fees`,
         {
           method: "PUT",
           headers: {
@@ -670,8 +700,8 @@ const SeniorCoachDashboard = () => {
 
     try {
     const url = isEditing
-      ? `https://threes-sports-1.onrender.com/api/srcoach/coaches/${editingCoach._id}`
-      : "https://threes-sports-1.onrender.com/api/srcoach/coaches";
+      ? `http://localhost:5000/api/srcoach/coaches/${editingCoach._id}`
+      : "http://localhost:5000/api/srcoach/coaches";
     const method = isEditing ? "PUT" : "POST";
     
       const payload = isEditing
@@ -717,7 +747,7 @@ const SeniorCoachDashboard = () => {
       return;
 
     try {
-      const res = await fetch(`https://threes-sports-1.onrender.com/api/srcoach/coaches/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/srcoach/coaches/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${user?.token}`,
@@ -751,48 +781,85 @@ const SeniorCoachDashboard = () => {
       {/* Sidebar */}
       <aside id="sidebar">
 
-        <h2 id="sidebar-title">🏏 3S Sports</h2>
+        <h2 id="sidebar-title">🏏 Elite Sports</h2>
         
         {/* Profile Photo Section */}
         <div style={{ marginBottom: "15px", textAlign: "center" }}>
-          <img
-            src={srCoachProfile?.profilePhotoUrl || "https://via.placeholder.com/60"}
-            alt="Senior Coach Profile"
+          <div
             style={{
-              width: "60px",
-              height: "60px",
+              width: "70px",
+              height: "70px",
               borderRadius: "50%",
-              border: "2px solid #00bfff",
-              objectFit: "cover",
-              marginBottom: "8px",
+              border: "3px solid #00bfff",
+              overflow: "hidden",
+              margin: "0 auto 10px",
+              background: "#f0f4f9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
             }}
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/60";
-            }}
-          />
+          >
+            {srCoachProfile?.profilePhotoUrl ? (
+              <img
+                src={srCoachProfile.profilePhotoUrl}
+                alt="Senior Coach Profile"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+                onError={(e) => {
+                  console.error("Profile photo failed to load");
+                  e.target.style.display = "none";
+                }}
+              />
+            ) : null}
+            {!srCoachProfile?.profilePhotoUrl && (
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#00bfff"
+                strokeWidth="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            )}
+          </div>
           <div>
             <label
               htmlFor="srcoach-profile-photo-upload"
               style={{
-                cursor: "pointer",
+                cursor: photoLoading ? "not-allowed" : "pointer",
                 padding: "6px 12px",
-                background: "#00bfff",
+                background: photoLoading ? "#cccccc" : "#00bfff",
                 color: "#fff",
                 borderRadius: "6px",
                 fontSize: "0.75rem",
                 display: "inline-block",
+                opacity: photoLoading ? 0.6 : 1,
+                transition: "all 0.3s ease",
               }}
             >
-              Update Photo
+              {photoLoading ? "Uploading..." : "Update Photo"}
             </label>
             <input
               type="file"
               id="srcoach-profile-photo-upload"
               accept="image/*"
               onChange={handleProfilePhotoUpload}
+              disabled={photoLoading}
               style={{ display: "none" }}
             />
           </div>
+          {srCoachProfile?.username && (
+            <p style={{ margin: "8px 0 0 0", color: "#fff", fontSize: "0.85rem" }}>
+              {srCoachProfile.username}
+            </p>
+          )}
         </div>
         
         <ul>
@@ -897,20 +964,39 @@ const SeniorCoachDashboard = () => {
                     students.map((s) => (
                       <tr key={s._id}>
                         <td>
-                          <img
-                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `https://threes-sports-1.onrender.com${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
-                            alt={`${s.firstName} ${s.lastName || ""}`}
-                          style={{
-                              width: "50px",
-                              height: "50px",
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              border: "2px solid #00bfff",
-                            }}
-                            onError={(e) => {
-                              e.target.src = "https://via.placeholder.com/50";
-                            }}
-                          />
+                          <div style={{
+                            width: "50px",
+                            height: "50px",
+                            borderRadius: "50%",
+                            overflow: "hidden",
+                            border: "2px solid #00bfff",
+                            background: "#f0f4f9",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0
+                          }}>
+                            {s.profilePhotoUrl ? (
+                              <img
+                                src={s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`}
+                                alt={`${s.firstName} ${s.lastName || ""}`}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "cover",
+                                }}
+                                onError={(e) => {
+                                  console.error("Student photo failed to load");
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#00bfff" strokeWidth="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                              </svg>
+                            )}
+                          </div>
                         </td>
                         <td>
                           {s.firstName} {s.lastName || ""}
@@ -1149,7 +1235,7 @@ const SeniorCoachDashboard = () => {
         {/* Fees Tab */}
         {activeTab === "fees" && (
           <section id="fees-section">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "30px" }}>
+            <div id="fees-summary-grid">
             <div id="fee-collected">
               <h3>Collected Fees</h3>
                 <p>₹{dashboardStats?.fees?.collected || 0}</p>
@@ -1165,8 +1251,8 @@ const SeniorCoachDashboard = () => {
             </div>
 
             {/* All Students with Fees Status */}
-            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>All Students - Fees Status</h3>
+            <div className="content-card">
+  <h3>All Students - Fees Status</h3>
               <div className="table-wrapper">
                 <table id="fees-table">
                   <thead>
@@ -1223,8 +1309,8 @@ const SeniorCoachDashboard = () => {
             </div>
 
             {/* Pending Fees List - Month Wise */}
-            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Pending Fees (Month-wise)</h3>
+            <div className="content-card">
+  <h3>Pending Fees (Month-wise)</h3>
               <div className="table-wrapper">
                 <table id="fees-table">
                   <thead>
@@ -1278,8 +1364,8 @@ const SeniorCoachDashboard = () => {
             </div>
 
             {/* Collected Fees List - Month Wise */}
-            <div style={{ marginTop: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Collected Fees (Month-wise)</h3>
+            <div className="content-card">
+  <h3>Collected Fees (Month-wise)</h3>
               <div className="table-wrapper">
                 <table id="fees-table">
                   <thead>
@@ -1333,8 +1419,8 @@ const SeniorCoachDashboard = () => {
               <h2>Reports</h2>
 
             {/* Attendance Sheet */}
-            <div style={{ marginBottom: "30px", background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-              <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Attendance Sheet</h3>
+            <div className="content-card">
+  <h3>Attendance Sheet</h3>
               {attendanceReport && (
                 <div style={{ marginBottom: "20px" }}>
                   <p><strong>Total Records:</strong> {attendanceReport.summary?.total || 0}</p>
@@ -1403,8 +1489,8 @@ const SeniorCoachDashboard = () => {
             </div>
 
             {feesReport && (
-              <div style={{ background: "#fff", padding: "20px", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)" }}>
-                <h3 style={{ marginBottom: "15px", color: "#0f3b5f" }}>Fees Report</h3>
+              <div className="content-card">
+  <h3>Fees Report</h3>
                 <div style={{ marginBottom: "20px" }}>
                   <p><strong>Total:</strong> ₹{feesReport.summary?.total || 0}</p>
                   <p><strong>Collected:</strong> ₹{feesReport.summary?.collected || 0}</p>
@@ -1881,7 +1967,7 @@ const SeniorCoachDashboard = () => {
             
             <div style={{ marginBottom: "20px" }}>
               <img
-                src={selectedStudentForDetails.profilePhotoUrl ? (selectedStudentForDetails.profilePhotoUrl.startsWith('http') ? selectedStudentForDetails.profilePhotoUrl : `https://threes-sports-1.onrender.com${selectedStudentForDetails.profilePhotoUrl}`) : "https://via.placeholder.com/150"}
+                src={selectedStudentForDetails.profilePhotoUrl ? (selectedStudentForDetails.profilePhotoUrl.startsWith('http') ? selectedStudentForDetails.profilePhotoUrl : `http://localhost:5000${selectedStudentForDetails.profilePhotoUrl}`) : "https://via.placeholder.com/150"}
                 alt={`${selectedStudentForDetails.firstName} ${selectedStudentForDetails.lastName || ""}`}
                 style={{
                   width: "150px",

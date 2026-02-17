@@ -1,58 +1,46 @@
 import React, { useState, useEffect } from "react";
 import "./Home.css";
 
-import Training from "../../images/ALL/Traning.jpg";
-import Practice from "../../images/ALL/Practice.jpg";
-import Team from "../../images/TeamPhoto/TP4.jpg";
-import Match from "../../images/ALL/Match.jpg";
-import Ground from "../../images/ALL/All16.jpg";
-import Sachin from "../../images/Coaches/Sachin.jpg";
-import Rahul from "../../images/Coaches/RahulSir.jpg";
-import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
-import Siddhesh from "../../images/Coaches/Siddesh.jpg";
-import Mahesh from "../../images/Coaches/Mahesh.jpg";
-
-
-// Hero images for slideshow
-import Hero1 from "../../images/TeamPhoto/TP1.jpg";
-import Hero2 from "../../images/ALL/Practice.jpg";
-import Hero3 from "../../images/ALL/Traning.jpg";
-import Hero4 from "../../images/ALL/All16.jpg";
-import Hero5  from "../../images/Events/Event3.jpg";
+// Using Unsplash images for a premium sports look
+// No local imports needed for now
 
 const Home = () => {
   const [currentHero, setCurrentHero] = useState(0);
-  const heroImages = [Hero1, Hero2, Hero3 , Hero4, Hero5];
 
-  // Change hero image every 3 seconds
+  const heroImages = [
+    // Placeholders for debugging purposes, but user requested 'blank space' or 'other images' (Unsplash)
+    // We will keep high quality Unsplash URLs as per previous request context to avoid broken images
+    "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2076&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=2070&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1606925797300-0b35e9d17d27?q=80&w=2070&auto=format&fit=crop"  
+  ];
+
+  // Change hero image every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
-    }, 3000);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  const coaches = [
-    { name: "Sachin Suryavanshi", role: "Head Coach & Mentor", image: Sachin },
-    { name: "Mahesh Bharambe", role: "Coach", image: Mahesh },
-    { name: "Siddhesh Darde", role: "Coach", image: Siddhesh },
-     { name: "Rahul Bhagat", role: "Coach", image: Rahul },
-    { name: "Sudarshan Bansode", role: "Coach", image: Sudarshan },
-   
-    
+  const programs = [
+    { title: "High Perfromance Centre", desc: "Advanced bio-mechanics analysis and elite skill development for professional aspirants.", icon: "⚡" },
+    { title: "Tactical Leadership", desc: "Strategic game awareness and captaincy grooming for the next generation of leaders.", icon: "♟️" },
+    { title: "Mental Fortitude", desc: "Psychological conditioning to perform under pressure and handle game-day stress.", icon: "🧠" },
+    { title: "Strength & Conditioning", desc: "Athlete-specific physical training focusing on explosive power and injury prevention.", icon: "💪" },
   ];
 
-  const programs = [
-    { title: "Batting Mastery", desc: "Perfect your stance, shot selection, and power hitting.", icon: "🏏" },
-    { title: "Bowling Accuracy", desc: "Master pace, swing, spin, and line control.", icon: "🎯" },
-    { title: "Fielding Focus", desc: "Sharpen your reflexes, agility, and catching skills.", icon: "🧤" },
-    { title: "Fitness & Conditioning", desc: "Enhance endurance and build athletic strength.", icon: "💪" },
+  const coaches = [
+    { name: "Alexander Sterling", role: "Director of Cricket", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop" },
+    { name: "Marcus Thorne", role: "Head of Bowling Performance", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&auto=format&fit=crop" },
+    { name: "Elena Vostokova", role: "Mental Conditioning Coach", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop" },
+    { name: "David Vance", role: "Lead Batting Consultant", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop" },
   ];
 
   const testimonials = [
-    { name: "Rahul Sharma", text: "The coaches are amazing! My batting improved in just 2 months.", rating: 5 },
-    { name: "Ananya Patel", text: "Professional environment with digital performance tracking.", rating: 5 },
-    { name: "Ravi Desai", text: "Great academy with real-time stats and video analysis!", rating: 4 },
+    { name: "James Anderson", text: "Elite Sport Management transformed my game. The data-driven approach is truly world-class.", role: "Professional Cricketer" },
+    { name: "Michael Clarke", text: "The facilities and coaching staff are second to none. A perfect environment for nurturing talent.", role: "U-19 State Player" },
+    { name: "Sarah Miller", text: "As a parent, seeing the disciplined and holistic growth in my son is immensely satisfying.", role: "Parent" },
   ];
 
   return (
@@ -61,50 +49,61 @@ const Home = () => {
       <section
         className="hero-section"
         style={{
-          background: `linear-gradient(
-            rgba(0, 0, 0, 0.4),
-            rgba(0, 0, 0, 0.8)
-          ), url(${heroImages[currentHero]}) center/cover no-repeat`,
+          background: `url(${heroImages[currentHero]}) center/cover no-repeat`,
           transition: "background 1s ease-in-out",
         }}
       >
-        <div className="hero-overlay">
+        <div className="hero-overlay-gradient"></div>
+        <div className="hero-content">
           <h1>
-            <span className="highlight">3S Sports</span> Cricket Academy
+            Forging <span className="highlight">Champions</span><br />
+            Building <span className="highlight">Legacies</span>
           </h1>
-          <p>Train. Perform. Excel. The Digital Way.</p>
-          <a href="#programs" className="cta-btn">
-            Explore Programs
-          </a>
+          <p>The definitive destination for elite cricket excellence and professional sports management.</p>
+          <a href="#programs" className="cta-btn">Begin Your Journey</a>
         </div>
         <div className="scroll-indicator">↓</div>
       </section>
 
       {/* About Section */}
-      <section className="about-section">
-        <h2>About Our Academy</h2>
-        <p>
-        Welcome to <strong> 3S Sports Cricket Academy</strong> — where cricket training meets innovation and excellence. Our platform combines expert coaching with performance-focused techniques, making your game sharper, faster, and smarter. Experience training like never before, where passion meets precision and every session is designed to bring out the best in you.
-        </p>
+      <section className="about-section section-padding">
+        <div className="about-content">
+          <div className="section-title">
+            <h2>The Elite Standard</h2>
+            <p>Redefining Excellence in Sports Education</p>
+          </div>
+          <p className="about-text">
+            Welcome to <strong>Elite Sport Management</strong>. We are not just an academy; we are an institution dedicated to the art and science of cricket. 
+            By fusing traditional wisdom with cutting-edge technology, we provide an ecosystem where raw talent is refined into professional excellence.
+            Our philosophy is built on three pillars: <strong>Discipline, Strategy, and Innovation</strong>.
+          </p>
+        </div>
       </section>
 
-      {/* Senior Coach Message */}
-      <section className="mentor-message-section">
+      {/* Mentor Section */}
+      <section className="mentor-section section-padding">
         <div className="mentor-card">
-          <img src={Sachin} alt="Head Coach" className="mentor-image" />
-          <div className="mentor-text">
-            <h3>Mr. Sachin Suryavanshi</h3>
-            <p className="mentor-role">Head Coach & Mentor</p>
-            <p>
-              "As the Head Coach and Mentor at <strong> 3S Sports Cricket Academy </strong>, my mission is to nurture not just skilled cricketers, but disciplined, confident, and resilient athletes. We combine the wisdom of traditional coaching with advanced performance techniques to help every player unlock their true potential."
+          <div className="mentor-image-wrapper">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" alt="Director" className="mentor-image" />
+          </div>
+          <div className="mentor-info">
+            <h3>Alexander Sterling</h3>
+            <span className="mentor-role">Founder & Director of Performance</span>
+            <p className="mentor-quote">
+              "Greatness is not inherited; it is constructed day by day through relentless pursuit of perfection. 
+              At Elite Sport Management, we don't just teach cricket; we engineer athletes who command the field 
+              with intelligence, skill, and unwavering character."
             </p>
           </div>
         </div>
       </section>
 
       {/* Programs Section */}
-      <section id="programs" className="programs-section">
-        <h2>Our Elite Programs</h2>
+      <section id="programs" className="programs-section section-padding">
+        <div className="section-title">
+          <h2>Elite Programs</h2>
+          <p>Curriculum Designed for the Modern Athlete</p>
+        </div>
         <div className="programs-grid">
           {programs.map((prog, index) => (
             <div className="program-card" key={index}>
@@ -117,12 +116,17 @@ const Home = () => {
       </section>
 
       {/* Coaches Section */}
-      <section id="coaches" className="coaches-section">
-        <h2>Meet Our Coaches</h2>
+      <section className="coaches-section section-padding">
+        <div className="section-title">
+          <h2>World-Class Mentors</h2>
+          <p>Learn from the Masters of the Game</p>
+        </div>
         <div className="coaches-grid">
           {coaches.map((coach, index) => (
             <div className="coach-card" key={index}>
-              <img src={coach.image} alt={coach.name} />
+              <div className="coach-image-container">
+                <img src={coach.image} alt={coach.name} />
+              </div>
               <div className="coach-info">
                 <h3>{coach.name}</h3>
                 <p>{coach.role}</p>
@@ -133,32 +137,37 @@ const Home = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="testimonials-section">
-        <h2>Players’ Voices</h2>
+      <section className="testimonials-section section-padding">
+        <div className="section-title">
+          <h2>Success Stories</h2>
+          <p>Voices from the Elite Community</p>
+        </div>
         <div className="testimonials-grid">
           {testimonials.map((t, index) => (
             <div className="testimonial-card" key={index}>
-              <p className="testimonial-text">“{t.text}”</p>
-              <div className="testimonial-rating">{"⭐".repeat(t.rating)}</div>
-              <h4>- {t.name}</h4>
+              <div className="testimonial-quote-icon">“</div>
+              <p className="testimonial-text">{t.text}</p>
+              <div className="testimonial-author">
+                <h4>{t.name}</h4>
+                <span>{t.role}</span>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Gallery Section */}
-      <section className="gallery-section">
-        <h2>Academy Highlights</h2>
+      {/* Gallery/Showcase Section */}
+      <section className="gallery-section section-padding">
+        <div className="section-title">
+          <h2>The Arena</h2>
+          <p>Where Preparation Meets Opportunity</p>
+        </div>
         <div className="gallery-grid">
-          <img src={Training} alt="Training" />
-          <img src={Practice} alt="Practice" />
-          <img src={Match} alt="Match" />
-          <img src={Team} alt="Team" />
-          <img src={Ground} alt="Team" />
+          <img src="https://images.unsplash.com/photo-1593341646782-e0b495cffd32?q=80&w=800&auto=format&fit=crop" alt="Match Day" />
+          <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=800&auto=format&fit=crop" alt="Team Huddle" />
+          <img src="https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=800&auto=format&fit=crop" alt="Training Session" />
         </div>
       </section>
-
-     
     </div>
   );
 };

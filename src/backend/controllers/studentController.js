@@ -3,6 +3,7 @@ const Fee = require("../models/Fee");
 const Attendance = require("../models/Attendance");
 const User = require("../models/User");
 
+
 // Get student profile with populated user data
 exports.getProfile = async (req, res) => {
   try {
@@ -19,6 +20,7 @@ exports.getProfile = async (req, res) => {
       username: student.user.username,
       profilePhotoUrl: student.profilePhotoUrl ? `http://localhost:5000${student.profilePhotoUrl}` : null,
     });
+
   } catch (err) {
     console.error("Get Profile Error:", err);
     res.status(500).json({
@@ -28,19 +30,19 @@ exports.getProfile = async (req, res) => {
   }
 };
 
+
+
 // Update student profile (students can update their own profile)
 exports.updateProfile = async (req, res) => {
   try {
+    // Students can only update basic contact information
+    // Critical fields like batch, skills, fees, dob, gender can only be updated by coaches/admin
     const allowedUpdates = [
       "firstName",
       "lastName",
       "phone",
       "email",
       "address",
-      "profilePhotoUrl",
-      "dob",
-      "gender",
-      "extraInfo",
     ];
 
     const updates = {};
@@ -67,6 +69,7 @@ exports.updateProfile = async (req, res) => {
       student: {
         ...student.toObject(),
         username: student.user.username,
+        profilePhotoUrl: student.profilePhotoUrl ? `http://localhost:5000${student.profilePhotoUrl}` : null,
       },
     });
   } catch (err) {

@@ -7,70 +7,69 @@
   --muted: #64748b;
   --danger: #e53e3e;
   --success: #10b981;
-  --shadow: rgba(0,0,0,0.08);
-  --glass: rgba(255,255,255,0.95);
+  --shadow: rgba(0, 0, 0, 0.08);
+  --glass: rgba(255, 255, 255, 0.95);
+  --text-main: #1e293b;
+  --text-dark: #0f172a;
 }
 
 /* ===== Reset & Base ===== */
-* { 
-  box-sizing: border-box; 
+* {
+  box-sizing: border-box;
 }
 
-html { 
-  scroll-behavior: smooth;
+/* Removed global overflow: hidden to allow scrolling on other pages */
+/* The dashboard container (#srcoach-dashboard) handles its own overflow */
+
+button {
+  cursor: pointer;
 }
 
-body, html, #root { 
-  height: 100%; 
-  margin: 0; 
-  font-family: 'Inter', 'Poppins', sans-serif; 
-  background: var(--bg); 
-}
-
-button { 
-  cursor: pointer; 
-}
-
-button:focus, input:focus, select:focus, textarea:focus { 
-  outline: none; 
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
 }
 
 /* ===== Dashboard Layout ===== */
 #srcoach-dashboard {
-  display: flex;
-  min-height: 100vh;
+  display: flex !important;
   gap: 20px;
-  padding: 16px;
+  padding: 20px;
   background: linear-gradient(135deg, #f0f4f9 0%, #e2e8f0 100%);
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
+  overflow: hidden !important;
+  /* Force hide outer scroll */
+  height: 100vh;
+  width: 100vw;
   box-sizing: border-box;
 }
 
 /* ===== Sidebar ===== */
 #sidebar {
-  width: 260px;
+  width: 280px;
   background: linear-gradient(180deg, #001f3f 0%, #002b5c 100%);
   border-radius: 20px;
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  position: sticky;
-  top: 16px;
-  height: calc(100vh - 32px);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  /* Fill container */
   overflow-y: auto;
+  /* Internal scroll */
+  flex-shrink: 0;
 }
 
 #sidebar-title {
   text-align: center;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   text-shadow: 0 2px 10px rgba(0, 191, 255, 0.3);
+  letter-spacing: 1px;
 }
 
 #sidebar ul {
@@ -83,26 +82,25 @@ button:focus, input:focus, select:focus, textarea:focus {
 }
 
 #sidebar li {
-  padding: 18px 22px;
+  padding: 16px 20px;
   border-radius: 12px;
   transition: all 0.3s ease;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #fff !important;
+  font-weight: 600;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8) !important;
   cursor: pointer;
   border-left: 4px solid transparent;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   text-transform: capitalize;
-  letter-spacing: 0.5px;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+  display: flex;
+  align-items: center;
 }
 
-#sidebar li:hover { 
-  background: rgba(255, 255, 255, 0.15);
+#sidebar li:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff !important;
   transform: translateX(4px);
   border-left-color: #00bfff;
-  box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
 }
 
 #sidebar li:active {
@@ -124,42 +122,68 @@ button:focus, input:focus, select:focus, textarea:focus {
   gap: 20px;
   min-width: 0;
   width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  box-sizing: border-box;
+  height: 100%;
+  /* Fill container */
+  overflow-y: auto;
+  /* Internal scroll */
+  padding-right: 8px;
+  /* Space for scrollbar */
 }
 
 #main-header h1 {
-  font-size: 28px;
+  font-size: 32px;
   color: #0f3b5f;
-  font-weight: 700;
+  font-weight: 800;
   margin: 0;
   background: linear-gradient(90deg, #0f3b5f, #004080);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin-bottom: 8px;
 }
 
 /* ===== Overview Cards ===== */
 #overview-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-#stat-total-students, #stat-total-coaches, #stat-collected-fees, #stat-pending-fees {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+#stat-total-students,
+#stat-total-coaches,
+#stat-collected-fees,
+#stat-pending-fees {
+  background: #ffffff;
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 24px var(--shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   transition: all 0.3s ease;
-  border-left: 4px solid var(--accent);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
 }
 
-#stat-total-students:hover, #stat-total-coaches:hover, #stat-collected-fees:hover, #stat-pending-fees:hover {
+#stat-total-students::after,
+#stat-total-coaches::after,
+#stat-collected-fees::after,
+#stat-pending-fees::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+}
+
+#stat-total-students:hover,
+#stat-total-coaches:hover,
+#stat-collected-fees:hover,
+#stat-pending-fees:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
@@ -172,20 +196,20 @@ button:focus, input:focus, select:focus, textarea:focus {
   border-left-color: var(--danger);
 }
 
-#overview-section h3 { 
-  color: #64748b; 
-  font-weight: 600; 
-  margin: 0; 
-  font-size: 14px; 
+#overview-section h3 {
+  color: #64748b;
+  font-weight: 600;
+  margin: 0;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-#overview-section p { 
-  font-size: 28px; 
-  font-weight: 800; 
-  color: var(--accent); 
-  margin: 0; 
+#overview-section p {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0;
 }
 
 #stat-collected-fees p {
@@ -205,31 +229,34 @@ button:focus, input:focus, select:focus, textarea:focus {
   box-shadow: 0 8px 24px var(--shadow);
 }
 
-#chart-container h2 { 
-  margin: 0 0 20px; 
-  font-size: 20px; 
-  color: #0f3b5f; 
+#chart-container h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  color: #0f3b5f;
   font-weight: 700;
 }
 
 /* ===== Students Table ===== */
-#students-header, #coaches-header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
+#students-header,
+#coaches-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-#students-header h2, #coaches-header h2 { 
-  font-size: 24px; 
-  color: #0f3b5f; 
+#students-header h2,
+#coaches-header h2 {
+  font-size: 24px;
+  color: #0f3b5f;
   font-weight: 700;
   margin: 0;
 }
 
-#students-add-btn, #coaches-add-btn {
+#students-add-btn,
+#coaches-add-btn {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
   padding: 12px 24px;
@@ -241,7 +268,8 @@ button:focus, input:focus, select:focus, textarea:focus {
   box-shadow: 0 4px 15px rgba(11, 102, 195, 0.3);
 }
 
-#students-add-btn:hover, #coaches-add-btn:hover { 
+#students-add-btn:hover,
+#coaches-add-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(11, 102, 195, 0.4);
 }
@@ -250,44 +278,61 @@ button:focus, input:focus, select:focus, textarea:focus {
 .table-wrapper {
   overflow-x: auto;
   border-radius: 16px;
-  box-shadow: 0 4px 20px var(--shadow);
-  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
 }
 
 /* ===== Students Table Styles ===== */
-#students-table, #coaches-table, #fees-table {
+#students-table,
+#coaches-table,
+#fees-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: var(--card);
-  min-width: 800px;
-  table-layout: auto;
+  min-width: 900px;
 }
 
-#students-table thead th, #coaches-table thead th, #fees-table thead th {
-  background: linear-gradient(90deg, #001f3f, #002b5c);
+#students-table thead th,
+#coaches-table thead th,
+#fees-table thead th {
+  background: #f8fafc;
+  color: #475569;
   font-weight: 700;
   font-size: 13px;
-  color: #fff;
-  padding: 16px;
+  padding: 18px 24px;
   text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-#students-table tbody tr, #coaches-table tbody tr, #fees-table tbody tr { 
-  background: var(--card); 
-  transition: all 0.2s ease; 
+#students-table tbody tr,
+#coaches-table tbody tr,
+#fees-table tbody tr {
+  background: var(--card);
+  transition: all 0.2s ease;
   border-bottom: 1px solid #e2e8f0;
 }
 
-#students-table tbody tr:hover, #coaches-table tbody tr:hover, #fees-table tbody tr:hover { 
+#students-table tbody tr:hover,
+#coaches-table tbody tr:hover,
+#fees-table tbody tr:hover {
   background: rgba(11, 102, 195, 0.04);
   transform: scale(1.005);
 }
 
-#students-table tbody td, #coaches-table tbody td, #fees-table tbody td { 
-  font-size: 14px; 
-  color: #334155; 
+#students-table tbody td,
+#coaches-table tbody td,
+#fees-table tbody td {
+  font-size: 14px;
+  color: #334155;
   padding: 16px;
   vertical-align: middle;
 }
@@ -296,7 +341,8 @@ button:focus, input:focus, select:focus, textarea:focus {
   min-width: 280px;
 }
 
-#students-table button, #coaches-table button {
+#students-table button,
+#coaches-table button {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
   padding: 8px 14px;
@@ -311,7 +357,8 @@ button:focus, input:focus, select:focus, textarea:focus {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-#students-table button:hover, #coaches-table button:hover {
+#students-table button:hover,
+#coaches-table button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
@@ -320,7 +367,7 @@ button:focus, input:focus, select:focus, textarea:focus {
 #modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 20, 35, 0.6);
+  background: rgba(7, 20, 35, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -329,57 +376,82 @@ button:focus, input:focus, select:focus, textarea:focus {
   backdrop-filter: blur(4px);
 }
 
-#modal-student, #modal-coach {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 32px;
-  max-width: 600px;
+#modal-student,
+#modal-coach {
+  background: #ffffff;
+  color: var(--text-main);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 800px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
 }
 
-#modal-student h2, #modal-coach h2 { 
-  margin-top: 0; 
-  color: #0f3b5f; 
+/* Explicit text color for modal content to ensure visibility */
+#modal-student div,
+#modal-student p,
+#modal-student strong,
+#modal-student span,
+#modal-coach div,
+#modal-coach p,
+#modal-coach strong,
+#modal-coach span {
+  color: var(--text-dark);
+}
+
+#modal-student h2,
+#modal-coach h2 {
+  margin-top: 0;
+  color: #0f3b5f;
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 24px;
 }
 
-#modal-student form, #modal-coach form {
+#modal-student form,
+#modal-coach form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
 
-#modal-student form input, #modal-student form select,
-#modal-coach form input, #modal-coach form select {
+#modal-student form input,
+#modal-student form select,
+#modal-coach form input,
+#modal-coach form select {
   padding: 12px 16px;
   border-radius: 12px;
   border: 2px solid #e2e8f0;
   font-size: 14px;
   transition: all 0.3s ease;
   font-family: inherit;
+  color: #334155;
+  /* Dark text in inputs */
+  background: #fff;
 }
 
-#modal-student form input:focus, #modal-student form select:focus,
-#modal-coach form input:focus, #modal-coach form select:focus {
+#modal-student form input:focus,
+#modal-student form select:focus,
+#modal-coach form input:focus,
+#modal-coach form select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.1);
 }
 
-#modal-student form textarea { 
-  grid-column: 1 / -1; 
-  min-height: 100px; 
-  border-radius: 12px; 
+#modal-student form textarea {
+  grid-column: 1 / -1;
+  min-height: 100px;
+  border-radius: 12px;
   padding: 12px 16px;
   border: 2px solid #e2e8f0;
   font-family: inherit;
   resize: vertical;
+  color: #334155;
+  background: #fff;
 }
 
 #modal-buttons {
@@ -425,24 +497,61 @@ button:focus, input:focus, select:focus, textarea:focus {
 #fees-section {
   display: flex;
   flex-direction: column;
+  gap: 32px;
+}
+
+/* ===== Reports Section ===== */
+#reports-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+
+#fees-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
-#fee-collected, #fee-pending, #fee-total {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border-radius: 20px;
+.content-card {
+  background: #fff;
   padding: 24px;
-  box-shadow: 0 8px 24px var(--shadow);
-  text-align: center;
-  transition: all 0.3s ease;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
 }
 
-#fee-collected:hover, #fee-pending:hover, #fee-total:hover {
+.content-card h3 {
+  margin-bottom: 20px !important;
+  color: #0f3b5f !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+}
+
+#fee-collected,
+#fee-pending,
+#fee-total {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#fee-collected:hover,
+#fee-pending:hover,
+#fee-total:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
-#fee-collected h3, #fee-pending h3, #fee-total h3 {
+#fee-collected h3,
+#fee-pending h3,
+#fee-total h3 {
   color: #64748b;
   font-size: 14px;
   font-weight: 600;
@@ -451,7 +560,9 @@ button:focus, input:focus, select:focus, textarea:focus {
   letter-spacing: 0.5px;
 }
 
-#fee-collected p, #fee-pending p, #fee-total p {
+#fee-collected p,
+#fee-pending p,
+#fee-total p {
   font-size: 32px;
   font-weight: 800;
   margin: 0;
@@ -470,43 +581,46 @@ button:focus, input:focus, select:focus, textarea:focus {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 1200px) {
-  #overview-section { 
-    grid-template-columns: repeat(2, 1fr); 
+@media (max-width: 1400px) {
+
+  #overview-section,
+  #fees-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  #srcoach-dashboard {
+    padding: 16px;
   }
 
   #sidebar {
     width: 240px;
   }
 
-  #sidebar li {
-    padding: 16px 20px;
-    font-size: 1.05rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  #srcoach-dashboard {
-    padding: 14px;
-  }
-
-  #sidebar {
-    width: 220px;
-  }
-
-  #sidebar-title {
-    font-size: 20px;
-  }
-
-  #main-header h1 {
-    font-size: 26px;
+  #modal-student,
+  #modal-coach {
+    max-width: 90vw;
   }
 }
 
 @media (max-width: 992px) {
+
+  body,
+  html,
+  #root {
+    overflow: auto;
+    /* Enable scroll on mobile/tablet */
+    height: auto;
+  }
+
   #srcoach-dashboard {
+    height: auto;
+    min-height: 100vh;
     flex-direction: column;
     padding: 12px;
+    overflow: visible;
+    /* Let it flow */
   }
 
   #sidebar {
@@ -521,6 +635,7 @@ button:focus, input:focus, select:focus, textarea:focus {
     overflow-x: visible;
     overflow-y: visible;
     gap: 1rem;
+    position: static;
   }
 
   #sidebar-title {
@@ -537,6 +652,8 @@ button:focus, input:focus, select:focus, textarea:focus {
     justify-content: flex-start;
     overflow-x: auto;
     white-space: nowrap;
+    padding-bottom: 4px;
+    /* Space for scrollbar */
   }
 
   #sidebar li {
@@ -562,68 +679,67 @@ button:focus, input:focus, select:focus, textarea:focus {
 
   #main-content {
     width: 100%;
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
   }
 
-  #overview-section {
+  #overview-section,
+  #fees-summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  #modal-student form, #modal-coach form { 
-    grid-template-columns: 1fr; 
-  }
-
-  #main-header h1 {
-    font-size: 24px;
+  #modal-student form,
+  #modal-coach form {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  #main-header h1 {
-    font-size: 22px;
-  }
 
-  #overview-section {
+  #overview-section,
+  #fees-summary-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 
-  #students-header, #coaches-header {
+
+  #students-header,
+  #coaches-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  #students-add-btn, #coaches-add-btn {
+  #students-add-btn,
+  #coaches-add-btn {
     width: 100%;
   }
 
   .table-wrapper {
-    margin: 0 -12px;
-    border-radius: 0;
+    margin: 0;
+    border-radius: 12px;
   }
 
-  #students-table, #coaches-table, #fees-table {
+  #students-table,
+  #coaches-table,
+  #fees-table {
     font-size: 12px;
   }
 
-  #students-table thead th, #coaches-table thead th, #fees-table thead th,
-  #students-table tbody td, #coaches-table tbody td, #fees-table tbody td {
+  #students-table thead th,
+  #coaches-table thead th,
+  #fees-table thead th,
+  #students-table tbody td,
+  #coaches-table tbody td,
+  #fees-table tbody td {
     padding: 12px 8px;
   }
 
-  #students-table button, #coaches-table button {
-    padding: 6px 10px;
-    font-size: 11px;
-    margin: 2px;
-  }
-
-  #modal-student, #modal-coach {
+  #modal-student,
+  #modal-coach {
     padding: 24px 20px;
     margin: 16px;
     max-height: 85vh;
-  }
-
-  #modal-student h2, #modal-coach h2 {
-    font-size: 20px;
   }
 
   #modal-buttons {
@@ -632,14 +748,6 @@ button:focus, input:focus, select:focus, textarea:focus {
 
   #modal-buttons button {
     width: 100%;
-  }
-
-  #fee-collected, #fee-pending, #fee-total {
-    padding: 20px;
-  }
-
-  #fee-collected p, #fee-pending p, #fee-total p {
-    font-size: 24px;
   }
 }
 
@@ -653,71 +761,40 @@ button:focus, input:focus, select:focus, textarea:focus {
     border-radius: 12px;
   }
 
-  #sidebar-title {
-    font-size: 16px;
-  }
-
   #sidebar li {
     padding: 8px 12px;
     font-size: 12px;
-  }
-
-  #main-header h1 {
-    font-size: 20px;
-  }
-
-  #overview-section h3 {
-    font-size: 12px;
-  }
-
-  #overview-section p {
-    font-size: 24px;
-  }
-
-  #students-header h2, #coaches-header h2 {
-    font-size: 20px;
-  }
-
-  #chart-container {
-    padding: 16px;
-  }
-
-  #chart-container h2 {
-    font-size: 16px;
-  }
-
-  #modal-student, #modal-coach {
-    padding: 20px 16px;
-    border-radius: 16px;
-  }
-
-  #modal-student form input, #modal-student form select,
-  #modal-coach form input, #modal-coach form select {
-    padding: 10px 14px;
-    font-size: 14px;
   }
 }
 
 /* ===== Scrollbar Styling ===== */
 .table-wrapper::-webkit-scrollbar,
-#sidebar::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+#sidebar::-webkit-scrollbar,
+#main-content::-webkit-scrollbar,
+#sidebar ul::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
 }
 
 .table-wrapper::-webkit-scrollbar-track,
-#sidebar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+#sidebar::-webkit-scrollbar-track,
+#main-content::-webkit-scrollbar-track,
+#sidebar ul::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb,
-#sidebar::-webkit-scrollbar-thumb {
-  background: #888;
+#sidebar::-webkit-scrollbar-thumb,
+#main-content::-webkit-scrollbar-thumb,
+#sidebar ul::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover,
-#sidebar::-webkit-scrollbar-thumb:hover {
-  background: #555;
+#sidebar::-webkit-scrollbar-thumb:hover,
+#main-content::-webkit-scrollbar-thumb:hover,
+#sidebar ul::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

@@ -1,30 +1,20 @@
 // CoachesPage.jsx
 import React, { useState } from "react";
 import "./Coaches.css";
-import Sachin from "../../images/Coaches/Sachin.jpg";
-import Rahul from "../../images/Coaches/RahulSir.jpg";
-import Siddesh from "../../images/Coaches/Siddesh.jpg";
-import Sudarshan from "../../images/Coaches/Sudarshan.jpg";
-import Mahesh from "../../images/Coaches/Mahesh.jpg";
-
-// Practice session images
-import practice1 from "../../images/ALL/Practice.jpg";
-import practice2 from "../../images/TeamPhoto/TP1.jpg";
-import practice3 from "../../images/ALL/Traning.jpg";
 
 const CoachesPage = () => {
   const [selectedCoach, setSelectedCoach] = useState(null);
 
   const coaches = [
     { 
-      img: Sachin, 
+      img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&fit=crop", 
       name: "Sachin Suryavanshi", 
       role: "Head Coach & Mentor", 
       exp: "10+ Years",
       bio: "Sachin Suryanshi specializes in advanced batting techniques and overall strategy development. He has coached multiple national-level players."
     },
      { 
-      img: Mahesh, 
+      img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&fit=crop", 
       name: "Mahesh Bharambe", 
       role: "Coach", 
       exp: "4+ Years",
@@ -32,21 +22,21 @@ const CoachesPage = () => {
     },
     
     { 
-      img: Siddesh, 
+      img: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=400&fit=crop", 
       name: "Siddhesh Darde", 
       role: "Coach", 
       exp: "4+ Years",
       bio: "Siddhesh Darde is an expert in fast and spin bowling, coaching young bowlers to enhance accuracy, pace, and spin techniques."
     },
     { 
-      img: Rahul, 
+      img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&fit=crop", 
       name: "Rahul Bhagat", 
       role: "Coach", 
       exp: "4+ Years",
       bio: "Rahul Bhagat focuses on refining batting skills, footwork, and shot selection. He emphasizes technical excellence."
     },
     { 
-      img: Sudarshan, 
+      img: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=400&fit=crop", 
       name: "Sudarshan Bansode", 
       role: "Coach", 
       exp: "4+ Years",
@@ -55,7 +45,11 @@ const CoachesPage = () => {
    
   ];
 
-  const practiceImages = [practice1, practice2, practice3];
+  const practiceImages = [
+      "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=800&fit=crop", 
+      "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=800&fit=crop", 
+      "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=800&fit=crop"
+  ];
 
   const openModal = (coach) => {
     setSelectedCoach(coach);

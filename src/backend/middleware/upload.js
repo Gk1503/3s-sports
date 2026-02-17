@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Create uploads directory if it doesn't exist
-const uploadDir = path.join(__dirname, '../../uploads/profile-photos');
+const uploadDir = path.join(__dirname, '../uploads/profile-photos');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -45,6 +45,7 @@ const upload = multer({
 });
 
 module.exports = upload;
+
 
 
 

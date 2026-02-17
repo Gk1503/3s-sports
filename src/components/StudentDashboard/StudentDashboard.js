@@ -24,7 +24,7 @@ const StudentDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/students/profile", {
+      const res = await fetch("http://localhost:5000/api/students/profile", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -51,7 +51,7 @@ const StudentDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/students/fees", {
+      const res = await fetch("http://localhost:5000/api/students/fees", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -68,7 +68,7 @@ const StudentDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/students/attendance", {
+      const res = await fetch("http://localhost:5000/api/students/attendance", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -85,7 +85,7 @@ const StudentDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/students/dashboard", {
+      const res = await fetch("http://localhost:5000/api/students/dashboard", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (res.ok) {
@@ -108,7 +108,7 @@ const StudentDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/students/profile", {
+      const res = await fetch("http://localhost:5000/api/students/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +144,7 @@ const StudentDashboard = () => {
       formData.append('profilePhoto', file);
 
       try {
-        const res = await fetch("https://threes-sports-1.onrender.com/api/students/profile/photo", {
+        const res = await fetch("http://localhost:5000/api/students/profile/photo", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,

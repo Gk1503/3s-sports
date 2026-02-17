@@ -2,17 +2,6 @@ import React from "react";
 import "./Academy.css";
 import { useNavigate } from "react-router-dom";
 
-import academyImg from "../../images/ground.jpg";
-import ground from "../../images/ground.jpg";
-import nets from "../../images/ALL/Practice.jpg";
-import gym from "../../images/ALL/Match.jpg";
-import trophy from "../../images/WinningTrophy/TrophyWin.jpg";
-import Sachin from "../../images/Coaches/Sachin.jpg";
-import Siddhesh from "../../images/Coaches/Siddesh.jpg";
-import Suddarshan from "../../images/Coaches/Sudarshan.jpg";
-import Mahesh from "../../images/Coaches/Mahesh.jpg";
-import Rahul from "../../images/Coaches/RahulSir.jpg";
-
 const AcademyPage = () => {
   const navigate = useNavigate();
 
@@ -20,132 +9,111 @@ const AcademyPage = () => {
     navigate("/contact");
   };
 
+  const programs = [
+    {
+      title: "High Performance Specialist",
+      age: "16+ Years",
+      desc: "An intensive regimen focusing on advanced bio-mechanics, tactical analysis, and competitive match simulations for aspiring professionals.",
+      img: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+      title: "Junior Elite Development",
+      age: "10-15 Years",
+      desc: "Building a solid foundation in technique, fielding agility, and game awareness to prepare young talents for the next level.",
+      img: "https://images.unsplash.com/photo-1593341646782-e0b495cffd32?q=80&w=800&auto=format&fit=crop"
+    },
+    {
+      title: "Grassroots Foundation",
+      age: "5-9 Years",
+      desc: "Introducing the joy of cricket through fun drills, coordination exercises, and basic skill acquisition in a supportive environment.",
+      img: "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=800&auto=format&fit=crop"
+    }
+  ];
+
+  const facilities = [
+    { name: "ICC Standard Pitch", img: "https://images.unsplash.com/photo-1589487391730-58f20eb2c308?q=80&w=600&auto=format&fit=crop" },
+    { name: "High-Tech Nets", img: "https://images.unsplash.com/photo-1562077772-3bd305261997?q=80&w=600&auto=format&fit=crop" },
+    { name: "Biomechanics Lab", img: "https://images.unsplash.com/photo-1574680096141-1cddd32e04ca?q=80&w=600&auto=format&fit=crop" },
+    { name: "Recovery Centre", img: "https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?q=80&w=600&auto=format&fit=crop" }
+  ];
+
   return (
-    <div id="academy-page">
+    <div className="academy-page">
       {/* Hero Section */}
-      <section id="hero-section">
-        <img src={academyImg} alt="Academy Banner" className="hero-image" />
-        <div id="hero-overlay">
-          <h1 id="hero-title">Welcome to 3S SPORTS Cricket Academy</h1>
-          <p id="hero-subtitle">
-            Excellence, Discipline & Team Spirit — The Future of Cricket Begins Here.
-          </p>
+      <section className="academy-hero">
+        <div className="academy-hero-overlay"></div>
+        <div className="academy-hero-content">
+          <h1>The <span className="gold-text">Elite</span> Standard</h1>
+          <p>Where Potential Meets Precision & Passion Meets Performance.</p>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about-section">
-        <h2>About Our Academy</h2>
-        <p>
-          3S SPORTS Cricket Academy is a professional coaching center dedicated to nurturing
-          young talent with structured training programs, certified coaches, and
-          world-class facilities. Our mission is to develop skilled, confident, and
-          disciplined cricketers who excel on and off the field.
-        </p>
-        <div id="about-grid">
-          <div id="about-card">
-            <h3>🏏 Vision</h3>
-            <p>
-              To create a generation of technically sound and mentally strong cricketers
-              who can compete at national and international levels.
-            </p>
+      {/* Philosophy Section */}
+      <section className="philosophy-section section-padding">
+        <div className="section-header">
+          <h2>Our Philosophy</h2>
+        </div>
+        <div className="philosophy-grid">
+          <div className="philosophy-card">
+            <h3>Excellence</h3>
+            <p>We strive for perfection in every drill, every session, and every game. Good enough is never enough.</p>
           </div>
-          <div id="about-card">
-            <h3>🎯 Mission</h3>
-            <p>
-              To provide structured, personalized coaching through technology-driven
-              performance tracking and mentoring.
-            </p>
+          <div className="philosophy-card">
+            <h3>Discipline</h3>
+            <p>Talent without discipline is wasted potential. We cultivate mental toughness and unwavering focus.</p>
+          </div>
+          <div className="philosophy-card">
+            <h3>Innovation</h3>
+            <p>Leveraging cutting-edge technology and data analytics to refine skills and optimize performance.</p>
           </div>
         </div>
       </section>
 
-      {/* Coaches Section */}
-      <section id="coaches-showcase">
-        <h2>Our Expert Coaches</h2>
-        <div className="coach-container">
-          {[
-            { img: Sachin, name: "Sachin Suryavanshi", role: "Head Coach & Mentor", exp: "10+ Years" },
-            { img: Mahesh, name: "Mahesh Bharambe", role: "Coach", exp: "4+ Years" },
-            { img: Siddhesh, name: "Siddhesh Darde", role: "Coach", exp: "4+ Years" },
-            { img: Rahul, name: "Rahul Bhagat", role: "Coach", exp: "4+ Years" },
-            { img: Suddarshan, name: "Sudarshan Bansode", role: "Coach", exp: "4+ Years" },
-            
-            
-          ].map((coach, index) => (
-            <div className="coach-profile" key={index}>
-              <div className="coach-img-wrapper">
-                <img src={coach.img} alt={coach.name} className="coach-img" />
+      {/* Programs Section */}
+      <section className="programs-showcase section-padding">
+        <div className="section-header">
+          <h2>Elite Programs</h2>
+          <p>Tailored Pathways for Every Stage of Development</p>
+        </div>
+        <div className="programs-container">
+          {programs.map((prog, index) => (
+            <div className="program-item" key={index}>
+              <div className="program-img-wrapper">
+                <img src={prog.img} alt={prog.title} />
               </div>
-              <h3 className="coach-name">{coach.name}</h3>
-              <p className="coach-role">{coach.role}</p>
-              <span className="coach-exp">{coach.exp} Experience</span>
+              <div className="program-info">
+                <span className="program-age">{prog.age}</span>
+                <h3>{prog.title}</h3>
+                <p>{prog.desc}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Facilities Section */}
-      <section id="facilities-section">
-        <h2>Our Facilities</h2>
-        <div id="facility-gallery">
-          {[ground, nets, gym, trophy].map((img, i) => (
-            <div id="facility-card" key={i}>
-              <img src={img} alt="Facility" />
+      <section className="facilities-showcase section-padding">
+        <div className="section-header">
+          <h2>World-Class Infrastructure</h2>
+        </div>
+        <div className="facilities-grid">
+          {facilities.map((fac, index) => (
+            <div className="facility-item" key={index}>
+              <img src={fac.img} alt={fac.name} />
+              <div className="facility-overlay">
+                <h3>{fac.name}</h3>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Training Programs */}
-      <section id="training-section">
-        <h2>Training Programs</h2>
-        <div id="training-grid">
-          <div id="training-card">
-            <h3>Beginner Batch</h3>
-            <p>For ages 8–12. Focus on fundamentals, grip, stance, and basic fitness.</p>
-          </div>
-          <div id="training-card">
-            <h3>Intermediate Batch</h3>
-            <p>For ages 13–17. Advanced batting, bowling drills, and field awareness.</p>
-          </div>
-          <div id="training-card">
-            <h3>Advanced Batch</h3>
-            <p>
-              For state/national-level players focusing on strategy, mental strength, and
-              match simulations.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials-section">
-        <h2>What Our Students Say</h2>
-        <div id="testimonials">
-          <div id="testimonial-card">
-            <p>
-              “3S SPORTS helped me improve my batting and game awareness. The coaches are
-              very supportive!”
-            </p>
-            <h4>– Arjun Sharma</h4>
-          </div>
-          <div id="testimonial-card">
-            <p>
-              “The best cricket academy with digital progress tracking and excellent
-              facilities!”
-            </p>
-            <h4>– Karan Patel</h4>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section id="cta-section">
-        <h2>Join 3S SPORTS Cricket Academy Today!</h2>
-        <p>Train with the best and take your cricket career to the next level.</p>
-        <button onClick={handleJoinClick} id="join-btn">
-          Enroll Now
+      {/* CTA Section */}
+      <section className="academy-cta section-padding">
+        <h2>Ready to Elevate Your Game?</h2>
+        <p>Join the ranks of the elite. Your journey to greatness starts here.</p>
+        <button onClick={handleJoinClick} className="cta-button">
+          Apply Now
         </button>
       </section>
     </div>

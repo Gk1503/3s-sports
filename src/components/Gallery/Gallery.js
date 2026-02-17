@@ -1,218 +1,37 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import "./Gallery.css";
 
-// Import WPL Practice Session Images
-import wpl1 from "../../images/WPL/Wpl1.jpg";
-import wpl2 from "../../images/WPL/Wpl2.jpg";
-import wpl3 from "../../images/WPL/Wpl3.jpg";
-import wpl4 from "../../images/WPL/Wpl4.jpg";
-import wpl5 from "../../images/WPL/Wpl5.jpg";
-import wpl6 from "../../images/WPL/Wpl6.jpg";
-import wpl7 from "../../images/WPL/Wpl7.jpg";
-import wpl8 from "../../images/WPL/Wpl8.jpg";
-import wpl9 from "../../images/WPL/Wpl9.jpg";
-import wpl10 from "../../images/WPL/Wpl10.jpg";
-import wpl11 from "../../images/WPL/Wpl11.jpg";
-import wpl12 from "../../images/WPL/Wpl12.jpg";
-import wpl13 from "../../images/WPL/Wpl13.jpg";
-import wpl14 from "../../images/WPL/Wpl14.jpg";
-import wpl15 from "../../images/WPL/Wpl15.jpg";
-import wpl16 from "../../images/WPL/Wpl16.jpg";
-
-// Coaches
-import Sachin from "../../images/Coaches/Sachin.jpg";
-import Rahul from "../../images/Coaches/RahulSir.jpg";
-import Suddarshan from "../../images/Coaches/Sudarshan.jpg";
-import Siddesh from "../../images/Coaches/Siddesh.jpg";
-import Mahesh from "../../images/Coaches/Mahesh.jpg";
-
-// Winning Trophy
-import Image1 from "../../images/WinningTrophy/WT1.jpg";
-import Image2 from "../../images/WinningTrophy/WT2.jpg";
-import Image8 from "../../images/WinningTrophy/WT8.jpg";
-import Image10 from "../../images/WinningTrophy/WT10.jpg";
-import Image14 from "../../images/WinningTrophy/WT14.jpg";
-import Image15 from "../../images/WinningTrophy/WT15.jpg";
-import Image16 from "../../images/WinningTrophy/WT16.jpg";
-import Image17 from "../../images/WinningTrophy/WT17.jpg";
-import TrophyWin from "../../images/WinningTrophy/TrophyWin.jpg";
-
-// Team Photo
-import Team1 from "../../images/TeamPhoto/TP1.jpg";
-import Team2 from "../../images/TeamPhoto/TP2.jpg";
-import Team3 from "../../images/TeamPhoto/TP3.jpg";
-import Team4 from "../../images/TeamPhoto/TP4.jpg";
-import Team5 from "../../images/TeamPhoto/TP5.jpg";
-import Team6 from "../../images/TeamPhoto/TP6.jpg";
-import Team7 from "../../images/TeamPhoto/TP7.jpg";
-import Team8 from "../../images/TeamPhoto/TP8.jpg";
-
-// 3S Premium League
-import PSL1 from "../../images/3sPL/3SPL1.jpg";
-import PSL2 from "../../images/3sPL/3SPL2.jpg";
-import PSL3 from "../../images/3sPL/3SPL3.jpg";
-import PSL4 from "../../images/3sPL/3SPL4.jpg";
-import PSL5 from "../../images/3sPL/3SPL5.jpg";
-import PSL6 from "../../images/3sPL/3SPL6.jpg";
-import PSL7 from "../../images/3sPL/3SPL7.jpg";
-import PSL8 from "../../images/3sPL/3SPL8.jpg";
-import PSL9 from "../../images/3sPL/3SPL9.jpg";
-import PSL10 from "../../images/3sPL/3SPL10.jpg";
-import PSL11 from "../../images/3sPL/3SPL11.jpg";
-
-// Events
-import Event1 from "../../images/Events/Event1.jpg";
-import Event2 from "../../images/Events/Event2.jpg";
-import Event3 from "../../images/Events/Event3.jpg";
-import Event4 from "../../images/Events/Event4.jpg";
-import Event5 from "../../images/Events/Event5.jpg";
-import Event6 from "../../images/Events/Event6.jpg";
-import Event7 from "../../images/Events/Event7.jpg";
-import Event8 from "../../images/Events/Event8.jpg";
-import Event9 from "../../images/Events/Event9.jpg";
-import Event10 from "../../images/Events/Event10.jpg";
-import Event11 from "../../images/Events/Event11.jpg";
-import Event12 from "../../images/Events/Event12.jpg";
-
-// All Images
-import All1 from "../../images/ALL/All1.jpg";
-import All2 from "../../images/ALL/All2.jpg";
-import All3 from "../../images/ALL/All3.jpg";
-import All4 from "../../images/ALL/All4.jpg";
-import All5 from "../../images/ALL/All5.jpg";
-import All6 from "../../images/ALL/All6.jpg";
-import All7 from "../../images/ALL/All7.jpg";
-import All8 from "../../images/ALL/All8.jpg";
-import All9 from "../../images/ALL/All9.jpg";
-import All10 from "../../images/ALL/All10.jpg";
-import All11 from "../../images/ALL/All11.jpg";
-import All12 from "../../images/ALL/All12.jpg";
-import All13 from "../../images/ALL/All13.jpg";
-import All14 from "../../images/ALL/All14.jpg";
-import All15 from "../../images/ALL/All15.jpg";
-import All16 from "../../images/ALL/All16.jpg";
-
-// Mindset Session Videos
-import mindset1 from "../../images/Building characterMindset session/BcmsVideo.mp4";
-import mindset2 from "../../images/Building characterMindset session/BcmsVideo1.mp4";
-
-//MindSet Session Images
-import Bcms1 from "../../images/Building characterMindset session/Bcms1.jpg";
-import Bcms2 from "../../images/Building characterMindset session/Bcms2.jpg";
-import Bcms3 from "../../images/Building characterMindset session/Bcms3.jpg";
-import Bcms4 from "../../images/Building characterMindset session/Bcms4.jpg";
-import Bcms5 from "../../images/Building characterMindset session/Bcms5.jpg";
-
-
 const GalleryPage = () => {
   const [selectedImg, setSelectedImg] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Using Unsplash images for all categories to replace broken local imports
   const allImages = useMemo(
     () => [
-      // WPL Practice Session
-      { img: wpl1, category: "WPL Practice Session" },
-      { img: wpl2, category: "WPL Practice Session" },
-      { img: wpl3, category: "WPL Practice Session" },
-      { img: wpl4, category: "WPL Practice Session" },
-      { img: wpl5, category: "WPL Practice Session" },
-      { img: wpl6, category: "WPL Practice Session" },
-      { img: wpl7, category: "WPL Practice Session" },
-      { img: wpl8, category: "WPL Practice Session" },
-      { img: wpl9, category: "WPL Practice Session" },
-      { img: wpl10, category: "WPL Practice Session" },
-      { img: wpl11, category: "WPL Practice Session" },
-      { img: wpl12, category: "WPL Practice Session" },
-      { img: wpl13, category: "WPL Practice Session" },
-      { img: wpl14, category: "WPL Practice Session" },
-      { img: wpl15, category: "WPL Practice Session" },
-      { img: wpl16, category: "WPL Practice Session" },
-
       // Coaches
-      { img: Sachin, category: "Coaches" },
-      { img: Rahul, category: "Coaches" },
-      { img: Suddarshan, category: "Coaches" },
-      { img: Siddesh, category: "Coaches" },
-      { img: Mahesh, category: "Coaches" },
-
+      { img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&fit=crop", category: "Coaches" },
+      { img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&fit=crop", category: "Coaches" },
+      { img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&fit=crop", category: "Coaches" },
+     
       // Winning Trophy
-      { img: Image1, category: "Winning Trophy" },
-      { img: Image2, category: "Winning Trophy" },
-      { img: Image14, category: "Winning Trophy" },
-      { img: TrophyWin, category: "Winning Trophy" },
-      { img: Image8, category: "Winning Trophy" },
-      { img: Image10, category: "Winning Trophy" },
-      { img: Image15, category: "Winning Trophy" },
-      { img: Image16, category: "Winning Trophy" },
-      { img: Image17, category: "Winning Trophy" },
+      { img: "https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?q=80&w=600&fit=crop", category: "Winning Trophy" },
+      { img: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&fit=crop", category: "Winning Trophy" },
 
       // Team Photo
-      { img: Team1, category: "Team Photo" },
-      { img: Team2, category: "Team Photo" },
-      { img: Team8, category: "Team Photo" },
-      { img: Team3, category: "Team Photo" },
-      { img: Team4, category: "Team Photo" },
-      { img: Team5, category: "Team Photo" },
-      { img: Team6, category: "Team Photo" },
-      { img: Team7, category: "Team Photo" },
+      { img: "https://images.unsplash.com/photo-1593341646782-e0b495cffd32?q=80&w=600&fit=crop", category: "Team Photo" },
+      { img: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=600&fit=crop", category: "Team Photo" },
 
-      // 3S Premium League
-      { img: PSL1, category: "3S Premium League" },
-      { img: PSL2, category: "3S Premium League" },
-      { img: PSL3, category: "3S Premium League" },
-      { img: PSL4, category: "3S Premium League" },
-      { img: PSL5, category: "3S Premium League" },
-      { img: PSL6, category: "3S Premium League" },
-      { img: PSL7, category: "3S Premium League" },
-      { img: PSL8, category: "3S Premium League" },
-      { img: PSL9, category: "3S Premium League" },
-      { img: PSL10, category: "3S Premium League" },
-      { img: PSL11, category: "3S Premium League" },
+      // 3S Premium League (Generic sports league)
+      { img: "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?q=80&w=600&fit=crop", category: "3S Premium League" },
+      { img: "https://images.unsplash.com/photo-1606925797300-0b35e9d17d27?q=80&w=600&fit=crop", category: "3S Premium League" },
 
       // Events
-      { img: Event1, category: "Events" },
-      { img: Event12, category: "Events" },
-      { img: Event2, category: "Events" },
-      { img: Event3, category: "Events" },
-      { img: Event4, category: "Events" },
-      { img: Event10, category: "Events" },
-      { img: Event5, category: "Events" },
-      { img: Event6, category: "Events" },
-      { img: Event7, category: "Events" },
-      { img: Event8, category: "Events" },
-      { img: Event9, category: "Events" },
-      { img: Event11, category: "Events" },
+      { img: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=600&fit=crop", category: "Events" },
+      { img: "https://images.unsplash.com/photo-1574680096141-1cddd32e04ca?q=80&w=600&fit=crop", category: "Events" },
 
       // All
-      { img: All16, category: "ALL" },
-      { img: All1, category: "ALL" },
-      { img: All2, category: "ALL" },
-      { img: All15, category: "ALL" },
-      { img: All3, category: "ALL" },
-      { img: All14, category: "ALL" },
-      { img: All4, category: "ALL" },
-      { img: All5, category: "ALL" },
-      { img: All6, category: "ALL" },
-      { img: All7, category: "ALL" },
-      { img: All8, category: "ALL" },
-      { img: All9, category: "ALL" },
-      { img: All10, category: "ALL" },
-      { img: All11, category: "ALL" },
-      { img: All12, category: "ALL" },
-      { img: All13, category: "ALL" },
-
-      // Mindset Session Videos (autoplay muted)
-      { video: mindset1, category: "Building character-Mindset session " },
-      { video: mindset2, category: "Building character-Mindset session " },
-      
-      // Mindset Session Images
-      {img: Bcms1, category: "Building character-Mindset session"},
-      {img: Bcms2, category: "Building character-Mindset session "},
-      {img: Bcms3, category: "Building character-Mindset session "},
-      {img: Bcms4, category: "Building character-Mindset session "},
-      {img: Bcms5, category: "Building character-Mindset session "},
-
-   
+      { img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=600&fit=crop", category: "ALL" },
+      { img: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&fit=crop", category: "ALL" },
     ],
     []
   );
@@ -233,7 +52,7 @@ const GalleryPage = () => {
 
   const [filter, setFilter] = useState(categories[0]);
   const filteredImages = useMemo(() => {
-    return allImages.filter((item) => item.category === filter);
+    return allImages.filter((item) => item.category === filter || filter === "ALL");
   }, [filter, allImages]);
 
   const openModal = (item, index) => {
@@ -271,7 +90,7 @@ const GalleryPage = () => {
   return (
     <div id="gallery-main">
       <section id="gallery-top">
-        <h1 id="gallery-title">3S SPORTS Gallery</h1>
+        <h1 id="gallery-title">Elite SPORTS Gallery</h1>
         <p id="gallery-subtitle">
           Explore our cricket academy, training sessions, and WPL practice moments.
         </p>
@@ -303,16 +122,6 @@ const GalleryPage = () => {
               >
                 {item.img ? (
                   <img src={item.img} alt={item.category + " " + index} loading="lazy" />
-                ) : item.video ? (
-                  <video
-                    src={item.video}
-                    muted
-                    loop
-                    autoPlay
-                    playsInline
-                    preload="metadata"
-                    className="gallery-video"
-                  />
                 ) : null}
               </div>
             ))
@@ -336,23 +145,13 @@ const GalleryPage = () => {
               &#10094;
             </button>
 
-            {selectedImg.img ? (
+            {selectedImg.img && (
               <img
                 id="gallery-lightbox-img"
                 src={selectedImg.img}
                 alt={selectedImg.category + " " + currentIndex}
               />
-            ) : selectedImg.video ? (
-              <video
-                id="gallery-lightbox-video"
-                src={selectedImg.video}
-                muted
-                loop
-                autoPlay
-                playsInline
-                controls={false}
-              />
-            ) : null}
+            )}
 
             <button id="gallery-next" onClick={nextImage}>
               &#10095;

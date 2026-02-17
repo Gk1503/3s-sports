@@ -123,18 +123,23 @@ exports.getAllStudents = async (req, res) => {
 
 exports.getStudentCredentials = async (req, res) => {
   try {
-    const student = await Student.findById(req.params.id).populate("user", "username temporaryPassword");
+    const student = await Student.findById(req.params.id).populate("user", "username temporaryPassword passwordHash");
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
+
+    // If temporaryPassword exists, return it; otherwise indicate no tempory password was stored
+    const password = student.user.temporaryPassword || "Not available - please reset password";
 
     res.json({
       studentId: student._id,
       studentName: `${student.firstName} ${student.lastName || ""}`,
       username: student.user.username,
-      password: student.user.temporaryPassword || "Password not available",
+      password: password,
+      note: !student.user.temporaryPassword ? "Temporary password was not stored during registration" : ""
     });
   } catch (err) {
+    console.error("Error fetching student credentials:", err);
     res.status(500).json({ message: "Error fetching student credentials", error: err.message });
   }
 };
@@ -296,18 +301,23 @@ exports.getAllCoaches = async (req, res) => {
 
 exports.getCoachCredentials = async (req, res) => {
   try {
-    const coach = await Coach.findById(req.params.id).populate("user", "username temporaryPassword");
+    const coach = await Coach.findById(req.params.id).populate("user", "username temporaryPassword passwordHash");
     if (!coach) {
       return res.status(404).json({ message: "Coach not found" });
     }
+
+    // If temporaryPassword exists, return it; otherwise indicate no temporary password was stored
+    const password = coach.user.temporaryPassword || "Not available - please reset password";
 
     res.json({
       coachId: coach._id,
       coachName: coach.name || "N/A",
       username: coach.user.username,
-      password: coach.user.temporaryPassword || "Password not available",
+      password: password,
+      note: !coach.user.temporaryPassword ? "Temporary password was not stored during registration" : ""
     });
   } catch (err) {
+    console.error("Error fetching coach credentials:", err);
     res.status(500).json({ message: "Error fetching coach credentials", error: err.message });
   }
 };

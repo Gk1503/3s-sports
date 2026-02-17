@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
-import logo from "../../images/logo.jpg";
+// import logo from "../../images/logo.jpg"; // Removed local import
 import LoginModal from "../Login/Login";
 
 const Navbar = () => {
@@ -20,13 +20,13 @@ const Navbar = () => {
       let apiUrl = "";
       switch (userRole) {
         case "student":
-          apiUrl = "https://threes-sports-1.onrender.com/api/students/profile";
+          apiUrl = "http://localhost:5000/api/students/profile";
           break;
         case "coach":
-          apiUrl = "https://threes-sports-1.onrender.com/api/coaches/profile";
+          apiUrl = "http://localhost:5000/api/coaches/profile";
           break;
         case "seniorCoach":
-          apiUrl = "https://threes-sports-1.onrender.com/api/srcoach/profile";
+          apiUrl = "http://localhost:5000/api/srcoach/profile";
           break;
         default:
           return;
@@ -37,11 +37,12 @@ const Navbar = () => {
       if (res.ok) {
         const data = await res.json();
         const photoUrl = data.profilePhotoUrl || data.student?.profilePhotoUrl || data.coach?.profilePhotoUrl || data.user?.profilePhotoUrl;
-        if (photoUrl && !photoUrl.startsWith('http')) {
-          // If relative URL, prepend base URL
-          setUserProfilePhoto(`https://threes-sports-1.onrender.com${photoUrl}`);
+        if (photoUrl) {
+          // Add cache busting parameter to force reload
+          const cacheBustUrl = photoUrl.includes('?') ? `${photoUrl}&t=${Date.now()}` : `${photoUrl}?t=${Date.now()}`;
+          setUserProfilePhoto(cacheBustUrl);
         } else {
-          setUserProfilePhoto(photoUrl);
+          setUserProfilePhoto(null);
         }
       }
     } catch (err) {
@@ -71,8 +72,10 @@ const Navbar = () => {
   useEffect(() => {
     const handleProfilePhotoUpdate = async (event) => {
       if (event.detail && event.detail.profilePhotoUrl) {
-        // Directly set the photo URL from the event
-        setUserProfilePhoto(event.detail.profilePhotoUrl);
+        // Directly set the photo URL from the event with cache busting
+        const photoUrl = event.detail.profilePhotoUrl;
+        const cacheBustUrl = photoUrl.includes('?') ? `${photoUrl}&t=${Date.now()}` : `${photoUrl}?t=${Date.now()}`;
+        setUserProfilePhoto(cacheBustUrl);
       } else {
         // Refetch profile photo from API
         const storedUser = localStorage.getItem("user");
@@ -168,7 +171,10 @@ const Navbar = () => {
       <nav id="navbar" className={isDashboardPage ? "dashboard-mode" : ""}>
         {/* Logo */}
         <div id="navbar-logo">
-          <img src={logo} alt="3S SPORTS Logo" />
+          {/* Using text logo for now to reflect the name change clearly, or update image source if available */}
+          <h1 style={{ color: 'var(--primary-color)', margin: 0, fontSize: '1.5rem', fontFamily: "'Playfair Display', serif", letterSpacing: '1px' }}>
+            ELITE <span style={{ color: '#fff' }}>SPORT</span>
+          </h1>
         </div>
 
         {/* Navigation Links - Only show when NOT on dashboard pages */}
@@ -199,8 +205,6 @@ const Navbar = () => {
                 Contact
               </NavLink>
             </li>
-
-            {/* Login / User Profile */}
             <li>
               {!user ? (
                 <button
@@ -218,14 +222,34 @@ const Navbar = () => {
                     className="user-profile-display"
                     onClick={() => setShowMenu(!showMenu)}
                   >
-                    <img
-                      src={userProfilePhoto || "https://via.placeholder.com/45"}
-                      alt={getUserDisplayName()}
-                      className="user-avatar"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/45";
-                      }}
-                    />
+                    <div style={{
+                      width: "45px",
+                      height: "45px",
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      background: "#f0f4f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0
+                    }}>
+                      {userProfilePhoto ? (
+                        <img
+                          src={userProfilePhoto}
+                          alt={getUserDisplayName()}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          onError={(e) => {
+                            console.error("Profile photo failed to load");
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0b66c3" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                      )}
+                    </div>
                     <span className="user-info">
                       <span className="user-name">{getUserDisplayName()}</span>
                       <span className="user-role">{getUserRoleDisplay()}</span>
@@ -273,14 +297,34 @@ const Navbar = () => {
                   className="user-profile-display"
                   onClick={() => setShowMenu(!showMenu)}
                 >
-                  <img
-                    src={userProfilePhoto || "https://via.placeholder.com/45"}
-                    alt={getUserDisplayName()}
-                    className="user-avatar"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/45";
-                    }}
-                  />
+                  <div style={{
+                    width: "45px",
+                    height: "45px",
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    background: "#f0f4f9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0
+                  }}>
+                    {userProfilePhoto ? (
+                      <img
+                        src={userProfilePhoto}
+                        alt={getUserDisplayName()}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => {
+                          console.error("Profile photo failed to load");
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0b66c3" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    )}
+                  </div>
                   <span className="user-info">
                     <span className="user-name">{getUserDisplayName()}</span>
                     <span className="user-role">{getUserRoleDisplay()}</span>

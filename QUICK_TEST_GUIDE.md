@@ -324,3 +324,4 @@ After following this guide, you should confirm:
 - ✅ Students can access Student Dashboard
 - ✅ All data flows correctly from registration → database → dashboards
 
+

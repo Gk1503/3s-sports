@@ -7,7 +7,7 @@ const ContactPage = () => {
     <div id="contact-page">
       {/* Hero Section */}
       <section id="contact-hero">
-        <h1 id="contact-hero-title">Get in Touch with 3SPORTS</h1>
+        <h1 id="contact-hero-title">Get in Touch with ELITE SPORTS</h1>
         <p id="contact-hero-subtitle">
           We’d love to hear from you! Reach out for training, collaborations, or queries.
         </p>

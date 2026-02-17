@@ -56,7 +56,7 @@ const CoachDashboard = () => {
   const fetchCoachProfile = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/profile", {
+      const res = await fetch("http://localhost:5000/api/coaches/profile", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -75,7 +75,7 @@ const CoachDashboard = () => {
     if (!user?.token) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/students", {
+      const res = await fetch("http://localhost:5000/api/coaches/students", {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -100,7 +100,7 @@ const CoachDashboard = () => {
     if (!user?.token || !attendanceDate) return;
     try {
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/coaches/attendance?date=${attendanceDate}`,
+        `http://localhost:5000/api/coaches/attendance?date=${attendanceDate}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -131,7 +131,7 @@ const CoachDashboard = () => {
     try {
       const today = new Date().toISOString().slice(0, 10);
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/coaches/attendance?date=${today}`,
+        `http://localhost:5000/api/coaches/attendance?date=${today}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -182,7 +182,7 @@ const CoachDashboard = () => {
     if (!user?.token) return;
     try {
       // Fetch collected fees
-      const collectedRes = await fetch("https://threes-sports-1.onrender.com/api/coaches/fees?status=collected", {
+      const collectedRes = await fetch("http://localhost:5000/api/coaches/fees?status=collected", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (collectedRes.ok) {
@@ -191,7 +191,7 @@ const CoachDashboard = () => {
       }
       
       // Fetch pending fees
-      const pendingRes = await fetch("https://threes-sports-1.onrender.com/api/coaches/fees?status=pending", {
+      const pendingRes = await fetch("http://localhost:5000/api/coaches/fees?status=pending", {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       if (pendingRes.ok) {
@@ -273,7 +273,7 @@ const CoachDashboard = () => {
 
     try {
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/srcoach/students/${editingStudent._id}`,
+        `http://localhost:5000/api/srcoach/students/${editingStudent._id}`,
         {
           method: "PUT",
           headers: {
@@ -320,7 +320,7 @@ const CoachDashboard = () => {
     if (!feeStudent) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/fees/collect", {
+      const res = await fetch("http://localhost:5000/api/coaches/fees/collect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -368,7 +368,7 @@ const CoachDashboard = () => {
     if (!window.confirm(`Change attendance status to ${newStatus}?`)) return;
     
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/attendance", {
+      const res = await fetch("http://localhost:5000/api/coaches/attendance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -409,7 +409,7 @@ const CoachDashboard = () => {
     const studentIds = filteredStudents.map(s => s._id);
     
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/attendance/bulk", {
+      const res = await fetch("http://localhost:5000/api/coaches/attendance/bulk", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -446,7 +446,7 @@ const CoachDashboard = () => {
     if (!confirmation) return;
 
     try {
-      const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/attendance", {
+      const res = await fetch("http://localhost:5000/api/coaches/attendance", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -489,7 +489,7 @@ const CoachDashboard = () => {
       formData.append('profilePhoto', file);
 
       try {
-        const res = await fetch("https://threes-sports-1.onrender.com/api/coaches/profile/photo", {
+        const res = await fetch("http://localhost:5000/api/coaches/profile/photo", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -522,7 +522,7 @@ const CoachDashboard = () => {
   const handleViewAttendanceHistory = async (student) => {
     try {
       const res = await fetch(
-        `https://threes-sports-1.onrender.com/api/coaches/attendance/${student._id}`,
+        `http://localhost:5000/api/coaches/attendance/${student._id}`,
         {
           headers: { Authorization: `Bearer ${user.token}` },
         }
@@ -756,7 +756,7 @@ const CoachDashboard = () => {
                       <tr key={s._id}>
                         <td>
                           <img
-                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `https://threes-sports-1.onrender.com${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
                             alt={`${s.firstName} ${s.lastName || ""}`}
                             style={{
                               width: "50px",
@@ -818,7 +818,7 @@ const CoachDashboard = () => {
                       <tr key={s._id}>
                         <td>
                           <img
-                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `https://threes-sports-1.onrender.com${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                            src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
                             alt={`${s.firstName} ${s.lastName || ""}`}
                             style={{
                               width: "50px",
@@ -921,7 +921,7 @@ const CoachDashboard = () => {
                         <tr key={s._id}>
                           <td>
                             <img
-                              src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `https://threes-sports-1.onrender.com${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
+                              src={s.profilePhotoUrl ? (s.profilePhotoUrl.startsWith('http') ? s.profilePhotoUrl : `http://localhost:5000${s.profilePhotoUrl}`) : "https://via.placeholder.com/50"}
                               alt={`${s.firstName} ${s.lastName || ""}`}
                               style={{
                                 width: "50px",

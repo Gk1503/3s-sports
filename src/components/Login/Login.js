@@ -19,10 +19,10 @@ const LoginModal = ({ closeModal, setUser }) => {
     setError("");
 
     try {
-      const res = await fetch("https://3s-sports-1.onrender.com/api/auth/login", {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, role }),
+        body: JSON.stringify({ username: formData.username, password: formData.password }),
       });
 
       const data = await res.json();
@@ -30,7 +30,6 @@ const LoginModal = ({ closeModal, setUser }) => {
       if (res.ok) {
   const userData = {
     _id: data._id,
-    name: data.name,
     username: data.username,
     role: data.role,
     token: data.token,   // ✅ include token
@@ -62,7 +61,8 @@ const LoginModal = ({ closeModal, setUser }) => {
         setError(data.message || "Login failed. Please check credentials.");
       }
     } catch (err) {
-      setError("An error occurred. Could not connect to server.");
+      console.error("Login error:", err);
+      setError("Could not connect to server: " + err.message);
     }
   };
 
@@ -70,7 +70,7 @@ const LoginModal = ({ closeModal, setUser }) => {
     <div id="modal-overlay" onClick={closeModal} className={darkMode ? "dark" : ""}>
       <div id="login-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 id="modal-title">3S SPORTS Login</h2>
+          <h2 id="modal-title">ELITE SPORTS Login</h2>
           <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? "☀️" : "🌙"}
           </button>
@@ -108,7 +108,7 @@ const LoginModal = ({ closeModal, setUser }) => {
             required
           />
           <button id="submit-btn" type="submit">
-            Login as {role === "seniorCoach" ? "Senior Coach" : role.charAt(0).toUpperCase() + role.slice(1)}
+            Login as {role === "Sr. Coach" ? "Senior Coach" : role.charAt(0).toUpperCase() + role.slice(1)}
           </button>
         </form>
 

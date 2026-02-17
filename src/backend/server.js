@@ -5,6 +5,8 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const seedSeniorCoach = require("./utils/seedSrCoach.js");
+const seedTestStudent = require("./utils/seedTestStudent.js");
+const seedTestCoach = require("./utils/seedTestCoach.js");
 
 const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/students');
@@ -16,6 +18,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://3s-sports-dty3.vercel.app"
   ],
   credentials: true
@@ -42,6 +45,8 @@ const startServer = async () => {
     console.log("MongoDB connected");
 
     await seedSeniorCoach();
+    await seedTestStudent();
+    await seedTestCoach();
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
